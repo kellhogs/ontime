@@ -5,6 +5,7 @@ import EventBlock from '../EventBlock/EventBlock';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 import PropTypes from 'prop-types';
+import EventBlockNew from '../EventBlockNew/EventBlockNew';
 
 const areEqual = (prevProps, nextProps) => {
   return (
@@ -108,16 +109,28 @@ const EventListItem = (props) => {
   switch (type) {
     case 'event':
       return (
-        <EventBlock
-          index={index}
-          eventIndex={eventIndex}
-          data={data}
-          selected={selected}
-          next={next}
-          actionHandler={actionHandler}
+        <EventBlockNew
+          timeStart={data.timeStart}
+          timeEnd={data.timeEnd}
+          duration={data.duration}
+          index={index + 1}
+          isPublic={data.isPublic}
+          title={data.title}
+          note={data.note}
           delay={delay}
-          previousEnd={previousEnd}
+          selected={selected}
+          actionHandler={actionHandler}
         />
+        // <EventBlock
+        //   index={index}
+        //   eventIndex={eventIndex}
+        //   data={data}
+        //   selected={selected}
+        //   next={next}
+        //   actionHandler={actionHandler}
+        //   delay={delay}
+        //   previousEnd={previousEnd}
+        // />
       );
     case 'block':
       return <BlockBlock index={index} data={data} actionHandler={actionHandler} />;

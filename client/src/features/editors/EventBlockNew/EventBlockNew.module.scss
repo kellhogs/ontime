@@ -1,0 +1,38 @@
+@use '../../../styles/main' as *;
+
+.eventBlock {
+  // layout
+  display: grid;
+  grid-template-areas: "binder pb-actions info options";
+  grid-template-columns: 4ch auto 1fr auto;
+
+  // style - text
+
+  // style - colour
+  //background-color: $bg-gray-950;
+
+
+  .binder{
+    // layout
+    grid-area: binder;
+    height: 100%;
+
+    // style - text
+
+    // style - colour
+    background-color: white; // override inline
+    color: black;
+  }
+
+  .playbackActions{
+    grid-area: pb-actions;
+  }
+
+  .eventInfo{
+    grid-area: info;
+  }
+
+  .eventSettings{
+    grid-area: options;
+  }
+}
