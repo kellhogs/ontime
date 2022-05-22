@@ -6,16 +6,19 @@
   grid-template-areas: "binder pb-actions info options";
   grid-template-columns: 4ch auto 1fr auto;
 
-  // style - text
+  // style - general
+  border-radius: 3px;
 
   // style - colour
-  //background-color: $bg-gray-950;
+  background-color: $bg-gray-1000;
 
-
-  .binder{
+  // style - text
+  .binder {
     // layout
     grid-area: binder;
     height: 100%;
+    display: grid;
+    place-content: center;
 
     // style - text
 
@@ -24,15 +27,51 @@
     color: black;
   }
 
-  .playbackActions{
+  .progressBg {
+    // layout
+    display: none;
+    height: 100%;
+    width: 0;
+
+    // style - colour
+    background-color: $ontime-accent;
+  }
+
+  .playbackActions {
+    // layout
     grid-area: pb-actions;
+    display: flex;
+    flex-direction: column;
   }
 
-  .eventInfo{
+  .eventInfo {
     grid-area: info;
+
+    .eventTimers {
+      display: flex;
+      gap: 4px;
+    }
+
+    .eventTitle {
+      display: block;
+
+    }
+
+    .eventNote {
+      display: block;
+      color: #dd6b20;
+    }
   }
 
-  .eventSettings{
+  .eventOptions {
     grid-area: options;
+
+    .eventPlayback {
+
+    }
+
+    .eventActions {
+
+    }
   }
 }

@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { IoAddCircleOutline } from "@react-icons/all-files/io5/IoAddCircleOutline";
 import style from './EventBlockNew.module.scss';
+import EditableTimer from '../../../common/input/EditableTimer';
+import { IconButton } from '@chakra-ui/button';
 
 export default function EventBlockNew(props) {
   const {
@@ -17,26 +20,38 @@ export default function EventBlockNew(props) {
   } = props;
 
   return (
-    <>
-      <div className={style.progressBg} />
-
-      <div className={style.eventBlock}>
-        <div className={style.binder}>
-          {index}
-          <div className={style.drag} />
+    <div className={style.eventBlock}>
+      <div className={style.progressBg} style={{ width: '80%' }} />
+      <div className={style.binder}>
+        {index}
+        <div className={style.drag} />
+      </div>
+      <div className={style.playbackActions}>
+        <IoAddCircleOutline />
+        <IoAddCircleOutline />
+        <IoAddCircleOutline />
+      </div>
+      <div className={style.eventInfo}>
+        <div className={style.eventTimers}>
+          <EditableTimer name="start" actionHandler={() => undefined} validate={() => true} />
+          <EditableTimer name="end" actionHandler={() => undefined} validate={() => true} />
+          <EditableTimer name="duration" actionHandler={() => undefined} validate={() => true} />
         </div>
-        <div className={style.playbackActions}>Playback Actions</div>
-        <div className={style.eventInfo}>
-          <div>Time</div>
-          <div>Title</div>
-          <div>Note</div>
+        <span className={style.eventTitle}>Title</span>
+        <span className={style.eventNote}>Note</span>
+      </div>
+      <div className={style.eventOptions}>
+        <div className={style.eventPlayback}>
+          <IconButton aria-label="none"  size='xs' />
+          <IconButton aria-label="none"  size='xs' />
+          <IconButton aria-label="none"  size='xs' />
         </div>
-        <div className={style.eventOptions}>
-          <div className={style.eventIcons}>Event Icons</div>
-          <div className={style.eventActions}>Event Actions</div>
+        <div className={style.eventActions}>
+          <IconButton aria-label="none"  size='xs' />
+          <IconButton aria-label="none"  size='xs' />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
