@@ -1,9 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { IoAddCircleOutline } from "@react-icons/all-files/io5/IoAddCircleOutline";
+import { IoAddCircleOutline } from '@react-icons/all-files/io5/IoAddCircleOutline';
 import style from './EventBlockNew.module.scss';
 import EditableTimer from '../../../common/input/EditableTimer';
 import { IconButton } from '@chakra-ui/button';
+import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoReload } from '@react-icons/all-files/io5/IoReload';
+import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+
+const blockBtnProps = {
+  size: 'sm',
+  colorScheme: 'blue',
+  variant: 'outline',
+  borderRadius: '3px',
+  fontSize: '20px',
+};
 
 export default function EventBlockNew(props) {
   const {
@@ -24,31 +38,31 @@ export default function EventBlockNew(props) {
       <div className={style.progressBg} style={{ width: '80%' }} />
       <div className={style.binder}>
         {index}
-        <div className={style.drag} />
+        <IoReorderTwo className={style.drag} />
       </div>
       <div className={style.playbackActions}>
-        <IoAddCircleOutline />
-        <IoAddCircleOutline />
-        <IoAddCircleOutline />
+        <IconButton icon={<IoRemoveCircleSharp />} aria-label='skip event' {...blockBtnProps} />
+        <IconButton icon={<IoPlay />} aria-label='start event' {...blockBtnProps} />
+        <IconButton icon={<IoReload />} aria-label='load event' {...blockBtnProps} />
       </div>
       <div className={style.eventInfo}>
         <div className={style.eventTimers}>
-          <EditableTimer name="start" actionHandler={() => undefined} validate={() => true} />
-          <EditableTimer name="end" actionHandler={() => undefined} validate={() => true} />
-          <EditableTimer name="duration" actionHandler={() => undefined} validate={() => true} />
+          <EditableTimer name='start' actionHandler={() => undefined} validate={() => true} />
+          <EditableTimer name='end' actionHandler={() => undefined} validate={() => true} />
+          <EditableTimer name='duration' actionHandler={() => undefined} validate={() => true} />
         </div>
-        <span className={style.eventTitle}>Title</span>
-        <span className={style.eventNote}>Note</span>
+        <span className={style.eventTitle}>Welcome to Ontime</span>
+        <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
       </div>
       <div className={style.eventOptions}>
-        <div className={style.eventPlayback}>
-          <IconButton aria-label="none"  size='xs' />
-          <IconButton aria-label="none"  size='xs' />
-          <IconButton aria-label="none"  size='xs' />
-        </div>
         <div className={style.eventActions}>
-          <IconButton aria-label="none"  size='xs' />
-          <IconButton aria-label="none"  size='xs' />
+          <IconButton icon={<IoAdd />} aria-label='add' {...blockBtnProps} />
+          <IconButton icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnProps} />
+        </div>
+        <div className={style.eventStatus}>
+          <IoAddCircleOutline fontSize='24px' />
+          <IoAddCircleOutline fontSize='24px' />
+          <IoAddCircleOutline fontSize='24px' />
         </div>
       </div>
     </div>

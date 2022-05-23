@@ -1,31 +1,21 @@
 @use '../../../styles/main' as *;
 
+$element-spacing: 4px;
+
 .eventBlock {
   // layout
   display: grid;
   grid-template-areas: "binder pb-actions info options";
-  grid-template-columns: 4ch auto 1fr auto;
+  grid-template-columns: 40px auto 1fr auto;
 
   // style - general
   border-radius: 3px;
+  gap: 8px;
 
   // style - colour
   background-color: $bg-gray-1000;
 
   // style - text
-  .binder {
-    // layout
-    grid-area: binder;
-    height: 100%;
-    display: grid;
-    place-content: center;
-
-    // style - text
-
-    // style - colour
-    background-color: white; // override inline
-    color: black;
-  }
 
   .progressBg {
     // layout
@@ -37,41 +27,87 @@
     background-color: $ontime-accent;
   }
 
+  .binder {
+    // layout
+    grid-area: binder;
+    height: 100%;
+    display: grid;
+    place-content: center;
+    margin-left: 8px;
+
+    // style - general
+    border-radius: 3px 0 0 3px;
+
+    // style - colour
+    background-color: white; // override inline
+    color: black;
+
+    // style - text
+
+    .drag {
+      position: fixed;
+
+      font-size: 24px;
+    }
+
+  }
+
   .playbackActions {
     // layout
     grid-area: pb-actions;
     display: flex;
     flex-direction: column;
+    margin: $element-spacing 0;
+
+    // style - general
+
+    gap: $element-spacing;
+
   }
 
   .eventInfo {
     grid-area: info;
+    margin:  $element-spacing 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     .eventTimers {
       display: flex;
-      gap: 4px;
+      gap: $element-spacing;
     }
 
     .eventTitle {
       display: block;
+      font-size: 20px;
 
     }
 
     .eventNote {
       display: block;
+      font-size: 12px;
       color: #dd6b20;
     }
   }
 
   .eventOptions {
     grid-area: options;
+    display: flex;
+    flex-direction: column;
+    margin: $element-spacing 16px $element-spacing 0;
 
-    .eventPlayback {
-
-    }
 
     .eventActions {
+      display: flex;
+      gap: $element-spacing;
+      justify-content: flex-end;
+    }
 
+    .eventStatus {
+      display: flex;
+      justify-content: flex-end;
+      gap: $element-spacing;
+      margin-top: auto;
     }
   }
 }

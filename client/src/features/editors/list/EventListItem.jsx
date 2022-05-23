@@ -19,17 +19,8 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const EventListItem = (props) => {
-  const {
-    type,
-    index,
-    eventIndex,
-    data,
-    selected,
-    next,
-    eventsHandler,
-    delay,
-    previousEnd,
-  } = props;
+  const { type, index, eventIndex, data, selected, next, eventsHandler, delay, previousEnd } =
+    props;
   const { emitError } = useContext(LoggingContext);
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
 
@@ -109,28 +100,30 @@ const EventListItem = (props) => {
   switch (type) {
     case 'event':
       return (
-        <EventBlockNew
-          timeStart={data.timeStart}
-          timeEnd={data.timeEnd}
-          duration={data.duration}
-          index={index + 1}
-          isPublic={data.isPublic}
-          title={data.title}
-          note={data.note}
-          delay={delay}
-          selected={selected}
-          actionHandler={actionHandler}
-        />
-        // <EventBlock
-        //   index={index}
-        //   eventIndex={eventIndex}
-        //   data={data}
-        //   selected={selected}
-        //   next={next}
-        //   actionHandler={actionHandler}
-        //   delay={delay}
-        //   previousEnd={previousEnd}
-        // />
+        <>
+          <EventBlockNew
+            timeStart={data.timeStart}
+            timeEnd={data.timeEnd}
+            duration={data.duration}
+            index={index + 1}
+            isPublic={data.isPublic}
+            title={data.title}
+            note={data.note}
+            delay={delay}
+            selected={selected}
+            actionHandler={actionHandler}
+          />
+          <EventBlock
+            index={index}
+            eventIndex={eventIndex}
+            data={data}
+            selected={selected}
+            next={next}
+            actionHandler={actionHandler}
+            delay={delay}
+            previousEnd={previousEnd}
+          />
+        </>
       );
     case 'block':
       return <BlockBlock index={index} data={data} actionHandler={actionHandler} />;
@@ -159,5 +152,5 @@ EventListItem.propTypes = {
   next: PropTypes.bool,
   eventsHandler: PropTypes.func,
   delay: PropTypes.number,
-  previousEnd: PropTypes.number
-}
+  previousEnd: PropTypes.number,
+};
