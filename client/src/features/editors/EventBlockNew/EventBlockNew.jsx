@@ -10,6 +10,7 @@ import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 
 const blockBtnProps = {
   size: 'sm',
@@ -45,25 +46,24 @@ export default function EventBlockNew(props) {
         <IconButton icon={<IoPlay />} aria-label='start event' {...blockBtnProps} />
         <IconButton icon={<IoReload />} aria-label='load event' {...blockBtnProps} />
       </div>
-      <div className={style.eventInfo}>
-        <div className={style.eventTimers}>
-          <EditableTimer name='start' actionHandler={() => undefined} validate={() => true} />
-          <EditableTimer name='end' actionHandler={() => undefined} validate={() => true} />
-          <EditableTimer name='duration' actionHandler={() => undefined} validate={() => true} />
-        </div>
-        <span className={style.eventTitle}>Welcome to Ontime</span>
-        <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
+      <div className={style.eventTimers}>
+        <EditableTimer name='start' actionHandler={() => undefined} validate={() => true} />
+        <EditableTimer name='end' actionHandler={() => undefined} validate={() => true} />
+        <EditableTimer name='duration' actionHandler={() => undefined} validate={() => true} />
       </div>
-      <div className={style.eventOptions}>
-        <div className={style.eventActions}>
-          <IconButton icon={<IoAdd />} aria-label='add' {...blockBtnProps} />
-          <IconButton icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnProps} />
-        </div>
-        <div className={style.eventStatus}>
-          <IoAddCircleOutline fontSize='24px' />
-          <IoAddCircleOutline fontSize='24px' />
-          <IoAddCircleOutline fontSize='24px' />
-        </div>
+      <Editable value='Welcome to ontime' className={style.eventTitle}>
+        <EditablePreview />
+        <EditableInput />
+      </Editable>
+      <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
+      <div className={style.eventActions}>
+        <IconButton icon={<IoAdd />} aria-label='add' {...blockBtnProps} />
+        <IconButton icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnProps} />
+      </div>
+      <div className={style.eventStatus}>
+        <IoAddCircleOutline fontSize='24px' />
+        <IoAddCircleOutline fontSize='24px' />
+        <IoAddCircleOutline fontSize='24px' />
       </div>
     </div>
   );
