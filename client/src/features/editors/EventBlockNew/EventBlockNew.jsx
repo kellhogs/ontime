@@ -38,8 +38,8 @@ export default function EventBlockNew(props) {
     <div className={style.eventBlock}>
       <div className={style.progressBg} style={{ width: '80%' }} />
       <div className={style.binder}>
-        {index}
         <IoReorderTwo className={style.drag} />
+        {index}
       </div>
       <div className={style.playbackActions}>
         <IconButton icon={<IoRemoveCircleSharp />} aria-label='skip event' {...blockBtnProps} />
