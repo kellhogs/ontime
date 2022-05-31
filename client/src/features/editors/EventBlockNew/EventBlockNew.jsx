@@ -11,6 +11,7 @@ import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
+import { getAccessibleColour } from '../../../app/utils/styleUtils';
 
 const blockBtnProps = {
   size: 'sm',
@@ -30,14 +31,17 @@ export default function EventBlockNew(props) {
     title,
     note,
     delay,
+    colour = "blue",
     selected,
     actionHandler,
   } = props;
 
+  const binderColours = getAccessibleColour(colour);
+
   return (
     <div className={style.eventBlock}>
       <div className={style.progressBg} style={{ width: '80%' }} />
-      <div className={style.binder}>
+      <div className={style.binder} style={{ ...binderColours }}>
         <IoReorderTwo className={style.drag} />
         {index}
       </div>
@@ -78,6 +82,7 @@ EventBlockNew.propTypes = {
   title: PropTypes.string,
   note: PropTypes.string,
   delay: PropTypes.number,
+  colour: PropTypes.string,
   selected: PropTypes.bool,
   actionHandler: PropTypes.func,
 };
