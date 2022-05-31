@@ -7,7 +7,7 @@ import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
-import { FiDownload } from '@react-icons/all-files/fi/FiDownload';
+import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
@@ -171,7 +171,7 @@ export default function MenuBar(props) {
       />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiDownload />}
+        icon={<FiSave />}
         clickHandler={downloadEvents}
         tooltip='Export event list'
       />
