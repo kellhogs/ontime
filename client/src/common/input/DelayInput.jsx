@@ -46,7 +46,7 @@ export default function DelayInput(props) {
         onChange={(v) => setValue(v)}
         onSubmit={(v) => handleSubmit(v)}
       >
-        <EditablePreview />
+        <EditablePreview className={style.editablePreview} />
         <EditableInput type='number' min='-60' max='60' />
       </Editable>
       <span className={style.label}>{labelText}</span>
