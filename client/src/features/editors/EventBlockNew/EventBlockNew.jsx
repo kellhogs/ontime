@@ -51,8 +51,8 @@ export default function EventBlockNew(props) {
         <EditableTimer name='end' actionHandler={() => undefined} validate={() => true} />
         <EditableTimer name='duration' actionHandler={() => undefined} validate={() => true} />
       </div>
-      <Editable value='Welcome to ontime' className={style.eventTitle}>
-        <EditablePreview />
+      <Editable value='s' className={style.eventTitle}>
+        <EditablePreview style={{ width: '100%' }} />
         <EditableInput />
       </Editable>
       <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
