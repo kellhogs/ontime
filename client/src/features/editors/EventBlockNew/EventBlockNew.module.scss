@@ -71,6 +71,7 @@ $clearance: 8px;
     height: 100%;
     display: grid;
     place-content: center;
+    position: relative;
 
     // style - general
     border-radius: 3px 0 0 3px;
@@ -82,7 +83,7 @@ $clearance: 8px;
     // style - text
 
     .drag {
-      position: fixed;
+      position: absolute;
       text-align: center;
       font-size: 24px;
     }
