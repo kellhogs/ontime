@@ -21,6 +21,14 @@ const blockBtnProps = {
   fontSize: '20px',
 };
 
+function selectPlaybackStyle(playback) {
+  switch (playback) {
+    case 'play': return style.play;
+    case 'pause': return style.pause;
+    default: return ''
+  }
+}
+
 export default function EventBlockNew(props) {
   const {
     timeStart,
@@ -31,16 +39,21 @@ export default function EventBlockNew(props) {
     title,
     note,
     delay,
-    colour = "blue",
+    colour = 'blue',
+    state = 'pause',
     selected,
     actionHandler,
   } = props;
 
   const binderColours = getAccessibleColour(colour);
+  const progress = 0.2;
+  const progressStyle = selectPlaybackStyle(state)
 
   return (
     <div className={style.eventBlock}>
-      <div className={style.progressBg} style={{ width: '80%' }} />
+      <div className={`${style.progressBg} ${progressStyle}`}>
+        <div className={`${style.progressBar} ${progressStyle}`} style={{ width: `${progress * 100}%` }} />
+      </div>
       <div className={style.binder} style={{ ...binderColours }}>
         <IoReorderTwo className={style.drag} />
         {index}
@@ -80,6 +93,7 @@ EventBlockNew.propTypes = {
   index: PropTypes.number,
   isPublic: PropTypes.bool,
   title: PropTypes.string,
+  state: PropTypes.oneOf(['play', 'pause']),
   note: PropTypes.string,
   delay: PropTypes.number,
   colour: PropTypes.string,

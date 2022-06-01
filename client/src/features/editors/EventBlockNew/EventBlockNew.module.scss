@@ -12,7 +12,7 @@ $clearance: 8px;
           "binder pb-actions times actions"
           "binder pb-actions title title  "
           "binder pb-actions notes status "
-          "binder ...        ...   ...    ";
+          "binder progb      progb progb  ";
   grid-template-columns: $binder-width auto 1fr auto;
   grid-template-rows: $element-spacing 36px 36px 36px $element-spacing;
   align-items: center;
@@ -29,14 +29,41 @@ $clearance: 8px;
   // style - text
 
   .progressBg {
-    // layout
-    display: none;
-    height: 100%;
-    width: 0;
+    grid-area: progb;
+    border-radius: 1px;
 
-    // style - colour
-    background-color: $ontime-accent;
+    // layout
+    height: 100%;
+
+    .progressBar {
+      // layout
+      height: 100%;
+      width: 0;
+      border-radius: 1px 0 0 1px;
+
+      // animations
+      transition: 1s linear;
+      transition-property: width;
+
+      &.play {
+        background-color: $ontime-accent;
+      }
+
+      &.pause {
+        background-color: gray;
+      }
+    }
+
+    &.play {
+      // style - colour
+      border-bottom: 1px solid $ontime-accent;
+    }
+    &.pause {
+      // style - colour
+      border-bottom: 1px solid gray;
+    }
   }
+
 
   .binder {
     // layout
