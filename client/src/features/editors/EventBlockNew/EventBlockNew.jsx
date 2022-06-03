@@ -15,6 +15,8 @@ import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
 import style from './EventBlockNew.module.scss';
+import { millisToMinutes } from '../../../common/utils/dateConfig';
+import { stringFromMillis } from '../../../common/utils/time';
 
 const blockBtnStyle = {
   size: 'sm',
@@ -61,8 +63,11 @@ export default function EventBlockNew(props) {
   const progressStyle = selectPlaybackStyle(state);
 
   const isNext = true;
-  const hasDelay = false;
+  const hasDelay = true;
   const hasAutomations = true;
+
+  const delayTime = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
+  const newTime = stringFromMillis(timeStart + delay);
 
   return (
     <div className={style.eventBlock}>
@@ -85,6 +90,13 @@ export default function EventBlockNew(props) {
         <EditableTimer name='start' actionHandler={() => undefined} validate={() => true} />
         <EditableTimer name='end' actionHandler={() => undefined} validate={() => true} />
         <EditableTimer name='duration' actionHandler={() => undefined} validate={() => true} />
+        {hasDelay && (
+          <div className={style.delayNote}>
+            {`${delayTime} minutes`}
+            <br />
+            {`New start: ${newTime}`}
+          </div>
+        )}
       </div>
       <Editable value='s' className={style.eventTitle}>
         <EditablePreview style={{ width: '100%' }} />
