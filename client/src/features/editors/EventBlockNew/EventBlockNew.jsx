@@ -54,6 +54,8 @@ export default function EventBlockNew(props) {
     delay,
     colour = 'blue',
     state = 'pause',
+    loaded = true,
+    skip = false,
     selected,
     actionHandler,
   } = props;
@@ -70,7 +72,7 @@ export default function EventBlockNew(props) {
   const newTime = stringFromMillis(timeStart + delay);
 
   return (
-    <div className={style.eventBlock}>
+    <div className={`${style.eventBlock} ${skip ? style.skip : ''}`}>
       <div className={`${style.progressBg} ${progressStyle}`}>
         <div
           className={`${style.progressBar} ${progressStyle}`}
@@ -82,9 +84,26 @@ export default function EventBlockNew(props) {
         {index}
       </div>
       <div className={style.playbackActions}>
-        <IconButton icon={<IoRemoveCircleSharp />} aria-label='skip event' {...blockBtnStyle} />
-        <IconButton icon={<IoPlay />} aria-label='start event' {...blockBtnStyle} />
-        <IconButton icon={<IoReload />} aria-label='load event' {...blockBtnStyle} />
+        <IconButton
+          icon={<IoRemoveCircleSharp />}
+          aria-label='skip event'
+          {...blockBtnStyle}
+          variant={skip ? 'solid' : 'outline'}
+        />
+        <IconButton
+          icon={<IoPlay />}
+          disabled={skip}
+          aria-label='start event'
+          {...blockBtnStyle}
+          variant={state === 'play' ? 'solid' : 'outline'}
+        />
+        <IconButton
+          icon={<IoReload />}
+          disabled={skip}
+          aria-label='load event'
+          {...blockBtnStyle}
+          variant={loaded ? 'solid' : 'outline'}
+        />
       </div>
       <div className={style.eventTimers}>
         <EditableTimer name='start' actionHandler={() => undefined} validate={() => true} />
@@ -141,6 +160,8 @@ EventBlockNew.propTypes = {
   note: PropTypes.string,
   delay: PropTypes.number,
   colour: PropTypes.string,
+  skip: PropTypes.bool,
+  loaded: PropTypes.bool,
   selected: PropTypes.bool,
   actionHandler: PropTypes.func,
 };

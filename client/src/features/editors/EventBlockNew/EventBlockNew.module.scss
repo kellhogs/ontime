@@ -28,6 +28,23 @@ $clearance: 8px;
 
   // style - text
 
+
+  // variant
+  &.skip {
+    .eventTimers > .delayNote,
+    .eventTitle,
+    .eventNote,
+    {
+      color: $text-gray-disabled;
+    }
+
+    .binder,
+    .eventTimers,
+    .eventStatus{
+      opacity: $opacity-disabled;
+    }
+  }
+
   .progressBg {
     grid-area: progb;
     border-radius: 1px;
@@ -58,6 +75,7 @@ $clearance: 8px;
       // style - colour
       border-bottom: 1px solid $ontime-accent;
     }
+
     &.pause {
       // style - colour
       border-bottom: 1px solid gray;
@@ -141,23 +159,26 @@ $clearance: 8px;
 
     .statusIcon {
       width: 24px;
-      height:24px;
+      height: 24px;
       border-radius: 12px;
       padding: 4px;
       color: $text-gray-disabled;
     }
+
     .statusIcon.statusNext {
       &.enabled {
         color: $ontime-accent;
         background-color: $bg-gray-1100;
       }
     }
+
     .statusIcon.statusDelay {
       &.enabled {
         color: $text-white;
         background-color: $ontime-delay;
       }
     }
+
     .statusIcon.statusAutomation {
       &.enabled {
         color: $text-white;
