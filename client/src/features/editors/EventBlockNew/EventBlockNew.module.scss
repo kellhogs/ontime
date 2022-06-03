@@ -132,8 +132,33 @@ $clearance: 8px;
     display: flex;
     justify-content: flex-end;
     gap: $element-spacing;
-  }
 
+    .statusIcon {
+      width: 24px;
+      height:24px;
+      border-radius: 12px;
+      padding: 4px;
+      color: $text-gray-disabled;
+    }
+    .statusIcon.statusNext {
+      &.enabled {
+        color: $ontime-accent;
+        background-color: $bg-gray-1100;
+      }
+    }
+    .statusIcon.statusDelay {
+      &.enabled {
+        color: $text-white;
+        background-color: $ontime-delay;
+      }
+    }
+    .statusIcon.statusAutomation {
+      &.enabled {
+        color: $text-white;
+        background-color: $ontime-roll;
+      }
+    }
+  }
 
   .eventOptions {
     margin: $element-spacing 16px $element-spacing 0;

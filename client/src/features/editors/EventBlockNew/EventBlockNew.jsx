@@ -1,32 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { IoAddCircleOutline } from '@react-icons/all-files/io5/IoAddCircleOutline';
-import style from './EventBlockNew.module.scss';
 import EditableTimer from '../../../common/input/EditableTimer';
 import { IconButton } from '@chakra-ui/button';
+import { Tooltip } from '@chakra-ui/tooltip';
 import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
-import { IoArrowForwardCircle } from '@react-icons/all-files/io5/IoArrowForwardCircle';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoFlask } from '@react-icons/all-files/io5/IoFlask';
-import { IoHourglassOutline } from '@react-icons/all-files/io5/IoHourglassOutline';
 import { IoReturnDownForward } from '@react-icons/all-files/io5/IoReturnDownForward';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
-import { IoRocketSharp } from '@react-icons/all-files/io5/IoRocketSharp';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
-import { Tooltip } from '@chakra-ui/tooltip';
+import style from './EventBlockNew.module.scss';
 
-const blockBtnProps = {
+const blockBtnStyle = {
   size: 'sm',
   colorScheme: 'blue',
   variant: 'outline',
   borderRadius: '3px',
   fontSize: '20px',
+};
+
+const tooltipProps = {
+  openDelay: 100,
+  shouldWrapChildren: 'disabled',
 };
 
 function selectPlaybackStyle(playback) {
@@ -60,6 +60,10 @@ export default function EventBlockNew(props) {
   const progress = 0.2;
   const progressStyle = selectPlaybackStyle(state);
 
+  const isNext = true;
+  const hasDelay = false;
+  const hasAutomations = true;
+
   return (
     <div className={style.eventBlock}>
       <div className={`${style.progressBg} ${progressStyle}`}>
@@ -73,9 +77,9 @@ export default function EventBlockNew(props) {
         {index}
       </div>
       <div className={style.playbackActions}>
-        <IconButton icon={<IoRemoveCircleSharp />} aria-label='skip event' {...blockBtnProps} />
-        <IconButton icon={<IoPlay />} aria-label='start event' {...blockBtnProps} />
-        <IconButton icon={<IoReload />} aria-label='load event' {...blockBtnProps} />
+        <IconButton icon={<IoRemoveCircleSharp />} aria-label='skip event' {...blockBtnStyle} />
+        <IconButton icon={<IoPlay />} aria-label='start event' {...blockBtnStyle} />
+        <IconButton icon={<IoReload />} aria-label='load event' {...blockBtnStyle} />
       </div>
       <div className={style.eventTimers}>
         <EditableTimer name='start' actionHandler={() => undefined} validate={() => true} />
@@ -88,18 +92,26 @@ export default function EventBlockNew(props) {
       </Editable>
       <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
       <div className={style.eventActions}>
-        <IconButton icon={<IoAdd />} aria-label='add' {...blockBtnProps} />
-        <IconButton icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnProps} />
+        <IconButton icon={<IoAdd />} aria-label='add' {...blockBtnStyle} />
+        <IconButton icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnStyle} />
       </div>
       <div className={style.eventStatus}>
-        <Tooltip openDelay={100} label='Next event' shouldWrapChildren='disabled'>
-          <IoReturnDownForward fontSize='18px' style={{color: "white", background: "#212121", borderRadius: "999px", padding: "2px"}} />
+        <Tooltip label='Next event' isDisabled={!isNext} {...tooltipProps}>
+          <IoReturnDownForward
+            className={`${style.statusIcon} ${style.statusNext} ${isNext ? style.enabled : ''}`}
+          />
         </Tooltip>
-        <Tooltip openDelay={100} label='Event has delay' shouldWrapChildren='disabled'>
-          <IoTimerOutline fontSize='18px' style={{color: "white", background: "#212121", borderRadius: "999px", padding: "2px"}} />
+        <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
+          <IoTimerOutline
+            className={`${style.statusIcon} ${style.statusDelay} ${hasDelay ? style.enabled : ''}`}
+          />
         </Tooltip>
-        <Tooltip openDelay={100} label='Event has automations' shouldWrapChildren='disabled'>
-          <IoLink fontSize='18px' style={{color: "white", background: "#212121", borderRadius: "999px", padding: "2px"}} />
+        <Tooltip label='Event has automations' isDisabled={!hasAutomations} {...tooltipProps}>
+          <IoLink
+            className={`${style.statusIcon} ${style.statusAutomation} ${
+              hasAutomations ? style.enabled : ''
+            }`}
+          />
         </Tooltip>
       </div>
     </div>
