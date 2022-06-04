@@ -1,11 +1,13 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { stringFromMillis } from '../utils/time';
+import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import PropTypes from 'prop-types';
+
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { forgivingStringToMillis } from '../utils/dateConfig';
+import { stringFromMillis } from '../utils/time';
+
 import style from './TimeInput.module.scss'
 
 export default function TimeInput(props) {
@@ -60,25 +62,36 @@ export default function TimeInput(props) {
     }
   },[delay, handleSubmit, time]);
 
-  console.log(value)
+
+  useEffect(() => {
+    if (time == null) return;
+    try {
+      setValue(stringFromMillis(time + delay));
+    } catch (error) {
+      emitError(`Unable to parse date: ${error.text}`);
+    }
+  }, [time, delay, emitError]);
+
+  const isDelayed = delay != null && delay !== 0;
+
   return (
-    <InputGroup size='sm' className={style.timeInput}>
+    <InputGroup size='sm' className={`${style.timeInput} ${isDelayed ? style.delayed : ''}`}>
       <InputLeftElement width='fit-content'>
         <IconButton
           size='sm'
-          icon={<IoAdd />}
-          aria-label='follow previous'
+          icon={<IoLink style={{transform: "rotate(-45deg)"}} />}
+          aria-label='automate'
           colorScheme='blue'
-          style={{borderRadius: '2px', width:'min-content'}}
+          style={{ borderRadius: '2px', width: 'min-content' }}
         />
       </InputLeftElement>
       <Input
         data-testid='time-input'
         className={style.inputField}
         type='text'
-        placeholder=' --:--:-- '
+        placeholder={name}
         variant='filled'
-        style={{borderRadius: '3px'}}
+        style={{ borderRadius: '3px' }}
         onChange={(v) => setValue(v.target.value)}
         onSubmit={(v) => validateValue(v)}
         onCancel={() => setValue(stringFromMillis(time + delay, true))}

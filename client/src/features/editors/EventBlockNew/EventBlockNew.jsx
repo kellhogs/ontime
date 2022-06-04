@@ -1,23 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import EditableTimer from '../../../common/input/EditableTimer';
 import { IconButton } from '@chakra-ui/button';
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoReturnDownForward } from '@react-icons/all-files/io5/IoReturnDownForward';
-import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
+import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
+import { IoReturnDownForward } from '@react-icons/all-files/io5/IoReturnDownForward';
+import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
+import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
+import PropTypes from 'prop-types';
+
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
+
+import EventBlockTimers from './composite/EventBlockTimers';
+
 import style from './EventBlockNew.module.scss';
-import { millisToMinutes } from '../../../common/utils/dateConfig';
-import { stringFromMillis } from '../../../common/utils/time';
-import TimeInput from '../../../common/input/TimeInput';
 
 const blockBtnStyle = {
   size: 'sm',
@@ -66,11 +66,8 @@ export default function EventBlockNew(props) {
   const progressStyle = selectPlaybackStyle(state);
 
   const isNext = true;
-  const hasDelay = true;
+  const hasDelay = delay !== 0 && delay !== null;
   const hasAutomations = true;
-
-  const delayTime = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
-  const newTime = stringFromMillis(timeStart + delay);
 
   return (
     <div className={`${style.eventBlock} ${skip ? style.skip : ''}`}>
@@ -106,18 +103,7 @@ export default function EventBlockNew(props) {
           variant={loaded ? 'solid' : 'outline'}
         />
       </div>
-      <div className={style.eventTimers}>
-        <TimeInput name='start' actionHandler={() => undefined} validate={() => true} />
-        <TimeInput name='end' actionHandler={() => undefined} validate={() => true} />
-        <TimeInput name='duration' actionHandler={() => undefined} validate={() => true} />
-        {hasDelay && (
-          <div className={style.delayNote}>
-            {`${delayTime} minutes`}
-            <br />
-            {`New start: ${newTime}`}
-          </div>
-        )}
-      </div>
+      <EventBlockTimers timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
       <Editable value='s' className={style.eventTitle}>
         <EditablePreview style={{ width: '100%' }} />
         <EditableInput />

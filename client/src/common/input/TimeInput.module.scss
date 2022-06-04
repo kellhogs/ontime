@@ -5,9 +5,14 @@
 
   .inputField {
     background-color: $input-bg;
-    border: $input-delayed-border;
+    border: 1px solid transparent;
     letter-spacing: 1px;
     width: 8em;
     padding: 0 0 0 2.85em;
+    font-size: 1em;
+
+    &.delayed {
+      border: $input-delayed-border;
+    }
   }
 }
