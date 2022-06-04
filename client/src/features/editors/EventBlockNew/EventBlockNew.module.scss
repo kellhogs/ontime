@@ -8,11 +8,11 @@ $clearance: 8px;
   // layout
   display: grid;
   grid-template-areas:
-          "binder ...        ...   ...    "
+          "binder progb      progb progb"
           "binder pb-actions times actions"
-          "binder pb-actions title title  "
-          "binder pb-actions notes status "
-          "binder progb      progb progb  ";
+          "binder pb-actions title title"
+          "binder pb-actions notes status"
+          "binder ...        ...   ...";
   grid-template-columns: $binder-width auto 1fr auto;
   grid-template-rows: $element-spacing 36px 36px 36px $element-spacing;
   align-items: center;
@@ -73,12 +73,12 @@ $clearance: 8px;
 
     &.play {
       // style - colour
-      border-bottom: 1px solid $ontime-accent;
+      border-top: 1px solid $ontime-accent;
     }
 
     &.pause {
       // style - colour
-      border-bottom: 1px solid gray;
+      border-top: 1px solid gray;
     }
   }
 

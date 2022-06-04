@@ -54,7 +54,7 @@ export default function EventBlockNew(props) {
     note,
     delay,
     colour = 'blue',
-    state = 'pause',
+    state = 'play',
     loaded = true,
     skip = false,
     selected,
