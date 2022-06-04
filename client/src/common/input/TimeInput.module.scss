@@ -1,0 +1,13 @@
+@use '../../styles/main'as *;
+
+.timeInput {
+  width: fit-content !important;
+
+  .inputField {
+    background-color: $input-bg;
+    border: $input-delayed-border;
+    letter-spacing: 1px;
+    width: 8em;
+    padding: 0 0 0 2.85em;
+  }
+}

@@ -17,6 +17,7 @@ import { getAccessibleColour } from '../../../app/utils/styleUtils';
 import style from './EventBlockNew.module.scss';
 import { millisToMinutes } from '../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../common/utils/time';
+import TimeInput from '../../../common/input/TimeInput';
 
 const blockBtnStyle = {
   size: 'sm',
@@ -106,9 +107,9 @@ export default function EventBlockNew(props) {
         />
       </div>
       <div className={style.eventTimers}>
-        <EditableTimer name='start' actionHandler={() => undefined} validate={() => true} />
-        <EditableTimer name='end' actionHandler={() => undefined} validate={() => true} />
-        <EditableTimer name='duration' actionHandler={() => undefined} validate={() => true} />
+        <TimeInput name='start' actionHandler={() => undefined} validate={() => true} />
+        <TimeInput name='end' actionHandler={() => undefined} validate={() => true} />
+        <TimeInput name='duration' actionHandler={() => undefined} validate={() => true} />
         {hasDelay && (
           <div className={style.delayNote}>
             {`${delayTime} minutes`}

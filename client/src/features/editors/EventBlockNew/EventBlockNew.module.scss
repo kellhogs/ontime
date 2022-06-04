@@ -122,6 +122,7 @@ $clearance: 8px;
     display: flex;
     align-items: center;
     gap: $clearance;
+    height: 100%;
 
     .delayNote {
       font-size: 10px;
