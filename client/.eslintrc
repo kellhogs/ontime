@@ -78,7 +78,11 @@
         "customValidators": [],
         "skipUndeclared": true
       }
-    ]
+    ],
+    "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
+    "import/no-duplicates": "error"
+
   },
   "overrides": [
     // override "simple-import-sort" config
