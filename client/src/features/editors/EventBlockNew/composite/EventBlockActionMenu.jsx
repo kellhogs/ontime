@@ -1,13 +1,16 @@
 import React from 'react';
 import { IconButton } from '@chakra-ui/button';
+import { Divider } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { FiClock } from '@react-icons/all-files/fi/FiClock';
 import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
 import { FiPlus } from '@react-icons/all-files/fi/FiPlus';
+import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
+import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
+import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
 
-export default function ActionButtons(props) {
+export default function EventBlockActionMenu(props) {
   const { showAdd, showDelay, showBlock, actionHandler } = props;
 
   const menuStyle = {
@@ -15,26 +18,28 @@ export default function ActionButtons(props) {
     backgroundColor: 'rgba(255,255,255,1)',
   };
 
+  const blockBtnStyle = {
+    size: 'sm',
+    colorScheme: 'blue',
+    variant: 'outline',
+    borderRadius: '3px',
+    fontSize: '20px',
+  };
+
   return (
     <Menu isLazy lazyBehavior='unmount'>
       <Tooltip label='Add ...' delay={500}>
-        <MenuButton
-          as={IconButton}
-          aria-label='Options'
-          size='xs'
-          icon={<FiPlus />}
-          _expanded={{ bg: 'orange.300', color: 'white' }}
-          _focus={{ boxShadow: 'none' }}
-          backgroundColor='orange.200'
-          color='orange.500'
-        />
+        <MenuButton as={IconButton} aria-label='Options' icon={<FiPlus />} {...blockBtnStyle} />
       </Tooltip>
       <MenuList style={menuStyle}>
         <MenuItem icon={<FiPlus />} onClick={() => actionHandler('event')} isDisabled={!showAdd}>
           Add Event after
         </MenuItem>
-
-        <MenuItem icon={<FiClock />} onClick={() => actionHandler('delay')} isDisabled={!showDelay}>
+        <MenuItem
+          icon={<IoTimerOutline />}
+          onClick={() => actionHandler('delay')}
+          isDisabled={!showDelay}
+        >
           Add Delay after
         </MenuItem>
         <MenuItem
@@ -44,14 +49,31 @@ export default function ActionButtons(props) {
         >
           Add Block after
         </MenuItem>
+        <MenuItem
+          icon={<IoDuplicateOutline />}
+          onClick={() => actionHandler('duplicate')}
+          isDisabled={!showBlock}
+        >
+          Duplicate event
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          icon={<FiTrash2 />}
+          onClick={() => actionHandler('delete')}
+          isDisabled={!showBlock}
+          color='red.500'
+        >
+          Delete event
+        </MenuItem>
       </MenuList>
     </Menu>
   );
 }
 
-ActionButtons.propTypes = {
+EventBlockActionMenu.propTypes = {
   showAdd: PropTypes.bool,
   showDelay: PropTypes.bool,
   showBlock: PropTypes.bool,
   actionHandler: PropTypes.func,
-}
+};
+

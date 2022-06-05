@@ -2,7 +2,6 @@ import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
@@ -15,6 +14,7 @@ import PropTypes from 'prop-types';
 
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
 
+import EventBlockActionMenu from './composite/EventBlockActionMenu';
 import EventBlockTimers from './composite/EventBlockTimers';
 
 import style from './EventBlockNew.module.scss';
@@ -110,8 +110,8 @@ export default function EventBlockNew(props) {
       </Editable>
       <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
       <div className={style.eventActions}>
-        <IconButton icon={<IoAdd />} aria-label='add' {...blockBtnStyle} />
-        <IconButton icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnStyle} />
+        <IconButton  icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnStyle} />
+        <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
       </div>
       <div className={style.eventStatus}>
         <Tooltip label='Next event' isDisabled={!isNext} {...tooltipProps}>
