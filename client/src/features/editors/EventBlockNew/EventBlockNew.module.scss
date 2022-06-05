@@ -16,6 +16,7 @@ $clearance: 8px;
   grid-template-columns: $binder-width auto 1fr auto;
   grid-template-rows: $element-spacing 36px 36px 36px $element-spacing;
   align-items: center;
+  margin-top: 4px;
   padding-right: $clearance;
 
   // style - general

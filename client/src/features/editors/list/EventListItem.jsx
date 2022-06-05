@@ -1,10 +1,10 @@
 import React, { memo, useCallback, useContext } from 'react';
-import DelayBlock from '../DelayBlock/DelayBlock';
-import BlockBlock from '../BlockBlock/BlockBlock';
-import EventBlock from '../EventBlock/EventBlock';
-import { LoggingContext } from '../../../app/context/LoggingContext';
-import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 import PropTypes from 'prop-types';
+
+import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import { LoggingContext } from '../../../app/context/LoggingContext';
+import BlockBlock from '../BlockBlock/BlockBlock';
+import DelayBlock from '../DelayBlock/DelayBlock';
 import EventBlockNew from '../EventBlockNew/EventBlockNew';
 
 const areEqual = (prevProps, nextProps) => {
@@ -113,16 +113,16 @@ const EventListItem = (props) => {
             selected={selected}
             actionHandler={actionHandler}
           />
-          <EventBlock
-            index={index}
-            eventIndex={eventIndex}
-            data={data}
-            selected={selected}
-            next={next}
-            actionHandler={actionHandler}
-            delay={delay}
-            previousEnd={previousEnd}
-          />
+          {/*<EventBlock*/}
+          {/*  index={index}*/}
+          {/*  eventIndex={eventIndex}*/}
+          {/*  data={data}*/}
+          {/*  selected={selected}*/}
+          {/*  next={next}*/}
+          {/*  actionHandler={actionHandler}*/}
+          {/*  delay={delay}*/}
+          {/*  previousEnd={previousEnd}*/}
+          {/*/>*/}
         </>
       );
     case 'block':
