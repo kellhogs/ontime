@@ -2,7 +2,7 @@ import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
+import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
@@ -49,7 +49,7 @@ export default function EventBlockNew(props) {
     timeEnd,
     duration,
     index,
-    isPublic,
+    isPublic = true,
     title,
     note,
     delay,
@@ -67,7 +67,6 @@ export default function EventBlockNew(props) {
 
   const isNext = true;
   const hasDelay = delay !== 0 && delay !== null;
-  const hasAutomations = true;
 
   return (
     <div className={`${style.eventBlock} ${skip ? style.skip : ''}`}>
@@ -124,11 +123,9 @@ export default function EventBlockNew(props) {
             className={`${style.statusIcon} ${style.statusDelay} ${hasDelay ? style.enabled : ''}`}
           />
         </Tooltip>
-        <Tooltip label='Event has automations' isDisabled={!hasAutomations} {...tooltipProps}>
-          <IoLink
-            className={`${style.statusIcon} ${style.statusAutomation} ${
-              hasAutomations ? style.enabled : ''
-            }`}
+        <Tooltip label={`${isPublic? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
+          <FiUsers
+            className={`${style.statusIcon} ${style.statusPublic} ${isPublic ? style.enabled : ''}`}
           />
         </Tooltip>
       </div>
