@@ -1,18 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
-import { clamp } from '../../app/utils/math';
-import style from './TimeInput.module.css';
+import { Input } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+
+import { clamp } from '../../app/utils/math';
+
+import style from './TimeInput.module.css';
 
 const inputProps = {
   width: 20,
-  fontWeight: 400,
-  backgroundColor: 'rgba(0,0,0,0.05)',
+  backgroundColor: 'rgba(255,255,255,0.13)',
   color: '#fff',
   border: '1px solid #ecc94b55',
-  borderRadius: '8px',
+  variant: 'filled',
+  borderRadius: '3px',
   placeholder: '-',
   textAlign: 'center',
+  size: 'sm',
 };
 
 export default function DelayInput(props) {
@@ -36,19 +39,26 @@ export default function DelayInput(props) {
     [actionHandler, value]
   );
 
-  const labelText = `minutes ${value >= 0 ? 'delayed' : 'ahead'}`;
+  const labelText = `${Math.abs(value) > 1 ? 'minutes' : 'minute'} ${
+    value >= 0 ? 'delayed' : 'ahead'
+  }`;
 
   return (
     <div className={style.timeInput}>
-      <Editable
+      <Input
+        data-testid='delay-input'
         {...inputProps}
         value={_value}
-        onChange={(v) => setValue(v)}
-        onSubmit={(v) => handleSubmit(v)}
-      >
-        <EditablePreview className={style.editablePreview} />
-        <EditableInput type='number' min='-60' max='60' />
-      </Editable>
+        onChange={(event) => setValue(event.target.value)}
+        onBlur={(event) => handleSubmit(event.target.value)}
+        onKeyPress={(event) => {
+          console.log(event)
+          if (event.key === 'Enter') {
+            handleSubmit(event.target.value);
+          }
+        }}
+        type='number'
+      />
       <span className={style.label}>{labelText}</span>
     </div>
   );

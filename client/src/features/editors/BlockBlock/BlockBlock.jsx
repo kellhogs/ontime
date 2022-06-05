@@ -1,12 +1,18 @@
 import React from 'react';
-import { HStack } from '@chakra-ui/react';
 import { Draggable } from 'react-beautiful-dnd';
+import { HStack } from '@chakra-ui/react';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
-import { FiMoreVertical } from '@react-icons/all-files/fi/FiMoreVertical';
+import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import PropTypes from 'prop-types';
+
 import ActionButtons from '../../../common/components/buttons/ActionButtons';
 import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
-import PropTypes from 'prop-types';
+
 import style from './BlockBlock.module.scss';
+
+const btnStyle = {
+  borderRadius: '3px',
+};
 
 export default function BlockBlock(props) {
   const { index, data, actionHandler } = props;
@@ -14,21 +20,18 @@ export default function BlockBlock(props) {
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
-        <div
-          className={style.block}
-          {...provided.draggableProps}
-          ref={provided.innerRef}
-        >
+        <div className={style.block} {...provided.draggableProps} ref={provided.innerRef}>
           <span className={style.drag} {...provided.dragHandleProps}>
-            <FiMoreVertical />
+            <IoReorderTwo />
           </span>
-          <HStack spacing='0.5em' className={style.actionOverlay}>
+          <HStack spacing='4px' className={style.actionOverlay}>
             <TooltipLoadingActionBtn
               clickHandler={() => actionHandler('delete')}
               icon={<IoRemove />}
               colorScheme='red'
               tooltip='Delete'
               _hover={{ bg: 'red.400' }}
+              {...btnStyle}
             />
             <ActionButtons showAdd showDelay actionHandler={actionHandler} />
           </HStack>
@@ -37,7 +40,6 @@ export default function BlockBlock(props) {
     </Draggable>
   );
 }
-
 
 BlockBlock.propTypes = {
   index: PropTypes.number.isRequired,

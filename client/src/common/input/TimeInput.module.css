@@ -1,13 +1,9 @@
 .timeInput {
   display: flex;
-  font-size: 15px;
+  align-items: center;
 }
 
 .label {
-  padding-left: 0.8em;
-  align-self: center;
-}
-
-.editablePreview {
-  width: 100%;
+  padding-left: 16px;
+  font-size: 14px;
 }

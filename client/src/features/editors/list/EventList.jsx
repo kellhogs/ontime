@@ -21,19 +21,22 @@ export default function EventList(props) {
   const cursorRef = createRef();
   const { showQuickEntry } = useContext(LocalEventSettingsContext);
 
-  const insertAtCursor = useCallback((type, cursor) => {
-    if (cursor === -1) {
-      eventsHandler('add', { type: type });
-    } else {
-      const previousEvent = events[cursor];
-      const nextEvent = events[cursor + 1];
-      if (type === 'event') {
-        eventsHandler('add', { type: type, after: previousEvent.id });
-      } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
-        eventsHandler('add', { type: type, after: previousEvent.id });
+  const insertAtCursor = useCallback(
+    (type, cursor) => {
+      if (cursor === -1) {
+        eventsHandler('add', { type: type });
+      } else {
+        const previousEvent = events[cursor];
+        const nextEvent = events[cursor + 1];
+        if (type === 'event') {
+          eventsHandler('add', { type: type, after: previousEvent.id });
+        } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
+          eventsHandler('add', { type: type, after: previousEvent.id });
+        }
       }
-    }
-  },[events, eventsHandler])
+    },
+    [events, eventsHandler]
+  );
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -54,19 +57,19 @@ export default function EventList(props) {
         if (e.key === 'e' || e.key === 'E') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('event', cursor)
+          insertAtCursor('event', cursor);
         }
         // D
         if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('delay', cursor)
+          insertAtCursor('delay', cursor);
         }
         // B
         if (e.key === 'b' || e.key === 'B') {
           e.preventDefault();
           if (cursor == null) return;
-          insertAtCursor('block', cursor)
+          insertAtCursor('block', cursor);
         }
       }
     },
@@ -193,7 +196,10 @@ export default function EventList(props) {
                 }
                 const isLast = index === events.length - 1;
                 return (
-                  <div key={e.id}>
+                  <div
+                    key={e.id}
+                    className={`${e.type === 'event' && cumulativeDelay !== 0 ? style.tst : ''}`}
+                  >
                     {index === 0 && showQuickEntry && (
                       <EntryBlock index={e.id} eventsHandler={eventsHandler} />
                     )}

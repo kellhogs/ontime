@@ -1,8 +1,5 @@
 @use '../../../styles/main' as *;
-
-$element-spacing: 4px;
-$binder-width: 40px;
-$clearance: 8px;
+@use '../blockMixins' as *;
 
 .eventBlock {
   // layout
@@ -16,15 +13,16 @@ $clearance: 8px;
   grid-template-columns: $binder-width auto 1fr auto;
   grid-template-rows: $element-spacing 36px 36px 36px $element-spacing;
   align-items: center;
-  margin-top: 4px;
+  margin-top: $block-gap;
+  margin-left: 2px;
+  margin-right: 2px;
   padding-right: $clearance;
 
   // style - general
-  border-radius: 3px;
+  border-radius: $block-border-radius;
   gap: 2px;
 
   // style - colour
-  border: $block-border;
   background-color: $bg-gray-1000;
 
   // style - text
@@ -104,7 +102,7 @@ $clearance: 8px;
     .drag {
       position: absolute;
       text-align: center;
-      font-size: 24px;
+      font-size: 20px;
     }
   }
 
