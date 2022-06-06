@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { clamp } from '../../app/utils/math';
 
-import style from './TimeInput.module.css';
+import style from './TimeInput.module.scss';
 
 const inputProps = {
   width: 20,
@@ -44,9 +44,10 @@ export default function DelayInput(props) {
   }`;
 
   return (
-    <div className={style.timeInput}>
+    <div className={style.delayInput}>
       <Input
         data-testid='delay-input'
+        className={style.inputField}
         {...inputProps}
         value={_value}
         onChange={(event) => setValue(event.target.value)}

@@ -14,11 +14,6 @@ import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipL
 
 import style from './DelayBlock.module.scss';
 
-
-const btnStyle = {
-  borderRadius: '3px',
-};
-
 export default function DelayBlock(props) {
   const { eventsHandler, data, index, actionHandler } = props;
 

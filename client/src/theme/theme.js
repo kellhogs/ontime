@@ -7,6 +7,14 @@ const theme = extendTheme({
         borderRadius: '4px',
       },
     },
+    Input: {
+      baseStyle: {
+        borderRadius: '4px',
+        _hover: {
+          backgroundColor: 'red',
+        }
+      },
+    },
   },
 });
 
