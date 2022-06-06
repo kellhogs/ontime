@@ -1,14 +1,15 @@
 import React, { memo, useCallback, useContext } from 'react';
 import { ButtonGroup, HStack } from '@chakra-ui/react';
-import { CursorContext } from '../../app/context/CursorContext';
-import { FiChevronsUp } from '@react-icons/all-files/fi/FiChevronsUp';
-import { FiChevronsDown } from '@react-icons/all-files/fi/FiChevronsDown';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
-import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
 import { IoCaretDown } from '@react-icons/all-files/io5/IoCaretDown';
-import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
-import MenuActionButtons from './MenuActionButtons';
+import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
 import PropTypes from 'prop-types';
+
+import { CursorContext } from '../../app/context/CursorContext';
+import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+
+import MenuActionButtons from './MenuActionButtons';
+
 import style from './EventListMenu.module.css';
 
 const EventListMenu = ({ eventsHandler }) => {
@@ -46,11 +47,6 @@ const EventListMenu = ({ eventsHandler }) => {
     [eventsHandler, moveCursorDown, moveCursorUp, toggleCursorLocked]
   );
 
-  const collapsingBtnProps = {
-    variant: 'outline',
-    size: 'sm',
-  };
-
   const cursorBtnProps = {
     size: 'sm',
     color: 'pink.300',
@@ -60,22 +56,6 @@ const EventListMenu = ({ eventsHandler }) => {
 
   return (
     <HStack className={style.headerButtons}>
-      <ButtonGroup isAttached>
-        <TooltipActionBtn
-          clickHandler={() => eventsHandler('expandall')}
-          icon={<FiChevronsDown />}
-          tooltip='Expand All'
-          _hover={{ bg: '#ebedf0', color: '#333' }}
-          {...collapsingBtnProps}
-        />
-        <TooltipActionBtn
-          clickHandler={() => eventsHandler('collapseall')}
-          icon={<FiChevronsUp />}
-          tooltip='Collapse All'
-          _hover={{ bg: '#ebedf0', color: '#333' }}
-          {...collapsingBtnProps}
-        />
-      </ButtonGroup>
       <ButtonGroup isAttached>
         <TooltipActionBtn
           {...cursorBtnProps}

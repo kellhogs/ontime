@@ -16,11 +16,12 @@
 }
 
 .create {
+  background-color: $bg-gray-1100;
+
   padding: 0 0.5em;
   box-sizing: border-box;
 
   width: 100%;
-  border-radius: 8px;
   font-size: 12px;
 
   position: relative;
