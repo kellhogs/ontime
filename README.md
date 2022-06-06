@@ -6,7 +6,7 @@
 <div style="display: flex; justify-content: space-around">
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS.dmg"><img alt="Download MacOS" src="https://github.com/cpvalente/ontime/blob/master/.github/mac-download.png"/></a>
   <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe"><img alt="Download Windows" src="https://github.com/cpvalente/ontime/blob/master/.github/win-download.png"/></a>
-  <img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/linux-download.png"/>
+  <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage"><img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/linux-download.png"/></a>
 </div>
 
 # Ontime
@@ -126,7 +126,6 @@ friendly order unless there is user demand to bump any of them.
 - [ ] Improvement with event component design
 - [ ] New playback mode
   for [cumulative time keeping](https://github.com/cpvalente/ontime/issues/100)
-- [ ] Linux version
 - [ ] Headless version (run server only anywhere, configure from a browser locally)
 - [ ] Companion module
 - [ ] Lower Third Manager
@@ -144,12 +143,25 @@ device and its screen resolution
 When installing the app you would see warning screens from the Operating System like:
 
 ```Microsoft Defender SmartScreen prevented an unrecognised app from starting. Running this app might put your PC at risk.```
+
 or
+
 ```Ontime can't be opened because it is from an unidentified developer```
+
+or in Linux
+
+```Could Not Display "ontime-linux.AppImage```
+
+You can circumvent this by allowing the execution of the app manually. 
+- In Windows: click more and select "Run Anyway"
+- in macOS: after attempting to run the installer, navigate to System Preferences ->  Security & Privacy and allow the execution of the app
+- In Linux: right-click the AppImage file -> Properties -> Permissions -> select Allow Executing File as a Program
+
 Long story short: Ontime app is unsigned. </br>Purchasing the certificates for both Mac and Windows
 would mean a recurrent expense and is not a priority. This is unlikely to change in future. If you
 have tips on how to improve this, or would like to sponsor the code signing,
 please [open an issue, so we can discuss it](https://github.com/cpvalente/ontime/issues/new)
+
 
 #### Safari
 
