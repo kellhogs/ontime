@@ -27,7 +27,6 @@ export default function ActionButtons(props) {
           _focus={{ boxShadow: 'none' }}
           backgroundColor='orange.200'
           color='orange.500'
-          borderRadius='3px'
         />
       </Tooltip>
       <MenuList style={menuStyle}>

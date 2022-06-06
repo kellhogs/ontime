@@ -10,10 +10,6 @@ import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipL
 
 import style from './BlockBlock.module.scss';
 
-const btnStyle = {
-  borderRadius: '3px',
-};
-
 export default function BlockBlock(props) {
   const { index, data, actionHandler } = props;
 
@@ -31,7 +27,6 @@ export default function BlockBlock(props) {
               colorScheme='red'
               tooltip='Delete'
               _hover={{ bg: 'red.400' }}
-              {...btnStyle}
             />
             <ActionButtons showAdd showDelay actionHandler={actionHandler} />
           </HStack>
