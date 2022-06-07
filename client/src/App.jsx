@@ -1,11 +1,14 @@
 import React, { lazy, Suspense, useCallback, useEffect } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import './App.scss';
-import withSocket from 'features/viewers/ViewWrapper';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
-import { useFetch } from './app/hooks/useFetch';
+import withSocket from 'features/viewers/ViewWrapper';
+
 import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
+import { EventDrawerProvider } from './app/context/EventDrawerContext';
+import { useFetch } from './app/hooks/useFetch';
+
+import './App.scss';
 
 const Editor = lazy(() => import('features/editors/ProtectedEditor'));
 const Table = lazy(() => import('features/table/ProtectedTable'));
@@ -100,7 +103,14 @@ function App() {
             <Route path='/lower' element={<SLowerThird />} />
 
             {/*/!* Protected Routes *!/*/}
-            <Route path='/editor' element={<Editor />} />
+            <Route
+              path='/editor'
+              element={
+                <EventDrawerProvider>
+                  <Editor />
+                </EventDrawerProvider>
+              }
+            />
             <Route path='/cuesheet' element={<Table />} />
             <Route path='/cuelist' element={<Table />} />
             <Route path='/table' element={<Table />} />

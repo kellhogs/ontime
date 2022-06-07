@@ -2,6 +2,7 @@ import React, { createRef, useCallback, useContext, useEffect, useState } from '
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { useSocket } from 'app/context/socketContext';
 import Empty from 'common/state/Empty';
+import PropTypes from 'prop-types';
 
 import { CursorContext } from '../../../app/context/CursorContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
@@ -240,3 +241,8 @@ export default function EventList(props) {
     </div>
   );
 }
+
+EventList.propTypes = {
+  events: PropTypes.array,
+  eventsHandler: PropTypes.func,
+};

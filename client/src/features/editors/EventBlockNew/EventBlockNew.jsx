@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
@@ -12,6 +12,7 @@ import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
 
+import { EventDrawerContext } from '../../../app/context/EventDrawerContext';
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
 
 import EventBlockActionMenu from './composite/EventBlockActionMenu';
@@ -61,6 +62,8 @@ export default function EventBlockNew(props) {
     actionHandler,
   } = props;
 
+  const { toggleOpen } = useContext(EventDrawerContext);
+
   const binderColours = getAccessibleColour(colour);
   const progress = 0.2;
   const progressStyle = selectPlaybackStyle(state);
@@ -109,7 +112,12 @@ export default function EventBlockNew(props) {
       </Editable>
       <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
       <div className={style.eventActions}>
-        <IconButton  icon={<IoSettingsSharp />} aria-label='event options' {...blockBtnStyle} />
+        <IconButton
+          icon={<IoSettingsSharp />}
+          aria-label='event options'
+          onClick={() => toggleOpen()}
+          {...blockBtnStyle}
+        />
         <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
       </div>
       <div className={style.eventStatus}>
@@ -123,7 +131,7 @@ export default function EventBlockNew(props) {
             className={`${style.statusIcon} ${style.statusDelay} ${hasDelay ? style.enabled : ''}`}
           />
         </Tooltip>
-        <Tooltip label={`${isPublic? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
+        <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
           <FiUsers
             className={`${style.statusIcon} ${style.statusPublic} ${isPublic ? style.enabled : ''}`}
           />
