@@ -5,7 +5,7 @@ import withSocket from 'features/viewers/ViewWrapper';
 
 import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
-import { EventDrawerProvider } from './app/context/EventDrawerContext';
+import { EventEditorProvider } from './app/context/EventEditorContext';
 import { useFetch } from './app/hooks/useFetch';
 
 import './App.scss';
@@ -106,9 +106,9 @@ function App() {
             <Route
               path='/editor'
               element={
-                <EventDrawerProvider>
+                <EventEditorProvider>
                   <Editor />
-                </EventDrawerProvider>
+                </EventEditorProvider>
               }
             />
             <Route path='/cuesheet' element={<Table />} />

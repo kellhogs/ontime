@@ -1,15 +1,15 @@
 import React, { createContext, useCallback, useState } from 'react';
 
-export const EventDrawerContext = createContext({
+export const EventEditorContext = createContext({
   isOpen: false,
   toggleOpen: () => undefined,
 });
 
-export const EventDrawerProvider = ({ children }) => {
+export const EventEditorProvider = ({ children }) => {
   const [isOpen, setOpen] = useState(false);
 
   /**
-   * @description Sets open state of event drawer element
+   * @description Sets open state of event editor element
    * @param {boolean | undefined} newValue
    */
   const toggleOpen = useCallback((newValue) => {
@@ -21,13 +21,13 @@ export const EventDrawerProvider = ({ children }) => {
   }, []);
 
   return (
-    <EventDrawerContext.Provider
+    <EventEditorContext.Provider
       value={{
         isOpen,
         toggleOpen,
       }}
     >
       {children}
-    </EventDrawerContext.Provider>
+    </EventEditorContext.Provider>
   );
 };

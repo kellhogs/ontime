@@ -12,7 +12,7 @@ import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
 
-import { EventDrawerContext } from '../../../app/context/EventDrawerContext';
+import { EventEditorContext } from '../../../app/context/EventEditorContext';
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
 
 import EventBlockActionMenu from './composite/EventBlockActionMenu';
@@ -62,7 +62,7 @@ export default function EventBlockNew(props) {
     actionHandler,
   } = props;
 
-  const { toggleOpen } = useContext(EventDrawerContext);
+  const { toggleOpen } = useContext(EventEditorContext);
 
   const binderColours = getAccessibleColour(colour);
   const progress = 0.2;

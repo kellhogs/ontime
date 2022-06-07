@@ -4,10 +4,9 @@ import { Box } from '@chakra-ui/layout';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import ModalManager from 'features/modals/ModalManager';
 
-import { EventDrawerContext } from '../../app/context/EventDrawerContext';
+import { EventEditorContext } from '../../app/context/EventEditorContext';
 import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
 import { LoggingProvider } from '../../app/context/LoggingContext';
-import EventDrawer from '../eventDrawer/EventDrawer';
 import MenuBar from '../menu/MenuBar';
 
 import styles from './Editor.module.scss';
@@ -16,10 +15,11 @@ const EventList = lazy(() => import('features/editors/list/EventListExport'));
 const TimerControl = lazy(() => import('features/control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('features/control/message/MessageControlExport'));
 const Info = lazy(() => import('features/info/InfoExport'));
+const EventEditor = lazy(() => import('features/event-editor/EventEditorExport'));
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isEventDrawerOpen, toggleOpen: setEventDrawerOpen } = useContext(EventDrawerContext);
+  const { isOpen: isEventDrawerOpen  } = useContext(EventEditorContext);
 
   // Set window title
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Editor() {
           <MessageControl />
           <TimerControl />
           <Info />
-          <EventDrawer isOpen={isEventDrawerOpen} onClose={() => setEventDrawerOpen(false)} />
+          {isEventDrawerOpen ? <EventEditor /> : <Info />}
         </div>
       </LocalEventSettingsProvider>
     </LoggingProvider>
