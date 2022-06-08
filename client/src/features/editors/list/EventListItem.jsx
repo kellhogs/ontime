@@ -5,7 +5,7 @@ import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettin
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import BlockBlock from '../BlockBlock/BlockBlock';
 import DelayBlock from '../DelayBlock/DelayBlock';
-import EventBlockNew from '../EventBlockNew/EventBlockNew';
+import EventBlock from '../EventBlock/EventBlock';
 
 const areEqual = (prevProps, nextProps) => {
   return (
@@ -101,7 +101,7 @@ const EventListItem = (props) => {
     case 'event':
       return (
         <>
-          <EventBlockNew
+          <EventBlock
             timeStart={data.timeStart}
             timeEnd={data.timeEnd}
             duration={data.duration}

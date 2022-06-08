@@ -5,7 +5,7 @@ import TimeInput from '../../../../common/input/TimeInput';
 import { millisToMinutes } from '../../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../../common/utils/time';
 
-import style from '../EventBlockNew.module.scss';
+import style from '../EventBlock.module.scss';
 
 export default function EventBlockTimers(props) {
   const { timeStart, timeEnd, duration, delay } = props;

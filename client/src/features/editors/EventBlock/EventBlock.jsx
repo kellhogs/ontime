@@ -1,76 +1,159 @@
-import React, { useContext, useMemo } from 'react';
-import Icon from '@chakra-ui/icon';
-import { FiChevronUp } from '@react-icons/all-files/fi/FiChevronUp';
-import { Draggable } from 'react-beautiful-dnd';
-import { millisToMinutes } from 'common/utils/dateConfig';
+import React, { useContext } from 'react';
+import { IconButton } from '@chakra-ui/button';
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
+import { Tooltip } from '@chakra-ui/tooltip';
+import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
+import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { IoReload } from '@react-icons/all-files/io5/IoReload';
+import { IoRemoveCircleSharp } from '@react-icons/all-files/io5/IoRemoveCircleSharp';
+import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { IoReturnDownForward } from '@react-icons/all-files/io5/IoReturnDownForward';
+import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
+import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
-import { CollapseContext } from '../../../app/context/CollapseContext';
-import CollapsedBlock from './CollapsedBlock';
-import ExpandedBlock from './ExpandedBlock';
+
+import { EventEditorContext } from '../../../app/context/EventEditorContext';
+import { getAccessibleColour } from '../../../app/utils/styleUtils';
+
+import EventBlockActionMenu from './composite/EventBlockActionMenu';
+import EventBlockTimers from './composite/EventBlockTimers';
+
 import style from './EventBlock.module.scss';
 
-export default function EventBlock(props) {
-  const { data, selected, delay, index, eventIndex, previousEnd, actionHandler, next } = props;
-  const { isCollapsed, setCollapsed } = useContext(CollapseContext);
-  const collapsed = useMemo(() => isCollapsed(data.id), [data.id, isCollapsed]);
+const blockBtnStyle = {
+  size: 'sm',
+  colorScheme: 'blue',
+  variant: 'outline',
+  borderRadius: '3px',
+  fontSize: '20px',
+};
 
-  const selectedStyle = selected ? style.active : '';
-  const collapsedStyle = collapsed ? style.collapsed : style.expanded;
-  const classSelect = `${style.event} ${collapsedStyle} ${selectedStyle}`;
+const tooltipProps = {
+  openDelay: 100,
+  shouldWrapChildren: 'disabled',
+};
 
-  // Calculate delay in min
-  let delayValue = null;
-  if (delay != null && delay !== 0) {
-    delayValue = `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))}`;
+function selectPlaybackStyle(playback) {
+  switch (playback) {
+    case 'play':
+      return style.play;
+    case 'pause':
+      return style.pause;
+    default:
+      return '';
   }
-  const handleCollapse = (isCollapsed) => {
-    setCollapsed(data.id, isCollapsed);
-  };
+}
+
+export default function EventBlock(props) {
+  const {
+    timeStart,
+    timeEnd,
+    duration,
+    index,
+    isPublic = true,
+    title,
+    note,
+    delay,
+    colour = 'blue',
+    state = 'play',
+    loaded = true,
+    skip = false,
+    selected,
+    actionHandler,
+  } = props;
+
+  const { toggleOpen } = useContext(EventEditorContext);
+
+  const binderColours = getAccessibleColour(colour);
+  const progress = 0.2;
+  const progressStyle = selectPlaybackStyle(state);
+
+  const isNext = true;
+  const hasDelay = delay !== 0 && delay !== null;
 
   return (
-    <Draggable key={data.id} draggableId={data.id} index={index}>
-      {(provided) => (
-        <div className={classSelect} {...provided.draggableProps} ref={provided.innerRef}>
-          <Icon
-            className={collapsed ? style.moreCollapsed : style.moreExpanded}
-            as={FiChevronUp}
-            onClick={() => handleCollapse(!collapsed)}
+    <div className={`${style.eventBlock} ${skip ? style.skip : ''}`}>
+      <div className={`${style.progressBg} ${progressStyle}`}>
+        <div
+          className={`${style.progressBar} ${progressStyle}`}
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
+      <div className={style.binder} style={{ ...binderColours }}>
+        <IoReorderTwo className={style.drag} />
+        {index}
+      </div>
+      <div className={style.playbackActions}>
+        <IconButton
+          icon={<IoRemoveCircleSharp />}
+          aria-label='skip event'
+          {...blockBtnStyle}
+          variant={skip ? 'solid' : 'outline'}
+        />
+        <IconButton
+          icon={<IoPlay />}
+          disabled={skip}
+          aria-label='start event'
+          {...blockBtnStyle}
+          variant={state === 'play' ? 'solid' : 'outline'}
+        />
+        <IconButton
+          icon={<IoReload />}
+          disabled={skip}
+          aria-label='load event'
+          {...blockBtnStyle}
+          variant={loaded ? 'solid' : 'outline'}
+        />
+      </div>
+      <EventBlockTimers timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
+      <Editable value='s' className={style.eventTitle}>
+        <EditablePreview style={{ width: '100%' }} />
+        <EditableInput />
+      </Editable>
+      <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
+      <div className={style.eventActions}>
+        <IconButton
+          icon={<IoSettingsSharp />}
+          aria-label='event options'
+          onClick={() => toggleOpen()}
+          {...blockBtnStyle}
+        />
+        <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
+      </div>
+      <div className={style.eventStatus}>
+        <Tooltip label='Next event' isDisabled={!isNext} {...tooltipProps}>
+          <IoReturnDownForward
+            className={`${style.statusIcon} ${style.statusNext} ${isNext ? style.enabled : ''}`}
           />
-          {collapsed ? (
-            <CollapsedBlock
-              provided={provided}
-              data={data}
-              next={next}
-              delay={delay}
-              delayValue={delayValue}
-              previousEnd={previousEnd}
-              actionHandler={actionHandler}
-            />
-          ) : (
-            <ExpandedBlock
-              provided={provided}
-              eventIndex={eventIndex}
-              data={data}
-              next={next}
-              delay={delay}
-              delayValue={delayValue}
-              previousEnd={previousEnd}
-              actionHandler={actionHandler}
-            />
-          )}
-        </div>
-      )}
-    </Draggable>
+        </Tooltip>
+        <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
+          <IoTimerOutline
+            className={`${style.statusIcon} ${style.statusDelay} ${hasDelay ? style.enabled : ''}`}
+          />
+        </Tooltip>
+        <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
+          <FiUsers
+            className={`${style.statusIcon} ${style.statusPublic} ${isPublic ? style.enabled : ''}`}
+          />
+        </Tooltip>
+      </div>
+    </div>
   );
 }
 
 EventBlock.propTypes = {
-  data: PropTypes.object.isRequired,
-  selected: PropTypes.bool.isRequired,
+  timeStart: PropTypes.number,
+  timeEnd: PropTypes.number,
+  duration: PropTypes.number,
+  index: PropTypes.number,
+  isPublic: PropTypes.bool,
+  title: PropTypes.string,
+  state: PropTypes.oneOf(['play', 'pause']),
+  note: PropTypes.string,
   delay: PropTypes.number,
-  index: PropTypes.number.isRequired,
-  eventIndex: PropTypes.number.isRequired,
-  previousEnd: PropTypes.number,
-  actionHandler: PropTypes.func.isRequired,
-  next: PropTypes.bool,
+  colour: PropTypes.string,
+  skip: PropTypes.bool,
+  loaded: PropTypes.bool,
+  selected: PropTypes.bool,
+  actionHandler: PropTypes.func,
 };
