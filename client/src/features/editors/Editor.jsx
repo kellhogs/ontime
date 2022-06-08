@@ -19,7 +19,7 @@ const EventEditor = lazy(() => import('features/event-editor/EventEditorExport')
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isEventDrawerOpen  } = useContext(EventEditorContext);
+  const { isOpen: isEventDrawerOpen } = useContext(EventEditorContext);
 
   // Set window title
   useEffect(() => {
@@ -42,8 +42,8 @@ export default function Editor() {
           <MessageControl />
           <TimerControl />
           <Info />
-          {isEventDrawerOpen ? <EventEditor /> : <Info />}
         </div>
+        {isEventDrawerOpen ? <EventEditor /> : <Info />}
       </LocalEventSettingsProvider>
     </LoggingProvider>
   );

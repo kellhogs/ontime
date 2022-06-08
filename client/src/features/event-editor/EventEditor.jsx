@@ -5,7 +5,7 @@ import style from './EventEditor.module.scss';
 
 export default function EventEditor() {
   return (
-    <div className={style.eventEditor}>
+    <div className={style.eventEditorMenu}>
       <div>
         <label>Title</label>
         <Input />

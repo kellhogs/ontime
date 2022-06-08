@@ -29,7 +29,7 @@
   .playback,
   .messages,
   .info,
-  .settings {
+  .settings{
     position: relative;
 
     .corner {
@@ -121,14 +121,33 @@ h1 {
   padding-bottom: 0.25em;
 }
 
-.mainContainer > div {
-  border-radius: 8px;
-  height: 100%;
-  background-color: $bg-gray-1000;
-  padding: 0.8em 1.5em;
+.mainContainer {
+  .settings,
+  .editor,
+  .messages,
+  .playback,
+  .info {
+    border-radius: 8px;
+    height: 100%;
+    background-color: $bg-gray-1000;
+    padding: 0.8em 1.5em;
 
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.eventEditor {
+  border-radius: 8px 8px 0 0;
+  background-color: darkslategrey;
+  padding: 0.8em 1.5em;
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  height: 40vh;
+  left: 0;
+  z-index: 10;
+  color: white;
 }
 
 .editor {
