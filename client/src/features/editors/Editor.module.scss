@@ -29,7 +29,7 @@
   .playback,
   .messages,
   .info,
-  .settings{
+  .settings {
     position: relative;
 
     .corner {
@@ -44,10 +44,10 @@
     height: 100%;
     grid-template-rows: auto 1fr;
     grid-template-columns: 40px 48em auto;
-  }
 
-  .info {
-    visibility: hidden;
+    .info {
+      visibility: hidden;
+    }
   }
 }
 
@@ -57,12 +57,12 @@
     height: 100%;
     grid-template-rows: 1fr auto;
     grid-template-columns: 40px 48em;
-  }
 
-  .info,
-  .messages,
-  .playback {
-    visibility: hidden;
+    .info,
+    .messages,
+    .playback {
+      visibility: hidden;
+    }
   }
 }
 
@@ -75,17 +75,17 @@
     grid-template-areas:
       'play'
       'mess';
-  }
 
-  .playback,
-  .messages {
-    visibility: visible;
-  }
+    .playback,
+    .messages {
+      visibility: visible;
+    }
 
-  .editor,
-  .info,
-  .settings {
-    visibility: hidden;
+    .editor,
+    .info,
+    .settings {
+      visibility: hidden;
+    }
   }
 }
 
@@ -95,17 +95,17 @@
     grid-template-rows: 100%;
     grid-template-columns: 100%;
     grid-template-areas: 'play';
-  }
 
-  .playback {
-    visibility: visible;
-  }
+    .playback {
+      visibility: visible;
+    }
 
-  .editor,
-  .messages,
-  .info,
-  .settings {
-    visibility: hidden;
+    .editor,
+    .messages,
+    .info,
+    .settings {
+      visibility: hidden;
+    }
   }
 }
 
@@ -190,17 +190,4 @@ h1 {
 
 .content {
   padding-top: 0.5em;
-}
-
-.cornerButtonContainer {
-  position: relative;
-  top: -4.5em;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.buttonContainer {
-  padding-bottom: 2em;
-  display: flex;
-  justify-content: flex-end;
 }
