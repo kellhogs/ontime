@@ -1,6 +1,8 @@
 import React from 'react';
-import { getAccessibleColour } from '../../../app/utils/styleUtils';
 import PropTypes from 'prop-types';
+
+import { getAccessibleColour } from '../../../app/utils/styleUtils';
+
 import style from '../Table.module.scss';
 
 export default function EventRow(props) {

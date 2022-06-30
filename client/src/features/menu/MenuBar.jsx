@@ -1,18 +1,20 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { VStack } from '@chakra-ui/react';
-import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
+import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
 import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
-import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
+import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
-import { FiSave } from '@react-icons/all-files/fi/FiSave';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
-import { LoggingContext } from '../../app/context/LoggingContext';
-import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
-import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
+import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import PropTypes from 'prop-types';
+
+import { LoggingContext } from '../../app/context/LoggingContext';
+import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
+import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
+
 import style from './MenuBar.module.scss';
 
 export default function MenuBar(props) {

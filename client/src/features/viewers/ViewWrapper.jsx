@@ -1,10 +1,11 @@
 /* eslint-disable react/display-name */
 import React, { useEffect, useState } from 'react';
-import { fetchAllEvents } from 'app/api/eventsApi';
+import { EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
 import { fetchEvent } from 'app/api/eventApi';
+import { fetchAllEvents } from 'app/api/eventsApi';
 import { useSocket } from 'app/context/socketContext';
 import { useFetch } from 'app/hooks/useFetch';
-import { EVENT_TABLE, EVENTS_TABLE } from 'app/api/apiConstants';
+
 import { stringFromMillis } from '../../common/utils/time';
 
 const withSocket = (Component) => {
@@ -154,15 +155,16 @@ const withSocket = (Component) => {
     // Filter events only to pass down
     useEffect(() => {
       if (eventsData == null) return;
-
       // filter just events with title
-      const pe = eventsData.filter(
-        (d) => d.type === 'event' && d.title !== '' && d.isPublic === true
-      );
-      setPublicEvents(pe);
+      if (Array.isArray(eventsData)) {
+        const pe = eventsData.filter(
+          (d) => d.type === 'event' && d.title !== '' && d.isPublic
+        );
+        setPublicEvents(pe);
 
-      // everything goes backstage
-      setBackstageEvents(eventsData);
+        // everything goes backstage
+        setBackstageEvents(eventsData);
+      }
     }, [eventsData]);
 
     // Set general data
@@ -178,13 +180,11 @@ const withSocket = (Component) => {
     /********************************************/
     // is there a now field?
     let showNow = true;
-    if (!titles.titleNow && !titles.subtitleNow && !titles.presenterNow)
-      showNow = false;
+    if (!titles.titleNow && !titles.subtitleNow && !titles.presenterNow) showNow = false;
 
     // is there a next field?
     let showNext = true;
-    if (!titles.titleNext && !titles.subtitleNext && !titles.presenterNext)
-      showNext = false;
+    if (!titles.titleNext && !titles.subtitleNext && !titles.presenterNext) showNext = false;
 
     const titleManager = { ...titles, showNow: showNow, showNext: showNext };
 
@@ -195,20 +195,12 @@ const withSocket = (Component) => {
     /********************************************/
     // is there a now field?
     let showPublicNow = true;
-    if (
-      !publicTitles.titleNow &&
-      !publicTitles.subtitleNow &&
-      !publicTitles.presenterNow
-    )
+    if (!publicTitles.titleNow && !publicTitles.subtitleNow && !publicTitles.presenterNow)
       showPublicNow = false;
 
     // is there a next field?
     let showPublicNext = true;
-    if (
-      !publicTitles.titleNext &&
-      !publicTitles.subtitleNext &&
-      !publicTitles.presenterNext
-    )
+    if (!publicTitles.titleNext && !publicTitles.subtitleNext && !publicTitles.presenterNext)
       showPublicNext = false;
 
     const publicTitleManager = {
@@ -230,6 +222,7 @@ const withSocket = (Component) => {
       ...timer,
       finished: playback === 'start' && timer.isNegative && timer.startedAt,
       clock: stringFromMillis(timer.clock),
+      clockMs: timer.clock,
       clockNoSeconds: stringFromMillis(timer.clock, false),
       playstate: playback,
     };

@@ -1,7 +1,7 @@
 {
   "name": "ontime-server",
   "type": "module",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "dependencies": {
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.0",
@@ -22,6 +22,7 @@
   },
   "scripts": {
     "nodestart": "nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "start:headless": "NODE_ENV=production node run.js"
   }
 }

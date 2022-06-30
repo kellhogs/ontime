@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
-import { LoggingContext } from '../../../app/context/LoggingContext';
 import {
   fetchAllEvents,
   requestApplyDelay,
@@ -13,10 +12,14 @@ import {
   requestReorder,
 } from 'app/api/eventsApi.js';
 import { useFetch } from 'app/hooks/useFetch.js';
-import EventList from './EventList';
-import EventListMenu from 'features/menu/EventListMenu.jsx';
 import Empty from 'common/state/Empty';
+import EventListMenu from 'features/menu/EventListMenu.jsx';
+
 import { CollapseContext } from '../../../app/context/CollapseContext';
+import { LoggingContext } from '../../../app/context/LoggingContext';
+
+import EventList from './EventList';
+
 import styles from '../Editor.module.scss';
 
 export default function EventListWrapper() {
@@ -286,33 +289,10 @@ export default function EventListWrapper() {
           }
           break;
         case 'applyDelay':
-          // if delay <= 0 delete delay and next block
-          if (payload.duration <= 0) {
-            try {
-              // look for block after
-              let afterId = false;
-              let blockAfter = null;
-              for (const d of data) {
-                if (d.id === payload.id) afterId = true;
-                if (afterId && d.type === 'block') {
-                  blockAfter = d.id;
-                  break;
-                }
-              }
-
-              // delete delay
-              await deleteEvent.mutateAsync(payload.id);
-              // delete block after, if any
-              if (blockAfter) await deleteEvent.mutateAsync(blockAfter);
-            } catch (error) {
-              emitError(`Error applying delay: ${error.message}`);
-            }
-          } else {
-            try {
-              await applyDelay.mutateAsync(payload.id);
-            } catch (error) {
-              emitError(`Error applying delay: ${error.message}`);
-            }
+          try {
+            await applyDelay.mutateAsync(payload.id);
+          } catch (error) {
+            emitError(`Error applying delay: ${error.message}`);
           }
           break;
 

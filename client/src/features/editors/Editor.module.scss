@@ -9,6 +9,12 @@
   color: $ontime-pink;
 }
 
+h1 {
+  font-size: max(1.5em, 16px);
+  color: $bg-gray-100;
+  padding-bottom: 0.25em;
+}
+
 .mainContainer {
   background: $bg-black;
   width: 100%;
@@ -38,37 +44,95 @@
   }
 }
 
+.mainContainer > div {
+  border-radius: 0.5em;
+  height: 100%;
+  background-color: $bg-gray-1000;
+  padding: 0.8em 1.5em;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.editor {
+  grid-area: even;
+  height: calc(100% - 3em);
+
+  .content {
+    height: calc(100% - 3em);
+    overflow: hidden;
+  }
+}
+
+.info {
+  grid-area: info;
+  min-width: 17em;
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 3em);
+    overflow: hidden;
+  }
+}
+
+.messages {
+  grid-area: mess;
+}
+
+.playback {
+  grid-area: play;
+  min-height: 320px;
+  max-height: 320px;
+}
+
+.messages,
+.playback {
+  min-width: 31em;
+}
+
+.mainContainer > .settings {
+  grid-area: sett;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  width: fit-content;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.content {
+  padding-top: 0.5em;
+}
+
+
 /* 2/3 window, hide info */
-@media (max-width: 1450px) and (min-height: 700px) {
+@media (max-width: 1450px) and (min-width: 1101px) {
   .mainContainer {
     height: 100%;
     grid-template-rows: auto 1fr;
     grid-template-columns: 40px 48em auto;
-    /* grid-template-areas:
-      'even play sett'
-      'even mess sett'; */
-  }
 
-  .info {
-    visibility: hidden;
+    .info {
+      visibility: hidden;
+    }
   }
 }
 
 /* 1/2 window, event list only */
-@media (max-width: 1100px) {
+@media (max-width: 1100px) and (min-width: 851px){
   .mainContainer {
     height: 100%;
     grid-template-rows: 1fr auto;
     grid-template-columns: 40px 48em;
-    /* grid-template-areas:
-      'sett even '
-      'sett play '; */
-  }
 
-  .info,
-  .messages,
-  .playback {
-    visibility: hidden;
+    .info,
+    .messages,
+    .playback {
+      visibility: hidden;
+    }
   }
 }
 
@@ -81,17 +145,17 @@
     grid-template-areas:
       'play'
       'mess';
-  }
 
-  .playback,
-  .messages {
-    visibility: visible;
-  }
+    .playback,
+    .messages {
+      visibility: visible;
+    }
 
-  .editor,
-  .info,
-  .settings {
-    visibility: hidden;
+    .editor,
+    .info,
+    .settings {
+      visibility: hidden;
+    }
   }
 }
 
@@ -101,24 +165,18 @@
     grid-template-rows: 100%;
     grid-template-columns: 100%;
     grid-template-areas: 'play';
-  }
 
-  .playback {
-    visibility: visible;
-  }
+    .playback {
+      visibility: visible;
+    }
 
-  .editor,
-  .messages,
-  .info,
-  .settings {
-    visibility: hidden;
+    .editor,
+    .messages,
+    .info,
+    .settings {
+      visibility: hidden;
+    }
   }
-}
-
-h1 {
-  font-size: max(1.5em, 16px);
-  color: $bg-gray-100;
-  padding-bottom: 0.25em;
 }
 
 .mainContainer {
