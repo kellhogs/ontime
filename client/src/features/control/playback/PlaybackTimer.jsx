@@ -26,7 +26,6 @@ const incrementProps = {
   colorScheme: 'white',
   variant: 'outline',
   fontSize: '12px',
-  fontWeight: 200,
 };
 
 const PlaybackTimer = (props) => {
