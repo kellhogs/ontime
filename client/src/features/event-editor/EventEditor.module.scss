@@ -1,4 +1,14 @@
 @use '../../styles/main' as *;
 
 .eventEditorMenu {
+  overflow-y: scroll;
+  max-height: 33vh;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  padding: max(8px, 1vh);
+
+  .inline {
+    display: flex;
+    align-items: center;
+  }
 }
