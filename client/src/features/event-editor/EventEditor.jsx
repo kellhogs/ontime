@@ -96,7 +96,7 @@ export default function EventEditor() {
           <label>Notes</label>
           <Textarea size='sm' value={event.note} />
         </div>
-        <div>OSC</div>
+        <div className={style.osc}>{`OSC /ontime/gotoid/${event.id}`}</div>
       </div>
     </div>
   );
