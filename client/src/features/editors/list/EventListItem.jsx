@@ -109,6 +109,7 @@ const EventListItem = (props) => {
             index={eventIndex + 1}
             eventId={data.id}
             isPublic={data.isPublic}
+            skip={data.skip}
             title={data.title}
             note={data.note}
             delay={delay}

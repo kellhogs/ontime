@@ -103,7 +103,7 @@ export default function EventBlock(props) {
           icon={<IoRemoveCircleSharp />}
           {...blockBtnStyle}
           variant={skip ? 'solid' : 'outline'}
-          clickHandler={actionHandler('skip')}
+          clickHandler={() => actionHandler('update', {field: 'skip', value: !skip})}
         />
         <TooltipActionBtn
           tooltip='Start event'
