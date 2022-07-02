@@ -18,6 +18,14 @@ import { generateId } from './generate_id.js';
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 
+export const isStringEmpty = (value) => {
+  let v = value;
+  if (typeof value === 'string') {
+    v = value.replace(/\s+/g, '');
+  }
+  return v === '' || !v;
+};
+
 /**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
@@ -36,6 +44,7 @@ export const parseExcel_v1 = async (excelData) => {
   let presenterIndex = null;
   let subtitleIndex = null;
   let isPublicIndex = null;
+  let skipIndex = null;
   let notesIndex = null;
   let colourIndex = null;
   let user0Index = null;
@@ -75,12 +84,9 @@ export const parseExcel_v1 = async (excelData) => {
         } else if (j === subtitleIndex) {
           event.subtitle = column;
         } else if (j === isPublicIndex) {
-          // whether column is not empty
-          let c = column;
-          if (typeof column === 'string') {
-            c = column.replace(/\s+/g, '');
-          }
-          event.isPublic = c !== '';
+          event.isPublic = isStringEmpty(column);
+        } else if (j === skipIndex) {
+          event.skip = isStringEmpty(column);
         } else if (j === notesIndex) {
           event.note = column;
         } else if (j === colourIndex) {
@@ -143,6 +149,11 @@ export const parseExcel_v1 = async (excelData) => {
               case 'is public':
               case 'public':
                 isPublicIndex = j;
+                break;
+              case 'skip? (x)':
+              case 'skip?':
+              case 'skip':
+                skipIndex = j;
                 break;
               case 'notes':
                 notesIndex = j;
@@ -279,6 +290,7 @@ export const validateEvent_v1 = (eventArgs) => {
       timeType: 'start-end',
       duration: validateDuration(start, end),
       isPublic: e.isPublic != null && typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,
+      skip: e.skip != null && typeof e.skip === 'boolean' ? e.skip : d.skip,
       note: makeString(e.note, d.note),
       user0: makeString(e.user0, d.user0),
       user1: makeString(e.user1, d.user1),
