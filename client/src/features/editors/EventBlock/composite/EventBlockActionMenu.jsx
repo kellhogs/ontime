@@ -54,7 +54,7 @@ export default function EventBlockActionMenu(props) {
           onClick={() => actionHandler('duplicate')}
           isDisabled={!showBlock}
         >
-          Duplicate event
+          Clone event
         </MenuItem>
         <Divider />
         <MenuItem

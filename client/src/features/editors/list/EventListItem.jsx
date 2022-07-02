@@ -34,6 +34,7 @@ const EventListItem = (props) => {
     (start, end) => (start > end ? end + 86400000 - start : end - start),
     []
   );
+  console.log(index, eventIndex)
 
   // Create / delete new events
   const actionHandler = useCallback(
@@ -105,12 +106,13 @@ const EventListItem = (props) => {
             timeStart={data.timeStart}
             timeEnd={data.timeEnd}
             duration={data.duration}
-            index={index + 1}
+            index={eventIndex + 1}
             eventId={data.id}
             isPublic={data.isPublic}
             title={data.title}
             note={data.note}
             delay={delay}
+            next={next}
             selected={selected}
             actionHandler={actionHandler}
           />

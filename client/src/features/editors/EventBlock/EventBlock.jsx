@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 
 import { EventEditorContext } from '../../../app/context/EventEditorContext';
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
+import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 
 import EventBlockActionMenu from './composite/EventBlockActionMenu';
 import EventBlockTimers from './composite/EventBlockTimers';
@@ -29,7 +30,7 @@ const blockBtnStyle = {
 };
 
 const tooltipProps = {
-  openDelay: 100,
+  openDelay: 300,
   shouldWrapChildren: 'disabled',
 };
 
@@ -55,22 +56,33 @@ export default function EventBlock(props) {
     title,
     note,
     delay,
-    colour = 'blue',
-    state = 'play',
-    loaded = true,
+    colour,
+    state,
+    loaded,
+    next,
     skip = false,
     selected,
     actionHandler,
   } = props;
 
-  const { toggleOpen, setOpenId } = useContext(EventEditorContext);
+  const { setOpenId } = useContext(EventEditorContext);
 
   const binderColours = getAccessibleColour(colour);
   const progress = 0.2;
   const progressStyle = selectPlaybackStyle(state);
-
-  const isNext = true;
   const hasDelay = delay !== 0 && delay !== null;
+
+  const handleTitle = useCallback(
+    (text) => {
+      if (text === title || !text) {
+        return;
+      }
+
+      const cleanVal = text.trim();
+      actionHandler('update', { field: 'title', value: cleanVal });
+    },
+    [actionHandler, title]
+  );
 
   return (
     <div className={`${style.eventBlock} ${skip ? style.skip : ''}`}>
@@ -85,33 +97,44 @@ export default function EventBlock(props) {
         {index}
       </div>
       <div className={style.playbackActions}>
-        <IconButton
+        <TooltipActionBtn
+          tooltip='Skip event'
+          openDelay={300}
           icon={<IoRemoveCircleSharp />}
-          aria-label='skip event'
           {...blockBtnStyle}
           variant={skip ? 'solid' : 'outline'}
+          clickHandler={actionHandler('skip')}
         />
-        <IconButton
+        <TooltipActionBtn
+          tooltip='Start event'
+          openDelay={300}
           icon={<IoPlay />}
           disabled={skip}
-          aria-label='start event'
           {...blockBtnStyle}
           variant={state === 'play' ? 'solid' : 'outline'}
+          onClick={() => actionHandler('play')}
         />
-        <IconButton
+        <TooltipActionBtn
+          tooltip='Load event'
+          openDelay={300}
           icon={<IoReload />}
           disabled={skip}
-          aria-label='load event'
           {...blockBtnStyle}
           variant={loaded ? 'solid' : 'outline'}
+          onClick={() => actionHandler('load')}
         />
       </div>
       <EventBlockTimers timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
-      <Editable value='s' className={style.eventTitle}>
+      <Editable
+        defaultValue={title}
+        className={style.eventTitle}
+        placeholder='Event title'
+        onSubmit={(value) => handleTitle(value)}
+      >
         <EditablePreview style={{ width: '100%' }} />
         <EditableInput />
       </Editable>
-      <span className={style.eventNote}>Presenter from Foyer entrance 3</span>
+      <span className={style.eventNote}>{note}</span>
       <div className={style.eventActions}>
         <IconButton
           icon={<IoSettingsSharp />}
@@ -122,9 +145,9 @@ export default function EventBlock(props) {
         <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
       </div>
       <div className={style.eventStatus}>
-        <Tooltip label='Next event' isDisabled={!isNext} {...tooltipProps}>
+        <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
           <IoReturnDownForward
-            className={`${style.statusIcon} ${style.statusNext} ${isNext ? style.enabled : ''}`}
+            className={`${style.statusIcon} ${style.statusNext} ${next ? style.enabled : ''}`}
           />
         </Tooltip>
         <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
@@ -154,6 +177,7 @@ EventBlock.propTypes = {
   note: PropTypes.string,
   delay: PropTypes.number,
   colour: PropTypes.string,
+  next: PropTypes.bool,
   skip: PropTypes.bool,
   loaded: PropTypes.bool,
   selected: PropTypes.bool,

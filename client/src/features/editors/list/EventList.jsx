@@ -199,7 +199,7 @@ export default function EventList(props) {
                 return (
                   <div
                     key={e.id}
-                    className={`${e.type === 'event' && cumulativeDelay !== 0 ? style.tst : ''}`}
+                    className={`${e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
                   >
                     {index === 0 && showQuickEntry && (
                       <EntryBlock index={e.id} eventsHandler={eventsHandler} />

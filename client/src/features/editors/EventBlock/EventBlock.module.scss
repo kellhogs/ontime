@@ -92,10 +92,11 @@
 
     // style - general
     border-radius: 3px 0 0 3px;
+    border-right:  1px solid $bg-gray-900;
 
     // style - colour
-    background-color: white; // override inline
-    color: black;
+    background-color: $bg-gray-950; // override inline
+    color: $text-white;
 
     // style - text
 
@@ -103,6 +104,14 @@
       position: absolute;
       text-align: center;
       font-size: 20px;
+      opacity: 0.1;
+      cursor: grab;
+      transition: opacity 0.3s;
+    }
+    &:hover {
+      .drag {
+        opacity: 1;
+      }
     }
   }
 
@@ -166,8 +175,10 @@
     }
 
     .statusIcon.statusNext {
+      border: 1px solid transparent;
       &.enabled {
         color: $ontime-accent;
+        border: 1px solid $ontime-accent;
         background-color: $bg-gray-1100;
       }
     }
