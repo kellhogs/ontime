@@ -106,6 +106,7 @@ const EventListItem = (props) => {
             timeEnd={data.timeEnd}
             duration={data.duration}
             index={index + 1}
+            eventId={data.id}
             isPublic={data.isPublic}
             title={data.title}
             note={data.note}

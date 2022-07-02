@@ -50,6 +50,7 @@ export default function EventBlock(props) {
     timeEnd,
     duration,
     index,
+    eventId,
     isPublic = true,
     title,
     note,
@@ -62,7 +63,7 @@ export default function EventBlock(props) {
     actionHandler,
   } = props;
 
-  const { toggleOpen } = useContext(EventEditorContext);
+  const { toggleOpen, setOpenId } = useContext(EventEditorContext);
 
   const binderColours = getAccessibleColour(colour);
   const progress = 0.2;
@@ -115,7 +116,7 @@ export default function EventBlock(props) {
         <IconButton
           icon={<IoSettingsSharp />}
           aria-label='event options'
-          onClick={() => toggleOpen()}
+          onClick={() => setOpenId(eventId)}
           {...blockBtnStyle}
         />
         <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
@@ -146,6 +147,7 @@ EventBlock.propTypes = {
   timeEnd: PropTypes.number,
   duration: PropTypes.number,
   index: PropTypes.number,
+  eventId: PropTypes.string,
   isPublic: PropTypes.bool,
   title: PropTypes.string,
   state: PropTypes.oneOf(['play', 'pause']),

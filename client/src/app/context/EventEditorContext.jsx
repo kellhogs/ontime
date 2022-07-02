@@ -7,6 +7,7 @@ export const EventEditorContext = createContext({
 
 export const EventEditorProvider = ({ children }) => {
   const [isOpen, setOpen] = useState(false);
+  const [openId, _setOpenId] = useState(null);
 
   /**
    * @description Sets open state of event editor element
@@ -20,11 +21,22 @@ export const EventEditorProvider = ({ children }) => {
     }
   }, []);
 
+  const setOpenId = useCallback((newValue) => {
+    _setOpenId(newValue);
+    if (typeof setOpenId === 'undefined') {
+      setOpen(false);
+    } else {
+      setOpen(true);
+    }
+  }, []);
+
   return (
     <EventEditorContext.Provider
       value={{
         isOpen,
         toggleOpen,
+        openId,
+        setOpenId,
       }}
     >
       {children}

@@ -5,8 +5,8 @@ import { FiHelpCircle } from '@react-icons/all-files/fi/FiHelpCircle';
 import { FiMaximize } from '@react-icons/all-files/fi/FiMaximize';
 import { FiMinimize } from '@react-icons/all-files/fi/FiMinimize';
 import { FiSave } from '@react-icons/all-files/fi/FiSave';
-import { FiSettings } from '@react-icons/all-files/fi/FiSettings';
 import { FiUpload } from '@react-icons/all-files/fi/FiUpload';
+import { IoSettings } from '@react-icons/all-files/io5/IoSettings';
 import { EVENTS_TABLE } from 'app/api/apiConstants';
 import { downloadEvents, uploadEvents } from 'app/api/ontimeApi';
 import PropTypes from 'prop-types';
@@ -151,7 +151,7 @@ export default function MenuBar(props) {
       />
       <TooltipActionBtn
         {...buttonStyle}
-        icon={<FiSettings />}
+        icon={<IoSettings />}
         className={isOpen ? style.open : ''}
         clickHandler={onOpen}
         tooltip='Settings'

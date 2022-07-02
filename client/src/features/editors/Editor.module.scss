@@ -71,7 +71,6 @@
   .mainContainer {
     grid-template-rows: auto 1fr;
     grid-template-columns: 100%;
-    column-gap: 0;
     grid-template-areas:
       'play'
       'mess';
@@ -174,6 +173,7 @@ h1 {
   grid-area: play;
   min-height: 320px;
   max-height: 320px;
+  min-width: 480px;
 }
 
 .mainContainer > .settings {
@@ -185,7 +185,6 @@ h1 {
 
   display: flex;
   flex-direction: column;
-  gap: 1em;
 }
 
 .content {
