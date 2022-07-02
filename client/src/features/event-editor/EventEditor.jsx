@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/button';
-import { Input } from '@chakra-ui/react';
+import { Input, Textarea } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
@@ -80,21 +80,21 @@ export default function EventEditor() {
       <div>
         <div className={style.inline}>
           <label>Colour</label>
-          <Input size='sm' type='color' />
+          <Input size='sm' type='color' value={event?.colour} />
           <label>Title</label>
-          <Input size='sm' />
+          <Input size='sm' value={event.title} />
         </div>
         <div className={style.inline}>
           <label>Subtitle</label>
-          <Input size='sm' />
+          <Input size='sm' value={event.subtitle} />
         </div>
         <div className={style.inline}>
           <label>Presenter</label>
-          <Input size='sm' />
+          <Input size='sm' value={event.presenter} />
         </div>
         <div className={style.inline}>
           <label>Notes</label>
-          <Input size='sm' />
+          <Textarea size='sm' value={event.note} />
         </div>
         <div>OSC</div>
       </div>
