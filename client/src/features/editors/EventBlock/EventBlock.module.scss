@@ -23,13 +23,17 @@
   gap: 2px;
 
   // style - colour
-  background-color: $bg-gray-1000;
+  background-color: $bg-gray-950;
+  border: $block-border;
 
   // style - text
 
 
   // variant
   &.skip {
+    background-color: $bg-gray-1000;
+    border: 1px solid transparent;
+
     .eventTimers > .delayNote,
     .eventTitle,
     .eventNote,
