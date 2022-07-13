@@ -18,6 +18,11 @@ import { generateId } from './generate_id.js';
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 
+/**
+ * @description Whether a string is considered empty
+ * @param value
+ * @return {boolean}
+ */
 export const isStringEmpty = (value) => {
   let v = value;
   if (typeof value === 'string') {
