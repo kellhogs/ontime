@@ -34,7 +34,6 @@ const EventListItem = (props) => {
     (start, end) => (start > end ? end + 86400000 - start : end - start),
     []
   );
-  console.log(index, eventIndex)
 
   // Create / delete new events
   const actionHandler = useCallback(

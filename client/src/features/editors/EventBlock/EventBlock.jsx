@@ -13,6 +13,8 @@ import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
 
 import { EventEditorContext } from '../../../app/context/EventEditorContext';
+import { LoggingContext } from '../../../app/context/LoggingContext';
+import { useSocket } from '../../../app/context/socketContext';
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 
@@ -66,6 +68,8 @@ export default function EventBlock(props) {
   } = props;
 
   const { setOpenId } = useContext(EventEditorContext);
+  const { emitError } = useContext(LoggingContext);
+  const socket = useSocket();
 
   const binderColours = getAccessibleColour(colour);
   const progress = 0.2;
@@ -82,6 +86,22 @@ export default function EventBlock(props) {
       actionHandler('update', { field: 'title', value: cleanVal });
     },
     [actionHandler, title]
+  );
+
+  const playbackActions = useCallback(
+    (action) => {
+      switch (action) {
+        case 'play':
+          socket.emit('set-startid', eventId);
+          break;
+        case 'load':
+          socket.emit('set-loadid', eventId);
+          break;
+        default:
+          emitError(`Unhandled action: ${action}`)
+      }
+    },
+    [emitError, eventId, socket]
   );
 
   return (
@@ -103,7 +123,7 @@ export default function EventBlock(props) {
           icon={<IoRemoveCircleSharp />}
           {...blockBtnStyle}
           variant={skip ? 'solid' : 'outline'}
-          clickHandler={() => actionHandler('update', {field: 'skip', value: !skip})}
+          clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
         />
         <TooltipActionBtn
           tooltip='Start event'
@@ -112,7 +132,7 @@ export default function EventBlock(props) {
           disabled={skip}
           {...blockBtnStyle}
           variant={state === 'play' ? 'solid' : 'outline'}
-          onClick={() => actionHandler('play')}
+          onClick={() => playbackActions('play')}
         />
         <TooltipActionBtn
           tooltip='Load event'
@@ -121,7 +141,7 @@ export default function EventBlock(props) {
           disabled={skip}
           {...blockBtnStyle}
           variant={loaded ? 'solid' : 'outline'}
-          onClick={() => actionHandler('load')}
+          onClick={() => playbackActions('load')}
         />
       </div>
       <EventBlockTimers timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
