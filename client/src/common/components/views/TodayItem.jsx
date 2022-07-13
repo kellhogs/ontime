@@ -6,7 +6,7 @@ import { stringFromMillis } from '../../utils/time';
 import style from './Paginator.module.scss';
 
 export default function TodayItem(props) {
-  const { selected, timeStart, timeEnd, title, backstageEvent, colour } = props;
+  const { selected, timeStart, timeEnd, title, backstageEvent, colour, skip } = props;
 
   // Format timers
   const start = stringFromMillis(timeStart, false) || '';
@@ -20,7 +20,7 @@ export default function TodayItem(props) {
   if (selected === 1) selectStyle = style.entryNow;
   else if (selected === 2) selectStyle = style.entryFuture;
   return (
-    <div className={selectStyle} style={{ borderLeft: `4px solid ${userColour}` }}>
+    <div className={`${selectStyle} ${skip ? style.skip: ""}`} style={{ borderLeft: `4px solid ${userColour}` }}>
       <div className={`${style.entryTimes} ${backstageEvent ? style.backstage : ''}`}>
         {`${start} · ${end}`}
       </div>
@@ -37,4 +37,5 @@ TodayItem.propTypes = {
   title: PropTypes.string,
   backstageEvent: PropTypes.bool,
   colour: PropTypes.string,
+  skip: PropTypes.bool,
 };

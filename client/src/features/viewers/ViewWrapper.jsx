@@ -157,10 +157,14 @@ const withSocket = (Component) => {
       if (eventsData == null) return;
       // filter just events with title
       if (Array.isArray(eventsData)) {
-        const pe = eventsData.filter(
-          (d) => d.type === 'event' && d.title !== '' && d.isPublic
+        const filteredPublicEvents = eventsData.filter(
+          (event) =>
+            event.type === 'event'
+            && event.title !== ''
+            && event.isPublic
+            && !event.skip
         );
-        setPublicEvents(pe);
+        setPublicEvents(filteredPublicEvents);
 
         // everything goes backstage
         setBackstageEvents(eventsData);
