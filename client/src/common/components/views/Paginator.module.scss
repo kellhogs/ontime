@@ -26,6 +26,10 @@
   padding: 0.2vh 1vw;
   margin-bottom: 1.5vh;
   border-radius: 3px;
+
+  &.skip {
+    text-decoration: line-through;
+  }
 }
 
 .entryPast {
@@ -62,3 +66,4 @@
 .backstageInd::before {
   content: '*';
 }
+

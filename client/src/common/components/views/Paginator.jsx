@@ -83,6 +83,7 @@ export default function Paginator(props) {
             title={e.title}
             colour={isBackstage ? e.colour : ''}
             backstageEvent={!e.isPublic}
+            skip={e.skip}
           />
         );
       })}
