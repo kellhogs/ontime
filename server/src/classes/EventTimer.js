@@ -861,8 +861,8 @@ export class EventTimer extends Timer {
   setupWithEventList(eventlist) {
     if (!Array.isArray(eventlist) || eventlist.length < 1) return;
 
-    // filter only events
-    const events = eventlist.filter((e) => e.type === 'event');
+    // filter only playable events
+    const events = eventlist.filter((e) => e.type === 'event' && !e.skip);
     const numEvents = events.length;
 
     // set general
@@ -887,8 +887,10 @@ export class EventTimer extends Timer {
    * @param {array} eventlist
    */
   updateEventList(eventlist) {
-    // filter only events
-    const events = eventlist.filter((e) => e.type === 'event');
+    if (!Array.isArray(eventlist) || eventlist.length < 1) return;
+
+    // filter only playable events
+    const events = eventlist.filter((e) => e.type === 'event' && !e.skip);
     const numEvents = events.length;
 
     // is this the first event
@@ -939,7 +941,20 @@ export class EventTimer extends Timer {
   updateSingleEvent(id, entry) {
     // find object in events
     const eventIndex = this._eventlist.findIndex((e) => e.id === id);
-    if (eventIndex === -1) return;
+    if (eventIndex === -1) {
+      throw 'Event not found';
+    }
+
+    // check if event is set to be skipped
+    if (entry.skip) {
+      // stop event if running
+      if (id === this.selectedEventId) {
+        this.trigger('stop');
+      }
+
+      // delete event
+      this.deleteId(id);
+    }
 
     // update event in memory
     const e = this._eventlist[eventIndex];
@@ -973,6 +988,34 @@ export class EventTimer extends Timer {
 
     // run cycle
     this.runCycle();
+  }
+
+  /**
+   * @description inserts an event after a given id
+   * @param event
+   * @param previousId
+   */
+  insertEventAfterId(event, previousId) {
+    // find object in events
+    const previousIndex = this._eventlist.findIndex((e) => e.id === previousId);
+    if (previousIndex === -1) {
+      throw 'Event not found';
+    }
+
+    if (previousIndex + 1 >= this.numEvents) {
+      this._eventlist.push(event);
+    } else {
+      this._eventlist.splice(previousIndex + 1, 0, event);
+    }
+  }
+
+  /**
+   * @description inserts an event in the first position of the list
+   * @param event
+   */
+  insertEventAtStart(event) {
+    // Insert at beginning
+    this._eventlist.unshift(event);
   }
 
   /**
@@ -1314,6 +1357,7 @@ export class EventTimer extends Timer {
    * @description stop timer
    */
   stop() {
+    console.log(this._eventlist);
     // do we need to change
     if (this.state === 'stop') return;
 

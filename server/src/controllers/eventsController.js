@@ -9,6 +9,7 @@ import {
 } from '../models/eventsDefinition.js';
 import { generateId } from '../utils/generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
+import { getPreviousPlayable } from '../utils/eventUtils.js';
 
 /**
  * Insets an event after a given index
@@ -83,9 +84,32 @@ function _updateTimers() {
   global.timer.updateEventList(results);
 }
 
-// Updates timer object single event
-function _updateTimersSingle(id, entry) {
-  global.timer.updateSingleEvent(id, entry);
+/**
+ * @description Adds an event to the timer after an event with given id
+ * @param {object} event
+ * @param {string | null} previousId
+ * @private
+ */
+function _insertEventInTimerAfterId(event, previousId) {
+  if (previousId === null) {
+    global.timer.insertEventAtStart(event);
+  } else if (previousId) {
+    try {
+      global.timer.insertEventAfterId(event, previousId);
+    } catch (error) {
+      global.timer.error('SERVER', 'Unable to update object');
+    }
+  }
+}
+
+/**
+ * @description Updates timer object single event
+ * @param {string} id
+ * @param {object} event
+ * @private
+ */
+function _updateTimersSingle(id, event) {
+  global.timer.updateSingleEvent(id, event);
 }
 
 // Delete a single entry in timer object
@@ -183,21 +207,32 @@ export const eventsPut = async (req, res) => {
     return;
   }
 
-  try {
-    const eventIndex = data.events.findIndex((e) => e.id === eventId);
-    if (eventIndex === -1) {
-      res.status(400).send(`No Id found found`);
-      return;
-    }
+  const eventIndex = data.events.findIndex((e) => e.id === eventId);
+  if (eventIndex === -1) {
+    res.status(400).send(`No Id found found`);
+    return;
+  }
 
+  try {
     const e = data.events[eventIndex];
     data.events[eventIndex] = { ...e, ...req.body };
     data.events[eventIndex].revision++;
     await db.write();
 
-    // update timer
-    _updateTimersSingle(eventId, req.body);
-
+    if (data.events[eventIndex].skip) {
+      _deleteTimerId(eventId);
+      // if it is a skip, i make sure it is deleted from timer
+      // event id might already not exist
+    } else {
+      try {
+        _updateTimersSingle(eventId, req.body);
+      } catch (error) {
+        if (error === 'Event not found') {
+          const { id: previousId } = getPreviousPlayable(data.events, e.id);
+          _insertEventInTimerAfterId(data.events[eventIndex], previousId);
+        }
+      }
+    }
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
