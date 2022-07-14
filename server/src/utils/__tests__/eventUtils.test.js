@@ -18,7 +18,7 @@ describe('getPreviousPlayable()', () => {
   });
 
   describe('handles common errors', () => {
-    it('throws error if id not found in list', () => {
+    it('returns null if id not found in list', () => {
       const events = [
         { id: 0, type: 'delay' },
         { id: 1, type: 'event', skip: true },
@@ -26,10 +26,12 @@ describe('getPreviousPlayable()', () => {
         { id: 3, type: 'event', skip: false },
         { id: 4, type: 'event' },
       ];
-      expect(getPreviousPlayable(events, 'no-valid-id')).toBe(null);
+      const { index, id } = getPreviousPlayable(events, 'no-valid-id');
+      expect(index).toBe(null);
+      expect(id).toBe(null);
     });
 
-    it('throws error if there are no previous events to play', () => {
+    it('returns null if there are no previous events to play', () => {
       const events = [
         { id: 0, type: 'delay' },
         { id: 1, type: 'event', skip: true },
@@ -37,7 +39,16 @@ describe('getPreviousPlayable()', () => {
         { id: 3, type: 'event', skip: true },
         { id: 4, type: 'event' },
       ];
-      expect(getPreviousPlayable(events, events[4].id)).toBe(null);
+      const { index, id } = getPreviousPlayable(events, events[4].id);
+      expect(index).toBe(null);
+      expect(id).toBe(null);
+    });
+
+    it('returns null if list is empty', () => {
+      const events = [];
+      const { index, id } = getPreviousPlayable(events, 'made-up');
+      expect(index).toBe(null);
+      expect(id).toBe(null);
     });
   });
 });

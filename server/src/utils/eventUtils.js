@@ -2,14 +2,14 @@
  * @description Returns id of previous played event
  * @param {array} events
  * @param {string} eventId
- * @return {object | null}
+ * @return {object}
  */
 export function getPreviousPlayable(events, eventId) {
   // find current index
   const current = events.findIndex((event) => event.id === eventId);
 
   if (current === -1) {
-    return null;
+    return { index: null, id: null };
   }
 
   let index = current - 1;
@@ -21,5 +21,5 @@ export function getPreviousPlayable(events, eventId) {
     index--;
   }
 
-  return null;
+  return { index: null, id: null };
 }
