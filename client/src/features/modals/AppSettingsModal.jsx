@@ -168,7 +168,7 @@ export default function AppSettingsModal() {
         <br />
         🔥 Changes take effect on save 🔥
       </p>
-      <p className={style.notes}>{`Running ontime version ${version}`}</p>
+      <p className={style.notes}>{`Running Ontime UI version ${version}`}</p>
       <form onSubmit={submitHandler}>
         <div className={style.modalFields}>
           <div className={style.hSeparator}>General App Settings</div>
