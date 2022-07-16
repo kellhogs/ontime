@@ -8,6 +8,7 @@ import DelayInput from 'common/input/DelayInput';
 import { millisToMinutes } from 'common/utils/dateConfig';
 import PropTypes from 'prop-types';
 
+import { useEventAction } from '../../../app/hooks/useEventAction';
 import ActionButtons from '../../../common/components/buttons/ActionButtons';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
@@ -15,11 +16,12 @@ import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipL
 import style from './DelayBlock.module.scss';
 
 export default function DelayBlock(props) {
-  const { eventsHandler, data, index, actionHandler } = props;
+  const { data, index, actionHandler } = props;
+  const { applyDelay } = useEventAction();
 
   const applyDelayHandler = useCallback(() => {
-    eventsHandler('applyDelay', { id: data.id, duration: data.duration });
-  }, [data.duration, data.id, eventsHandler]);
+    applyDelay(data.id)
+  }, [applyDelay, data.id]);
 
   const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
   return (
@@ -54,7 +56,6 @@ export default function DelayBlock(props) {
 }
 
 DelayBlock.propTypes = {
-  eventsHandler: PropTypes.func.isRequired,
   data: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
   actionHandler: PropTypes.func.isRequired,

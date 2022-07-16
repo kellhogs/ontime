@@ -58,6 +58,7 @@ export default function EventBlock(props) {
     title,
     note,
     delay,
+    previousEnd,
     colour,
     state,
     loaded,
@@ -98,7 +99,7 @@ export default function EventBlock(props) {
           socket.emit('set-loadid', eventId);
           break;
         default:
-          emitError(`Unhandled action: ${action}`)
+          emitError(`Unhandled action: ${action}`);
       }
     },
     [emitError, eventId, socket]
@@ -196,6 +197,7 @@ EventBlock.propTypes = {
   state: PropTypes.oneOf(['play', 'pause']),
   note: PropTypes.string,
   delay: PropTypes.number,
+  previousEnd: PropTypes.number,
   colour: PropTypes.string,
   next: PropTypes.bool,
   skip: PropTypes.bool,

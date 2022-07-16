@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 
 import { CursorContext } from '../../../app/context/CursorContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import { useEventAction } from '../../../app/hooks/useEventAction';
 import EntryBlock from '../EntryBlock/EntryBlock';
 
 import EventListItem from './EventListItem';
@@ -13,9 +14,10 @@ import EventListItem from './EventListItem';
 import style from './List.module.scss';
 
 export default function EventList(props) {
-  const { events, eventsHandler } = props;
+  const { events } = props;
   const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } =
     useContext(CursorContext);
+  const { addEvent, reorderEvent } = useEventAction();
   const socket = useSocket();
   const [selectedId, setSelectedId] = useState(null);
   const [nextId, setNextId] = useState(null);
@@ -25,18 +27,20 @@ export default function EventList(props) {
   const insertAtCursor = useCallback(
     (type, cursor) => {
       if (cursor === -1) {
-        eventsHandler('add', { type: type });
+        addEvent({ type: type });
       } else {
         const previousEvent = events[cursor];
         const nextEvent = events[cursor + 1];
-        if (type === 'event') {
-          eventsHandler('add', { type: type, after: previousEvent.id });
-        } else if (previousEvent?.type !== type && nextEvent?.type !== type) {
-          eventsHandler('add', { type: type, after: previousEvent.id });
+
+        // prevent adding two non event blocks consecutively
+        const isPreviousDifferent = previousEvent?.type !== type;
+        const isNextDifferent = nextEvent?.type !== type;
+        if (type === 'event' || (isPreviousDifferent && isNextDifferent)) {
+          addEvent({ type: type, after: previousEvent.id });
         }
       }
     },
-    [events, eventsHandler]
+    [addEvent, events]
   );
 
   // Handle keyboard shortcuts
@@ -157,14 +161,9 @@ export default function EventList(props) {
       // no change
       if (result.destination === result.source.index) return;
 
-      // Call API
-      eventsHandler('reorder', {
-        index: result.draggableId,
-        from: result.source.index,
-        to: result.destination.index,
-      });
+      reorderEvent(result.draggableId, result.source.index, result.destination.index);
     },
-    [eventsHandler]
+    [reorderEvent]
   );
 
   if (events.length < 1) {
@@ -199,11 +198,11 @@ export default function EventList(props) {
                 return (
                   <div
                     key={e.id}
-                    className={`${e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
+                    className={`${
+                      e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''
+                    }`}
                   >
-                    {index === 0 && showQuickEntry && (
-                      <EntryBlock index={e.id} eventsHandler={eventsHandler} />
-                    )}
+                    {index === 0 && showQuickEntry && <EntryBlock index={e.id} />}
                     <div
                       ref={cursor === index ? cursorRef : undefined}
                       className={cursor === index ? style.cursor : ''}
@@ -215,7 +214,6 @@ export default function EventList(props) {
                         data={e}
                         selected={selectedId === e.id}
                         next={nextId === e.id}
-                        eventsHandler={eventsHandler}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
                       />
@@ -224,7 +222,6 @@ export default function EventList(props) {
                       <EntryBlock
                         showKbd={index === cursor}
                         previousId={e.id}
-                        eventsHandler={eventsHandler}
                         visible={isLast}
                         disableAddDelay={e.type === 'delay'}
                         disableAddBlock={e.type === 'block'}
@@ -244,5 +241,4 @@ export default function EventList(props) {
 
 EventList.propTypes = {
   events: PropTypes.array,
-  eventsHandler: PropTypes.func,
 };

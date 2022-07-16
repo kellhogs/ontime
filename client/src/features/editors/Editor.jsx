@@ -43,7 +43,7 @@ export default function Editor() {
           <TimerControl />
           <Info />
         </div>
-        {isEventDrawerOpen ? <EventEditor /> : <Info />}
+        {isEventDrawerOpen && <EventEditor />}
       </LocalEventSettingsProvider>
     </LoggingProvider>
   );

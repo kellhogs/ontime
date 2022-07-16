@@ -1387,7 +1387,6 @@ export class EventTimer extends Timer {
    * @description stop timer
    */
   stop() {
-    console.log(this._eventlist);
     // do we need to change
     if (this.state === 'stop') return;
 

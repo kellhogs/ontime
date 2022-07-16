@@ -1,9 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Checkbox } from '@chakra-ui/react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import PropTypes from 'prop-types';
 
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
+import { LoggingContext } from '../../../app/context/LoggingContext';
+import { useEventAction } from '../../../app/hooks/useEventAction';
 
 import style from './EntryBlock.module.scss';
 
@@ -11,14 +13,39 @@ export default function EntryBlock(props) {
   const {
     showKbd,
     previousId,
-    eventsHandler,
     visible,
     disableAddDelay = true,
     disableAddBlock,
   } = props;
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
+  const { addEvent } = useEventAction();
+  const { emitError } = useContext(LoggingContext);
   const [doStartTime, setStartTime] = useState(starTimeIsLastEnd);
   const [doPublic, setPublic] = useState(defaultPublic);
+
+  const handleCreateEvent = useCallback((eventType) => {
+    switch (eventType) {
+      case 'event': {
+        const newEvent = { type: 'event', after: previousId, isPublic: doPublic };
+        const options = { startIsLastEnd: doStartTime ? previousId : undefined };
+        addEvent(newEvent, options)
+        break;
+      }
+      case 'delay': {
+        addEvent({ type: 'delay', after: previousId });
+        break;
+      }
+      case 'block': {
+        addEvent({ type: 'block', after: previousId });
+        break;
+      }
+      default: {
+        emitError(`Cannot create unknown event type: ${eventType}`);
+        break;
+      }
+    }
+
+  },[addEvent, doPublic, doStartTime, emitError, previousId])
 
   useEffect(() => {
     setStartTime(starTimeIsLastEnd);
@@ -33,14 +60,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Event' openDelay={300}>
         <span
           className={style.createEvent}
-          onClick={() =>
-            eventsHandler(
-              'add',
-              { type: 'event', after:  previousId, isPublic: doPublic },
-              { startIsLastEnd: doStartTime ? previousId : undefined }
-            )
-          }
-          role='button'
+          onClick={() => handleCreateEvent('event')}
         >
           E{showKbd && <span className={style.keyboard}>Alt + E</span>}
         </span>
@@ -48,7 +68,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Delay' openDelay={300}>
         <span
           className={`${style.createDelay} ${disableAddDelay ? style.disabled : ''}`}
-          onClick={() => eventsHandler('add', { type: 'delay', after: previousId })}
+          onClick={() => handleCreateEvent('delay')}
           role='button'
         >
           D{showKbd && <span className={style.keyboard}>Alt + D</span>}
@@ -57,7 +77,7 @@ export default function EntryBlock(props) {
       <Tooltip label='Add Block' openDelay={300}>
         <span
           className={`${style.createBlock} ${disableAddBlock ? style.disabled : ''}`}
-          onClick={() => eventsHandler('add', { type: 'block', after: previousId })}
+          onClick={() => handleCreateEvent('delay')}
           role='button'
         >
           B{showKbd && <span className={style.keyboard}>Alt + B</span>}
@@ -87,10 +107,8 @@ export default function EntryBlock(props) {
 
 EntryBlock.propTypes = {
   showKbd: PropTypes.bool,
-  eventsHandler: PropTypes.func,
   visible: PropTypes.bool,
   previousId: PropTypes.string,
   disableAddDelay: PropTypes.bool,
   disableAddBlock: PropTypes.bool,
 };
-

@@ -3,30 +3,31 @@ import { ButtonGroup, HStack } from '@chakra-ui/react';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
 import { IoCaretDown } from '@react-icons/all-files/io5/IoCaretDown';
 import { IoCaretUp } from '@react-icons/all-files/io5/IoCaretUp';
-import PropTypes from 'prop-types';
 
 import { CursorContext } from '../../app/context/CursorContext';
+import { useEventAction } from '../../app/hooks/useEventAction';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 
 import MenuActionButtons from './MenuActionButtons';
 
 import style from './EventListMenu.module.css';
 
-const EventListMenu = ({ eventsHandler }) => {
+const EventListMenu = () => {
   const { isCursorLocked, toggleCursorLocked, moveCursorUp, moveCursorDown } =
     useContext(CursorContext);
+  const { addEvent, deleteAllEvents } = useEventAction();
 
   const actionHandler = useCallback(
     (action) => {
       switch (action) {
         case 'event':
-          eventsHandler('add', { type: action });
+          addEvent({ type: action });
           break;
         case 'delay':
-          eventsHandler('add', { type: action });
+          addEvent({ type: action });
           break;
         case 'block':
-          eventsHandler('add', { type: action });
+          addEvent({ type: action });
           break;
         case 'cursorUp':
           moveCursorUp();
@@ -38,13 +39,13 @@ const EventListMenu = ({ eventsHandler }) => {
           toggleCursorLocked();
           break;
         case 'deleteall':
-          eventsHandler('deleteall');
+          deleteAllEvents();
           break;
         default:
           break;
       }
     },
-    [eventsHandler, moveCursorDown, moveCursorUp, toggleCursorLocked]
+    [addEvent, deleteAllEvents, moveCursorDown, moveCursorUp, toggleCursorLocked]
   );
 
   const cursorBtnProps = {
@@ -89,6 +90,4 @@ const EventListMenu = ({ eventsHandler }) => {
 
 export default memo(EventListMenu);
 
-EventListMenu.propTypes = {
-  eventsHandler: PropTypes.func,
-};
+EventListMenu.propTypes = {};

@@ -18,7 +18,7 @@ export const fetchAllEvents = async () => {
 export const requestPost = async (data) => axios.post(eventsURL, data);
 
 /**
- * @description HTTP request to put new event
+ * @description HTTP request to update event
  * @return {Promise}
  */
 export const requestPut = async (data) => axios.put(eventsURL, data);
