@@ -1,12 +1,16 @@
 @use '../../styles/main' as *;
 
-.corner {
-  display: none;
+@mixin absolute-top-right($distance) {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: $distance;
+  right: $distance;
   cursor: pointer;
   color: $ontime-pink;
+}
+
+.corner {
+  display: none;
+  @include absolute-top-right(8px);
 }
 
 .mainContainer {
@@ -141,6 +145,11 @@ h1 {
   left: 0;
   z-index: 10;
   color: white;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+  }
 }
 
 .editor {

@@ -21,14 +21,18 @@ export const EventEditorProvider = ({ children }) => {
     }
   }, []);
 
-  const setOpenId = useCallback((newValue) => {
-    _setOpenId(newValue);
-    if (typeof setOpenId === 'undefined') {
-      setOpen(false);
-    } else {
-      setOpen(true);
-    }
-  }, []);
+  const setOpenId = useCallback(
+    (newValue) => {
+      if (newValue === openId) {
+        _setOpenId(null);
+        setOpen(false);
+      } else {
+        _setOpenId(newValue);
+        setOpen(newValue !== null);
+      }
+    },
+    [openId]
+  );
 
   return (
     <EventEditorContext.Provider
