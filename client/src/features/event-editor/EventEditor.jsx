@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button } from '@chakra-ui/button';
+import { Button, IconButton } from '@chakra-ui/button';
 import { Input, Textarea } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
+import { IoCloseCircle } from '@react-icons/all-files/io5/IoCloseCircle';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
@@ -12,7 +13,7 @@ import TimeInput from '../../common/input/TimeInput';
 import style from './EventEditor.module.scss';
 
 export default function EventEditor() {
-  const { openId } = useContext(EventEditorContext);
+  const { openId, toggleOpen } = useContext(EventEditorContext);
   const { data } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const [event, setEvent] = useState(null);
 
@@ -34,6 +35,11 @@ export default function EventEditor() {
   console.log(event);
   return (
     <div className={style.eventEditorMenu}>
+      <IconButton
+        aria-label='Close panel'
+        icon={<IoCloseCircle />}
+        onClick={() => toggleOpen(false) }
+      />
       <div>
         <div className={style.inline}>
           <label htmlFor='start'>Start time</label>
