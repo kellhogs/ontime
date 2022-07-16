@@ -1007,6 +1007,36 @@ export class EventTimer extends Timer {
     } else {
       this._eventlist.splice(previousIndex + 1, 0, event);
     }
+
+    try {
+      // check if entry is running
+      if (event.id === this.selectedEventId) {
+        // handle reload selected
+        // Reload data if running
+        const type =
+          this.selectedEventId === event.id && this._startedAt != null ? 'reload' : 'load';
+        this.loadEvent(this.selectedEventIndex, type);
+      } else if (event.id === this.nextEventId) {
+        // roll needs to recalculate
+        if (this.state === 'roll') {
+          this.rollLoad();
+        }
+      }
+
+      // load titles
+      if ('title' in event || 'subtitle' in event || 'presenter' in event) {
+        this._loadTitlesNext();
+        this._loadTitlesNow();
+      }
+    } catch (error) {
+      this.error('SERVER', error);
+    }
+
+    // update clients
+    this.broadcastState();
+
+    // run cycle
+    this.runCycle();
   }
 
   /**
