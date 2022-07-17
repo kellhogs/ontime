@@ -36,6 +36,7 @@ export default function EventEditor() {
   const handleSubmit = useCallback(
     (field, value) => {
       const newEventData = { id: event.id };
+      console.log('>>>>>>>>>>>>>>', 1, field, value)
 
       switch (field) {
         case 'durationOverride': {
@@ -55,11 +56,16 @@ export default function EventEditor() {
         }
         default: {
           // TODO: memoise event into elemment
+          console.log('>>>>>>>>>>>>>>', 2, event)
+
           if (field in event) {
+            console.log('>>>>>>>>>>>>>>', 3, 'yes')
             // create object with new field
             newEventData[field] = value;
             break;
           } else {
+            console.log('>>>>>>>>>>>>>>', 4, 'no')
+
             emitError(`Unknown field: ${field}`);
             return;
           }
@@ -138,7 +144,7 @@ export default function EventEditor() {
       <div>
         <div className={style.inline}>
           <label>Colour</label>
-          <Input size='sm' type='color' value={event?.colour} />
+          <Input size='sm' type='color' value={event?.colour} onChange={(e) => handleSubmit('colour', e.target.value)} />
           <label>
             Title
             <TextInput field='title' initialText={event.title} submitHandler={handleSubmit} />
