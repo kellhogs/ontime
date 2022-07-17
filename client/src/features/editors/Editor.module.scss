@@ -135,13 +135,14 @@ h1 {
 }
 
 .eventEditor {
-  border-radius: 8px 8px 0 0;
-  background-color: darkslategrey;
+  border-radius: 3px 3px 0 0;
+  background-color: $bg-gray-950;
+  border-top: 1px solid $bg-gray-900;
   padding: 0.8em 1.5em;
   position: absolute;
   bottom: 0;
   width: 100vw;
-  height: 40vh;
+  max-height: 40vh;
   left: 0;
   z-index: 10;
   color: white;

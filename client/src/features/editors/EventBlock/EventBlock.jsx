@@ -36,17 +36,6 @@ const tooltipProps = {
   shouldWrapChildren: 'disabled',
 };
 
-function selectPlaybackStyle(playback) {
-  switch (playback) {
-    case 'play':
-      return style.play;
-    case 'pause':
-      return style.pause;
-    default:
-      return '';
-  }
-}
-
 export default function EventBlock(props) {
   const {
     timeStart,
@@ -60,7 +49,6 @@ export default function EventBlock(props) {
     delay,
     previousEnd,
     colour,
-    state,
     loaded,
     next,
     skip = false,
@@ -71,10 +59,9 @@ export default function EventBlock(props) {
   const { setOpenId } = useContext(EventEditorContext);
   const { emitError } = useContext(LoggingContext);
   const socket = useSocket();
+  const playback = null;
 
   const binderColours = getAccessibleColour(colour);
-  const progress = 0.2;
-  const progressStyle = selectPlaybackStyle(state);
   const hasDelay = delay !== 0 && delay !== null;
 
   const handleTitle = useCallback(
@@ -84,6 +71,7 @@ export default function EventBlock(props) {
       }
 
       const cleanVal = text.trim();
+      // Todo: no need for action handler
       actionHandler('update', { field: 'title', value: cleanVal });
     },
     [actionHandler, title]
@@ -106,13 +94,7 @@ export default function EventBlock(props) {
   );
 
   return (
-    <div className={`${style.eventBlock} ${skip ? style.skip : ''}`}>
-      <div className={`${style.progressBg} ${progressStyle}`}>
-        <div
-          className={`${style.progressBar} ${progressStyle}`}
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
+    <div className={`${style.eventBlock} ${skip ? style.skip : ''} ${selected ? style.selected : ''}`}>
       <div className={style.binder} style={{ ...binderColours }}>
         <IoReorderTwo className={style.drag} />
         {index}
@@ -132,7 +114,7 @@ export default function EventBlock(props) {
           icon={<IoPlay />}
           disabled={skip}
           {...blockBtnStyle}
-          variant={state === 'play' ? 'solid' : 'outline'}
+          variant={(selected && playback === 'start') ? 'solid' : 'outline'}
           onClick={() => playbackActions('play')}
         />
         <TooltipActionBtn
@@ -201,7 +183,6 @@ EventBlock.propTypes = {
   eventId: PropTypes.string,
   isPublic: PropTypes.bool,
   title: PropTypes.string,
-  state: PropTypes.oneOf(['play', 'pause']),
   note: PropTypes.string,
   delay: PropTypes.number,
   previousEnd: PropTypes.number,
