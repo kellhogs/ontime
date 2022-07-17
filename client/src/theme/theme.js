@@ -9,10 +9,39 @@ const theme = extendTheme({
     },
     Input: {
       baseStyle: {
-        borderRadius: '4px',
-        _hover: {
-          backgroundColor: 'red',
-        }
+        field: {
+          borderRadius: 4,
+        },
+      },
+      sizes: {},
+      variants: {
+        filled: {
+          field: {
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            _hover: {
+              backgroundColor: 'rgba(255, 255, 255, 0.13)',
+            },
+          },
+        },
+      },
+      defaultProps: {
+        variant: null, // null here
+      },
+    },
+    Textarea: {
+      baseStyle: {
+        borderRadius: 4,
+      },
+      variants: {
+        filled: {
+          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+          _hover: {
+            backgroundColor: 'rgba(255, 255, 255, 0.13)',
+          },
+        },
+      },
+      defaultProps: {
+        variant: null, // null here
       },
     },
   },

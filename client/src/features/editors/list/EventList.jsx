@@ -98,11 +98,9 @@ export default function EventList(props) {
   useEffect(() => {
     if (socket == null) return;
 
-    // ask for playstate
     socket.emit('get-selected');
     socket.emit('get-next-id');
 
-    // Handle playstate
     socket.on('selected', (data) => {
       setSelectedId(data.id);
     });

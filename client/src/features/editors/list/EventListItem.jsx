@@ -20,8 +20,7 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const EventListItem = (props) => {
-  const { type, index, eventIndex, data, selected, next, delay, previousEnd } =
-    props;
+  const { type, index, eventIndex, data, selected, next, delay, previousEnd } = props;
   const { emitError } = useContext(LoggingContext);
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
@@ -117,6 +116,7 @@ const EventListItem = (props) => {
           note={data.note}
           delay={delay}
           previousEnd={previousEnd}
+          colour={data.colour}
           next={next}
           selected={selected}
           actionHandler={actionHandler}
@@ -125,13 +125,7 @@ const EventListItem = (props) => {
     case 'block':
       return <BlockBlock index={index} data={data} actionHandler={actionHandler} />;
     case 'delay':
-      return (
-        <DelayBlock
-          index={index}
-          data={data}
-          actionHandler={actionHandler}
-        />
-      );
+      return <DelayBlock index={index} data={data} actionHandler={actionHandler} />;
     default:
       break;
   }

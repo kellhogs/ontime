@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { EditableTextarea } from '@chakra-ui/react';
+import { Input, Textarea } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 export default function TextInput(props) {
@@ -48,21 +47,17 @@ export default function TextInput(props) {
     [field, initialText, submitHandler]
   );
 
-  return (
-    <Editable
+  return isTextArea ? (
+    <Textarea size={size} variant='filled' />
+  ) : (
+    <Input
       size={size}
+      variant='filled'
       defaultValue={text}
       onChange={(value) => handleChange(value)}
       onSubmit={(value) => handleSubmit(value)}
       data-testid='editable-wrapper'
-    >
-      <EditablePreview style={{ width: '100%' }} data-testid='editable-preview' />
-      {isTextArea ? (
-        <EditableTextarea data-testid='editable-textarea' />
-      ) : (
-        <EditableInput data-testid='editable-input' />
-      )}
-    </Editable>
+    />
   );
 }
 

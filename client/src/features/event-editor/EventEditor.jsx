@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/button';
-import { Input } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
@@ -9,6 +8,7 @@ import { EventEditorContext } from '../../app/context/EventEditorContext';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { useEventAction } from '../../app/hooks/useEventAction';
 import { useFetch } from '../../app/hooks/useFetch';
+import ColourInput from '../../common/input/ColourInput';
 import TextInput from '../../common/input/TextInput';
 import TimeInput from '../../common/input/TimeInput';
 import { calculateDuration, validateEntry } from '../../common/utils/timesManager';
@@ -36,8 +36,6 @@ export default function EventEditor() {
   const handleSubmit = useCallback(
     (field, value) => {
       const newEventData = { id: event.id };
-      console.log('>>>>>>>>>>>>>>', 1, field, value)
-
       switch (field) {
         case 'durationOverride': {
           // duration defines timeEnd
@@ -55,17 +53,11 @@ export default function EventEditor() {
           break;
         }
         default: {
-          // TODO: memoise event into elemment
-          console.log('>>>>>>>>>>>>>>', 2, event)
-
           if (field in event) {
-            console.log('>>>>>>>>>>>>>>', 3, 'yes')
             // create object with new field
             newEventData[field] = value;
             break;
           } else {
-            console.log('>>>>>>>>>>>>>>', 4, 'no')
-
             emitError(`Unknown field: ${field}`);
             return;
           }
@@ -87,87 +79,95 @@ export default function EventEditor() {
     [emitWarning, event?.timeStart, event?.timeEnd]
   );
 
-  const togglePublic = useCallback((currentValue) => {
-    updateEvent({id: event.id, isPublic: !currentValue})
-  },[event?.id, updateEvent])
+  const togglePublic = useCallback(
+    (currentValue) => {
+      updateEvent({ id: event.id, isPublic: !currentValue });
+    },
+    [event?.id, updateEvent]
+  );
 
   if (!event) {
     return 'Loading';
   }
 
   return (
-    <div className={style.eventEditorMenu}>
-      <div>
-        <div className={style.inline}>
-          <label htmlFor='start'>Start time</label>
-          <TimeInput
-            name='timeStart'
-            submitHandler={handleSubmit}
-            validationHandler={timerValidationHandler}
-            time={event.timeStart}
-            delay={0}
-            id='start'
-          />
-        </div>
-        <div className={style.inline}>
-          <label>End time</label>
-          <TimeInput
-            name='timeEnd'
-            submitHandler={handleSubmit}
-            validationHandler={timerValidationHandler}
-            time={event.timeEnd}
-            delay={0}
-          />
-        </div>
-        <div className={style.inline}>
-          <label>Duration</label>
-          <TimeInput
-            name='duration'
-            submitHandler={handleSubmit}
-            validationHandler={timerValidationHandler}
-            time={event.duration}
-            delay={0}
-          />
-        </div>
-        <div>
-          <Button
-            leftIcon={<FiUsers />}
-            size='sm'
-            colorScheme='blue'
-            variant={event.isPublic ? 'solid' : 'outline'}
-            onClick={() => togglePublic(event.isPublic)}
-          >
-            {event.isPublic ? 'Event is Public' : 'Make event public'}
-          </Button>
-        </div>
+    <div className={style.eventEditor}>
+      <div className={style.eventEditor__timers}>
+        <label className={style.inputLabel}>Start time</label>
+        <TimeInput
+          name='timeStart'
+          submitHandler={handleSubmit}
+          validationHandler={timerValidationHandler}
+          time={event.timeStart}
+          delay={0}
+        />
+        <label className={style.inputLabel}>End time</label>
+        <TimeInput
+          name='timeEnd'
+          submitHandler={handleSubmit}
+          validationHandler={timerValidationHandler}
+          time={event.timeEnd}
+          delay={0}
+        />
+
+        <label className={style.inputLabel}>Duration</label>
+        <TimeInput
+          name='duration'
+          submitHandler={handleSubmit}
+          validationHandler={timerValidationHandler}
+          time={event.duration}
+          delay={0}
+        />
       </div>
-      <div>
-        <div className={style.inline}>
-          <label>Colour</label>
-          <Input size='sm' type='color' value={event?.colour} onChange={(e) => handleSubmit('colour', e.target.value)} />
-          <label>
-            Title
+      <div className={style.eventEditor__titles}>
+        <div className={style.left}>
+          <div>
+            <label className={style.inputLabel}>Title</label>
             <TextInput field='title' initialText={event.title} submitHandler={handleSubmit} />
-          </label>
+          </div>
+          <div className={style.inline}>
+            <label className={style.inputLabel}>Subtitle</label>
+            <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
+          </div>
+          <div className={style.inline}>
+            <label className={style.inputLabel}>Presenter</label>
+            <TextInput
+              field='presenter'
+              initialText={event.presenter}
+              submitHandler={handleSubmit}
+            />
+          </div>
+          <div>
+            <Button
+              leftIcon={<FiUsers />}
+              size='sm'
+              colorScheme='blue'
+              variant={event.isPublic ? 'solid' : 'outline'}
+              onClick={() => togglePublic(event.isPublic)}
+            >
+              {event.isPublic ? 'Event is Public' : 'Make event public'}
+            </Button>
+          </div>
         </div>
-        <div className={style.inline}>
-          <label>Subtitle</label>
-          <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
+        <div className={style.right}>
+          <div>
+            <label className={style.inputLabel}>Colour</label>
+            <ColourInput
+              value={event?.colour}
+              handleChange={(value) => handleSubmit('colour', value)}
+            />
+          </div>
+          <div>
+            <label className={style.inputLabel}>Notes</label>
+            <TextInput
+              field='note'
+              initialText={event.note}
+              submitHandler={handleSubmit}
+              isTextArea
+            />
+          </div>
         </div>
-        <div className={style.inline}>
-          <label>Presenter</label>
-          <TextInput field='presenter' initialText={event.presenter} submitHandler={handleSubmit} />
-        </div>
-        <div className={style.inline}>
-          <label>Notes</label>
-          <TextInput
-            field='note'
-            initialText={event.note}
-            submitHandler={handleSubmit}
-            isTextArea
-          />
-        </div>
-        <div className={style.osc}>{`OSC /ontime/gotoid/${event.id}`}</div>
+        <div className={style.osc}>{`OSC Trigger /ontime/gotoid/${event.id}`}</div>
       </div>
     </div>
   );
