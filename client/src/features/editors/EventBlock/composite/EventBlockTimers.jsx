@@ -5,7 +5,7 @@ import { LoggingContext } from '../../../../app/context/LoggingContext';
 import TimeInput from '../../../../common/input/TimeInput';
 import { millisToMinutes } from '../../../../common/utils/dateConfig';
 import { stringFromMillis } from '../../../../common/utils/time';
-import { handleTimeEntry, validateTimes } from '../../../../common/utils/timesManager';
+import { validateEntry } from '../../../../common/utils/timesManager';
 
 import style from '../EventBlock.module.scss';
 
@@ -23,17 +23,8 @@ export default function EventBlockTimers(props) {
    * @return {boolean}
    */
   const handleValidation = useCallback(
-    (entry, val) => {
-      if (val == null || timeStart == null || timeEnd == null) return true;
-      if (timeStart === 0) return true;
-
-      const { start, end, durationOverride } = handleTimeEntry(entry, val, timeStart, timeEnd);
-      if (durationOverride !== null) {
-        return durationOverride;
-      }
-
-      const valid = validateTimes(start, end);
-      // warn but not enforce validation
+    (field, value) => {
+      const valid = validateEntry(field, value, timeStart, timeEnd);
       if (!valid.value) {
         emitWarning(`Time Input Warning: ${valid.catch}`);
       }
@@ -42,9 +33,12 @@ export default function EventBlockTimers(props) {
     [emitWarning, timeEnd, timeStart]
   );
 
-  const handleSubmit = useCallback((field, value) => {
-    actionHandler('update', { field, value });
-  }, [actionHandler]);
+  const handleSubmit = useCallback(
+    (field, value) => {
+      actionHandler('update', { field, value });
+    },
+    [actionHandler]
+  );
 
   return (
     <div className={style.eventTimers}>

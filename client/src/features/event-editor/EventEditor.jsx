@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/button';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
-import { EditableTextarea, Input, Textarea } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
@@ -12,14 +11,14 @@ import { useEventAction } from '../../app/hooks/useEventAction';
 import { useFetch } from '../../app/hooks/useFetch';
 import TextInput from '../../common/input/TextInput';
 import TimeInput from '../../common/input/TimeInput';
-import { calculateDuration } from '../../common/utils/timesManager';
+import { calculateDuration, validateEntry } from '../../common/utils/timesManager';
 
 import style from './EventEditor.module.scss';
 
 export default function EventEditor() {
   const { openId } = useContext(EventEditorContext);
   const { data } = useFetch(EVENTS_TABLE, fetchAllEvents);
-  const { emitError } = useContext(LoggingContext);
+  const { emitWarning, emitError } = useContext(LoggingContext);
   const { updateEvent } = useEventAction();
   const [event, setEvent] = useState(null);
 
@@ -41,23 +40,23 @@ export default function EventEditor() {
       switch (field) {
         case 'durationOverride': {
           // duration defines timeEnd
-          newEventData.timeEnd = data.timeStart += value;
+          newEventData.timeEnd = event.timeStart += value;
           break;
         }
         case 'timeStart': {
-          newEventData.duration = calculateDuration(value, data.timeEnd);
+          newEventData.duration = calculateDuration(value, event.timeEnd);
           newEventData.timeStart = value;
           break;
         }
         case 'timeEnd': {
-          newEventData.duration = calculateDuration(data.timeStart, value);
+          newEventData.duration = calculateDuration(event.timeStart, value);
           newEventData.timeEnd = value;
           break;
         }
         default: {
+          // TODO: memoise event into elemment
           if (field in event) {
             // create object with new field
-            console.log('title should go here', field, event)
             newEventData[field] = value;
             break;
           } else {
@@ -68,23 +67,37 @@ export default function EventEditor() {
       }
       updateEvent(newEventData);
     },
-    [data, emitError, event, updateEvent]
+    [emitError, event, updateEvent]
   );
+
+  const timerValidationHandler = useCallback(
+    (entry, val) => {
+      const valid = validateEntry(entry, val, event.timeStart, event.timeEnd);
+      if (!valid.value) {
+        emitWarning(`Time Input Warning: ${valid.catch}`);
+      }
+      return valid.value;
+    },
+    [emitWarning, event?.timeStart, event?.timeEnd]
+  );
+
+  const togglePublic = useCallback((currentValue) => {
+    updateEvent({id: event.id, isPublic: !currentValue})
+  },[event?.id, updateEvent])
 
   if (!event) {
     return 'Loading';
   }
 
-  console.log(event);
   return (
     <div className={style.eventEditorMenu}>
       <div>
         <div className={style.inline}>
           <label htmlFor='start'>Start time</label>
           <TimeInput
-            name='start'
-            actionHandler={() => undefined}
-            validate={() => true}
+            name='timeStart'
+            submitHandler={handleSubmit}
+            validationHandler={timerValidationHandler}
             time={event.timeStart}
             delay={0}
             id='start'
@@ -93,9 +106,9 @@ export default function EventEditor() {
         <div className={style.inline}>
           <label>End time</label>
           <TimeInput
-            name='end'
-            actionHandler={() => undefined}
-            validate={() => true}
+            name='timeEnd'
+            submitHandler={handleSubmit}
+            validationHandler={timerValidationHandler}
             time={event.timeEnd}
             delay={0}
           />
@@ -104,8 +117,8 @@ export default function EventEditor() {
           <label>Duration</label>
           <TimeInput
             name='duration'
-            actionHandler={() => undefined}
-            validate={() => true}
+            submitHandler={handleSubmit}
+            validationHandler={timerValidationHandler}
             time={event.duration}
             delay={0}
           />
@@ -116,6 +129,7 @@ export default function EventEditor() {
             size='sm'
             colorScheme='blue'
             variant={event.isPublic ? 'solid' : 'outline'}
+            onClick={() => togglePublic(event.isPublic)}
           >
             {event.isPublic ? 'Event is Public' : 'Make event public'}
           </Button>
@@ -140,7 +154,12 @@ export default function EventEditor() {
         </div>
         <div className={style.inline}>
           <label>Notes</label>
-          <TextInput field='note' initialText={event.note} submitHandler={handleSubmit} isTextArea />
+          <TextInput
+            field='note'
+            initialText={event.note}
+            submitHandler={handleSubmit}
+            isTextArea
+          />
         </div>
         <div className={style.osc}>{`OSC /ontime/gotoid/${event.id}`}</div>
       </div>
