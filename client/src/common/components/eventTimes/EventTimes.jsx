@@ -3,7 +3,7 @@ import EditableTimer from 'common/input/EditableTimer';
 import PropTypes from 'prop-types';
 
 import { LoggingContext } from '../../../app/context/LoggingContext';
-import { validateTimes } from '../../../app/entryValidator';
+import { validateTimes } from '../../utils/timesManager';
 
 export default function EventTimes(props) {
   const { actionHandler, delay, timeStart, timeEnd, previousEnd } = props;

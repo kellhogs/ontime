@@ -145,7 +145,14 @@ export default function EventBlock(props) {
           onClick={() => playbackActions('load')}
         />
       </div>
-      <EventBlockTimers timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
+      <EventBlockTimers
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        duration={duration}
+        delay={delay}
+        actionHandler={actionHandler}
+        previousEnd={previousEnd}
+      />
       <Editable
         defaultValue={title}
         className={style.eventTitle}

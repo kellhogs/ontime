@@ -1,19 +1,26 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/button';
-import { Input, Textarea } from '@chakra-ui/react';
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
+import { EditableTextarea, Input, Textarea } from '@chakra-ui/react';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
 import { EventEditorContext } from '../../app/context/EventEditorContext';
+import { LoggingContext } from '../../app/context/LoggingContext';
+import { useEventAction } from '../../app/hooks/useEventAction';
 import { useFetch } from '../../app/hooks/useFetch';
+import TextInput from '../../common/input/TextInput';
 import TimeInput from '../../common/input/TimeInput';
+import { calculateDuration } from '../../common/utils/timesManager';
 
 import style from './EventEditor.module.scss';
 
 export default function EventEditor() {
   const { openId } = useContext(EventEditorContext);
   const { data } = useFetch(EVENTS_TABLE, fetchAllEvents);
+  const { emitError } = useContext(LoggingContext);
+  const { updateEvent } = useEventAction();
   const [event, setEvent] = useState(null);
 
   useEffect(() => {
@@ -27,7 +34,44 @@ export default function EventEditor() {
     }
   }, [data, openId]);
 
-  if (event === null) {
+  const handleSubmit = useCallback(
+    (field, value) => {
+      const newEventData = { id: event.id };
+
+      switch (field) {
+        case 'durationOverride': {
+          // duration defines timeEnd
+          newEventData.timeEnd = data.timeStart += value;
+          break;
+        }
+        case 'timeStart': {
+          newEventData.duration = calculateDuration(value, data.timeEnd);
+          newEventData.timeStart = value;
+          break;
+        }
+        case 'timeEnd': {
+          newEventData.duration = calculateDuration(data.timeStart, value);
+          newEventData.timeEnd = value;
+          break;
+        }
+        default: {
+          if (field in event) {
+            // create object with new field
+            console.log('title should go here', field, event)
+            newEventData[field] = value;
+            break;
+          } else {
+            emitError(`Unknown field: ${field}`);
+            return;
+          }
+        }
+      }
+      updateEvent(newEventData);
+    },
+    [data, emitError, event, updateEvent]
+  );
+
+  if (!event) {
     return 'Loading';
   }
 
@@ -81,20 +125,22 @@ export default function EventEditor() {
         <div className={style.inline}>
           <label>Colour</label>
           <Input size='sm' type='color' value={event?.colour} />
-          <label>Title</label>
-          <Input size='sm' value={event.title} />
+          <label>
+            Title
+            <TextInput field='title' initialText={event.title} submitHandler={handleSubmit} />
+          </label>
         </div>
         <div className={style.inline}>
           <label>Subtitle</label>
-          <Input size='sm' value={event.subtitle} />
+          <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
         </div>
         <div className={style.inline}>
           <label>Presenter</label>
-          <Input size='sm' value={event.presenter} />
+          <TextInput field='presenter' initialText={event.presenter} submitHandler={handleSubmit} />
         </div>
         <div className={style.inline}>
           <label>Notes</label>
-          <Textarea size='sm' value={event.note} />
+          <TextInput field='note' initialText={event.note} submitHandler={handleSubmit} isTextArea />
         </div>
         <div className={style.osc}>{`OSC /ontime/gotoid/${event.id}`}</div>
       </div>

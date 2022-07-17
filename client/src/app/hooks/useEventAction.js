@@ -15,6 +15,10 @@ import { LoggingContext } from '../context/LoggingContext';
 
 import { useFetch } from './useFetch';
 
+/**
+ * @description Set of utilities for events
+ * @return {{addEvent: ((function(*, *): Promise<void>)|*), reorderEvent: ((function(*=, *=, *=): Promise<void>)|*), applyDelay: ((function(*=): Promise<void>)|*), updateEvent: ((function(*=): Promise<void>)|*), deleteAllEvents: ((function(): Promise<void>)|*), deleteEvent: ((function(*=): Promise<void>)|*)}}
+ */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
   const { emitError } = useContext(LoggingContext);

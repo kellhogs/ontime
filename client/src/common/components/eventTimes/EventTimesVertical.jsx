@@ -2,7 +2,7 @@ import React, { useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { LoggingContext } from '../../../app/context/LoggingContext';
-import { validateTimes } from '../../../app/entryValidator';
+import { validateTimes } from '../../utils/timesManager';
 
 import Times from './Times';
 import TimesDelayed from './TimesDelayed';
