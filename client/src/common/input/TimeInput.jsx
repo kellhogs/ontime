@@ -28,6 +28,10 @@ export default function TimeInput(props) {
     }
   }, [delay, emitError, time]);
 
+  const handleFocus = useCallback(() => {
+    inputRef.current.select();
+  },[]);
+
   const handleSubmit = useCallback(
     (value) => {
       // Check if there is anything there
@@ -127,6 +131,7 @@ export default function TimeInput(props) {
         placeholder={name}
         variant='filled'
         style={{ borderRadius: '3px' }}
+        onFocus={() => handleFocus()}
         onChange={(event) => setValue(event.target.value)}
         onBlur={(event) => validateAndSubmit(event.target.value)}
         onKeyDown={(event) => keyHandler(event)}
