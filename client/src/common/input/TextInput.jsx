@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Input, Textarea } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 export default function TextInput(props) {
   const { isTextArea, size = 'sm', field, initialText = '', submitHandler } = props;
+  const inputRef = useRef(null);
   const [text, setText] = useState(initialText);
 
   useEffect(() => {
@@ -47,16 +48,50 @@ export default function TextInput(props) {
     [field, initialText, submitHandler]
   );
 
+  /**
+   * @description Resets input value to given
+   */
+  const resetValue = useCallback(() => {
+    setText(initialText);
+  },[initialText])
+
+  /**
+   * @description Handles common keys for submit and cancel
+   * @param {KeyboardEvent} event
+   */
+  const keyHandler = useCallback(
+    (event) => {
+      console.log('yay', event.key)
+      if (event.key === 'Escape') {
+        resetValue();
+        if (inputRef) {
+          inputRef.current.blur();
+        }
+      } else if (event.key === 'Enter') {
+        handleSubmit(text);
+      }
+    },
+    [resetValue, handleSubmit, text]
+  );
+
   return isTextArea ? (
-    <Textarea size={size} variant='filled' />
-  ) : (
-    <Input
+    <Textarea
+      ref={inputRef}
       size={size}
       variant='filled'
       defaultValue={text}
-      onChange={(value) => handleChange(value)}
-      onSubmit={(value) => handleSubmit(value)}
-      data-testid='editable-wrapper'
+      data-testid='input-textarea'
+    />
+  ) : (
+    <Input
+      ref={inputRef}
+      size={size}
+      variant='filled'
+      defaultValue={text}
+      onChange={(event) => handleChange(event.target.value)}
+      onBlur={(event) => handleSubmit(event.target.value)}
+      onKeyDown={(event) => keyHandler(event)}
+      data-testid='input-textfield'
     />
   );
 }

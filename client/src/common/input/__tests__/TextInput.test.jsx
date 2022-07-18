@@ -10,23 +10,20 @@ describe('TextInput component', () => {
       const testField = 'test';
       const testText = 'Test 123';
       render(<TextInput field={testField} initialText={testText} />);
-      expect(screen.getByTestId('editable-wrapper')).toBeInTheDocument();
-      expect(screen.getByTestId('editable-preview')).toBeInTheDocument();
-      expect(screen.getByText(testText)).toBeInTheDocument();
 
-      const input = screen.getByTestId('editable-input');
+      const input = screen.getByTestId('input-textfield');
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue(testText);
     });
 
     it('Handles renders as textarea', () => {
       const testField = 'test';
-      render(<TextInput field={testField} isTextArea />);
-      expect(screen.getByTestId('editable-wrapper')).toBeInTheDocument();
-      expect(screen.getByTestId('editable-preview')).toBeInTheDocument();
+      const testText = 'Test 123';
+      render(<TextInput field={testField} initialText={testText} isTextArea />);
 
-      const input = screen.getByTestId('editable-textarea');
+      const input = screen.getByTestId('input-textarea');
       expect(input).toBeInTheDocument();
+      expect(input).toHaveValue(testText);
     });
   });
 
@@ -39,7 +36,7 @@ describe('TextInput component', () => {
       const submitHandler = jest.fn();
       render(<TextInput field={testField} initialText={testText} submitHandler={submitHandler} />);
 
-      const input = screen.getByTestId('editable-input');
+      const input = screen.getByTestId('input-textfield');
 
       // submit without changing value
       await userEvent.type(input, '{enter}');
@@ -59,7 +56,7 @@ describe('TextInput component', () => {
       const submitHandler = jest.fn();
       render(<TextInput field={testField} submitHandler={submitHandler} />);
 
-      const input = screen.getByTestId('editable-input');
+      const input = screen.getByTestId('input-textfield');
 
       // on new value we can submit
       await userEvent.type(input, myTypedString);
@@ -74,7 +71,7 @@ describe('TextInput component', () => {
       const testField = 'test';
       const testText = 123;
       render(<TextInput field={testField} initialText={testText} />);
-      const input = screen.getByTestId('editable-input');
+      const input = screen.getByTestId('input-textfield');
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue(`${testText}`);
     });
@@ -83,7 +80,7 @@ describe('TextInput component', () => {
       const testText = null;
       const expected = '';
       render(<TextInput field={testField} initialText={testText} />);
-      const input = screen.getByTestId('editable-input');
+      const input = screen.getByTestId('input-textfield');
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue(expected);
     });
@@ -91,7 +88,7 @@ describe('TextInput component', () => {
       const testField = 'test';
       const expected = '';
       render(<TextInput field={testField} />);
-      const input = screen.getByTestId('editable-input');
+      const input = screen.getByTestId('input-textfield');
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue(expected);
     });
