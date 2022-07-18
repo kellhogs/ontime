@@ -106,9 +106,6 @@ export default function TimeInput(props) {
     (event) => {
       if (event.key === 'Escape') {
         resetValue();
-        if (inputRef) {
-          inputRef.current.blur();
-        }
       } else if (event.key === 'Enter') {
         validateAndSubmit(value);
       }

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
@@ -58,6 +58,7 @@ export default function EventBlock(props) {
 
   const { setOpenId } = useContext(EventEditorContext);
   const { emitError } = useContext(LoggingContext);
+  const [blockTitle, setBlockTitle] = useState(title || '')
   const socket = useSocket();
   const playback = null;
 
@@ -136,9 +137,10 @@ export default function EventBlock(props) {
         previousEnd={previousEnd}
       />
       <Editable
-        defaultValue={title}
+        value={blockTitle}
         className={style.eventTitle}
         placeholder='Event title'
+        onChange={(value) => setBlockTitle(value)}
         onSubmit={(value) => handleTitle(value)}
       >
         <EditablePreview style={{ width: '100%' }} />

@@ -51,7 +51,7 @@ export default function TextInput(props) {
   /**
    * @description Resets input value to given
    */
-  const resetValue = useCallback(() => {
+  const resetValue = useCallback(async () => {
     setText(initialText);
   },[initialText])
 
@@ -61,17 +61,15 @@ export default function TextInput(props) {
    */
   const keyHandler = useCallback(
     (event) => {
-      console.log('yay', event.key)
       if (event.key === 'Escape') {
         resetValue();
-        if (inputRef) {
-          inputRef.current.blur();
-        }
       } else if (event.key === 'Enter') {
-        handleSubmit(text);
+        if (!isTextArea) {
+          handleSubmit(text);
+        }
       }
     },
-    [resetValue, handleSubmit, text]
+    [resetValue, isTextArea, handleSubmit, text]
   );
 
   return isTextArea ? (
@@ -79,7 +77,10 @@ export default function TextInput(props) {
       ref={inputRef}
       size={size}
       variant='filled'
-      defaultValue={text}
+      value={text}
+      onChange={(event) => handleChange(event.target.value)}
+      onBlur={(event) => handleSubmit(event.target.value)}
+      onKeyDown={(event) => keyHandler(event)}
       data-testid='input-textarea'
     />
   ) : (
@@ -87,7 +88,7 @@ export default function TextInput(props) {
       ref={inputRef}
       size={size}
       variant='filled'
-      defaultValue={text}
+      value={text}
       onChange={(event) => handleChange(event.target.value)}
       onBlur={(event) => handleSubmit(event.target.value)}
       onKeyDown={(event) => keyHandler(event)}
