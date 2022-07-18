@@ -28,10 +28,17 @@ export default function TimeInput(props) {
     }
   }, [delay, emitError, time]);
 
+  /**
+   * @description Selects input text on focus
+   */
   const handleFocus = useCallback(() => {
     inputRef.current.select();
   },[]);
 
+  /**
+   * @description Submit handler
+   * @param {string} value
+   */
   const handleSubmit = useCallback(
     (value) => {
       // Check if there is anything there
@@ -73,7 +80,11 @@ export default function TimeInput(props) {
     [delay, name, previousEnd, submitHandler, time, validationHandler]
   );
 
-  // prepare time fields
+  /**
+   * @description Prepare time fields
+   * @param {string} value string to be parsed
+   * @type {(function(*=): void)|*}
+   */
   const validateAndSubmit = useCallback(
     (value) => {
       const success = handleSubmit(value);
