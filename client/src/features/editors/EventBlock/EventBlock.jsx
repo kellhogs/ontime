@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
+import { Draggable } from 'react-beautiful-dnd';
 import { IconButton } from '@chakra-ui/button';
 import { Editable, EditableInput, EditablePreview } from '@chakra-ui/editable';
 import { Tooltip } from '@chakra-ui/tooltip';
@@ -58,7 +59,7 @@ export default function EventBlock(props) {
 
   const { setOpenId } = useContext(EventEditorContext);
   const { emitError } = useContext(LoggingContext);
-  const [blockTitle, setBlockTitle] = useState(title || '')
+  const [blockTitle, setBlockTitle] = useState(title || '');
   const socket = useSocket();
   const playback = null;
 
@@ -95,85 +96,101 @@ export default function EventBlock(props) {
   );
 
   return (
-    <div className={`${style.eventBlock} ${skip ? style.skip : ''} ${selected ? style.selected : ''}`}>
-      <div className={style.binder} style={{ ...binderColours }}>
-        <IoReorderTwo className={style.drag} />
-        {index}
-      </div>
-      <div className={style.playbackActions}>
-        <TooltipActionBtn
-          tooltip='Skip event'
-          openDelay={300}
-          icon={<IoRemoveCircleSharp />}
-          {...blockBtnStyle}
-          variant={skip ? 'solid' : 'outline'}
-          clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
-        />
-        <TooltipActionBtn
-          tooltip='Start event'
-          openDelay={300}
-          icon={<IoPlay />}
-          disabled={skip}
-          {...blockBtnStyle}
-          variant={(selected && playback === 'start') ? 'solid' : 'outline'}
-          onClick={() => playbackActions('play')}
-        />
-        <TooltipActionBtn
-          tooltip='Load event'
-          openDelay={300}
-          icon={<IoReload />}
-          disabled={skip}
-          {...blockBtnStyle}
-          variant={loaded ? 'solid' : 'outline'}
-          onClick={() => playbackActions('load')}
-        />
-      </div>
-      <EventBlockTimers
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        duration={duration}
-        delay={delay}
-        actionHandler={actionHandler}
-        previousEnd={previousEnd}
-      />
-      <Editable
-        value={blockTitle}
-        className={style.eventTitle}
-        placeholder='Event title'
-        onChange={(value) => setBlockTitle(value)}
-        onSubmit={(value) => handleTitle(value)}
-      >
-        <EditablePreview style={{ width: '100%' }} />
-        <EditableInput />
-      </Editable>
-      <span className={style.eventNote}>{note}</span>
-      <div className={style.eventActions}>
-        <IconButton
-          icon={<IoSettingsSharp />}
-          aria-label='event options'
-          onClick={() => setOpenId(eventId)}
-          {...blockBtnStyle}
-        />
-        <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
-      </div>
-      <div className={style.eventStatus}>
-        <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
-          <IoReturnDownForward
-            className={`${style.statusIcon} ${style.statusNext} ${next ? style.enabled : ''}`}
+    <Draggable key={eventId} draggableId={eventId} index={index}>
+      {(provided) => (
+        <div
+          className={`${style.eventBlock} ${skip ? style.skip : ''} ${
+            selected ? style.selected : ''
+          }`}
+          {...provided.draggableProps} ref={provided.innerRef}
+        >
+          <div className={style.binder} style={{ ...binderColours }}  {...provided.dragHandleProps}>
+            <IoReorderTwo className={style.drag} />
+            {index}
+          </div>
+          <div className={style.playbackActions}>
+            <TooltipActionBtn
+              tooltip='Skip event'
+              openDelay={300}
+              icon={<IoRemoveCircleSharp />}
+              {...blockBtnStyle}
+              variant={skip ? 'solid' : 'outline'}
+              clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
+            />
+            <TooltipActionBtn
+              tooltip='Start event'
+              openDelay={300}
+              icon={<IoPlay />}
+              disabled={skip}
+              {...blockBtnStyle}
+              variant={selected && playback === 'start' ? 'solid' : 'outline'}
+              onClick={() => playbackActions('play')}
+            />
+            <TooltipActionBtn
+              tooltip='Load event'
+              openDelay={300}
+              icon={<IoReload />}
+              disabled={skip}
+              {...blockBtnStyle}
+              variant={loaded ? 'solid' : 'outline'}
+              onClick={() => playbackActions('load')}
+            />
+          </div>
+          <EventBlockTimers
+            timeStart={timeStart}
+            timeEnd={timeEnd}
+            duration={duration}
+            delay={delay}
+            actionHandler={actionHandler}
+            previousEnd={previousEnd}
           />
-        </Tooltip>
-        <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
-          <IoTimerOutline
-            className={`${style.statusIcon} ${style.statusDelay} ${hasDelay ? style.enabled : ''}`}
-          />
-        </Tooltip>
-        <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
-          <FiUsers
-            className={`${style.statusIcon} ${style.statusPublic} ${isPublic ? style.enabled : ''}`}
-          />
-        </Tooltip>
-      </div>
-    </div>
+          <Editable
+            value={blockTitle}
+            className={style.eventTitle}
+            placeholder='Event title'
+            onChange={(value) => setBlockTitle(value)}
+            onSubmit={(value) => handleTitle(value)}
+          >
+            <EditablePreview style={{ width: '100%' }} />
+            <EditableInput />
+          </Editable>
+          <span className={style.eventNote}>{note}</span>
+          <div className={style.eventActions}>
+            <IconButton
+              icon={<IoSettingsSharp />}
+              aria-label='event options'
+              onClick={() => setOpenId(eventId)}
+              {...blockBtnStyle}
+            />
+            <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
+          </div>
+          <div className={style.eventStatus}>
+            <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
+              <IoReturnDownForward
+                className={`${style.statusIcon} ${style.statusNext} ${next ? style.enabled : ''}`}
+              />
+            </Tooltip>
+            <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
+              <IoTimerOutline
+                className={`${style.statusIcon} ${style.statusDelay} ${
+                  hasDelay ? style.enabled : ''
+                }`}
+              />
+            </Tooltip>
+            <Tooltip
+              label={`${isPublic ? 'Event is public' : 'Event is private'}`}
+              {...tooltipProps}
+            >
+              <FiUsers
+                className={`${style.statusIcon} ${style.statusPublic} ${
+                  isPublic ? style.enabled : ''
+                }`}
+              />
+            </Tooltip>
+          </div>
+        </div>
+      )}
+    </Draggable>
   );
 }
 

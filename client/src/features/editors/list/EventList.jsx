@@ -153,6 +153,7 @@ export default function EventList(props) {
   // DND
   const handleOnDragEnd = useCallback(
     (result) => {
+      console.log('>>>>>>>>>>>>>>>>>', result)
       // drop outside of area
       if (!result.destination) return;
 
