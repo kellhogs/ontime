@@ -108,7 +108,8 @@ const EventListItem = (props) => {
           timeStart={data.timeStart}
           timeEnd={data.timeEnd}
           duration={data.duration}
-          index={eventIndex + 1}
+          index={index}
+          eventIndex={eventIndex + 1}
           eventId={data.id}
           isPublic={data.isPublic}
           skip={data.skip}

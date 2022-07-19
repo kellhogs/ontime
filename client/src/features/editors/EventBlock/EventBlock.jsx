@@ -43,6 +43,7 @@ export default function EventBlock(props) {
     timeEnd,
     duration,
     index,
+    eventIndex,
     eventId,
     isPublic = true,
     title,
@@ -106,7 +107,7 @@ export default function EventBlock(props) {
         >
           <div className={style.binder} style={{ ...binderColours }}  {...provided.dragHandleProps}>
             <IoReorderTwo className={style.drag} />
-            {index}
+            {eventIndex}
           </div>
           <div className={style.playbackActions}>
             <TooltipActionBtn
@@ -199,6 +200,7 @@ EventBlock.propTypes = {
   timeEnd: PropTypes.number,
   duration: PropTypes.number,
   index: PropTypes.number,
+  eventIndex: PropTypes.number,
   eventId: PropTypes.string,
   isPublic: PropTypes.bool,
   title: PropTypes.string,
