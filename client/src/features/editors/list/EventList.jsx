@@ -81,6 +81,12 @@ export default function EventList(props) {
           if (cursor == null) return;
           insertAtCursor('block', cursor);
         }
+        // C
+        if (e.key === 'c' || e.key === 'C') {
+          e.preventDefault();
+          if (cursor == null) return;
+          insertAtCursor('clone', cursor);
+        }
       }
     },
     [cursor, events.length, insertAtCursor, moveCursorDown, moveCursorUp]
