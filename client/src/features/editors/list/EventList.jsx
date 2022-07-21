@@ -18,6 +18,7 @@ export default function EventList(props) {
   const { events } = props;
   const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } =
     useContext(CursorContext);
+  const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const { addEvent, reorderEvent } = useEventAction();
   const socket = useSocket();
   const [selectedId, setSelectedId] = useState(null);
@@ -40,12 +41,22 @@ export default function EventList(props) {
           const newEvent = duplicateEvent(previousEvent);
           newEvent.after = previousEvent.id;
           addEvent(newEvent);
-        } else if (type === 'event' || (isPreviousDifferent && isNextDifferent)) {
+        } else if (type === 'event') {
+          const newEvent = {
+            type: 'event',
+            after: previousEvent.id,
+            isPublic: defaultPublic,
+          };
+          const options = {
+            startIsLastEnd: starTimeIsLastEnd ? previousEvent.id : undefined,
+          };
+          addEvent(newEvent, options);
+        } else if (isPreviousDifferent && isNextDifferent) {
           addEvent({ type: type, after: previousEvent.id });
         }
       }
     },
-    [addEvent, events]
+    [addEvent, defaultPublic, events, starTimeIsLastEnd]
   );
 
   // Handle keyboard shortcuts
