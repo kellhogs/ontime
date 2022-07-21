@@ -84,3 +84,23 @@ export const formatEventList = (events, selectedId, nextId, showEnd = false) => 
 
   return formattedEvents;
 };
+
+/**
+ * @description Creates a safe duplicate of an event
+ * @param {object} event
+ * @return {object} clean event
+ */
+export const duplicateEvent = (event) => {
+  return {
+    type: 'event',
+    title: event.title,
+    subtitle: event.subtitle,
+    presenter: event.presenter,
+    note: event.note,
+    timeStart: event.timeStart,
+    timeEnd: event.timeEnd,
+    isPublic: event.isPublic,
+    skip: event.skip,
+    colour: event.colour,
+  };
+};

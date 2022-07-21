@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { useEventAction } from '../../../app/hooks/useEventAction';
+import { duplicateEvent } from '../../../common/utils/eventsManager';
 import BlockBlock from '../BlockBlock/BlockBlock';
 import DelayBlock from '../DelayBlock/DelayBlock';
 import EventBlock from '../EventBlock/EventBlock';
@@ -65,19 +66,8 @@ const EventListItem = (props) => {
           break;
         }
         case 'clone': {
-          const newEvent = {
-            type: 'event',
-            after: data.id,
-            title: data.title,
-            subtitle: data.subtitle,
-            presenter: data.presenter,
-            note: data.note,
-            timeStart: data.timeStart,
-            timeEnd: data.timeEnd,
-            isPublic: data.isPublic,
-            skip: data.skip,
-            colour: data.colour,
-          };
+          const newEvent = duplicateEvent(data);
+          newEvent.after = data.id;
           addEvent(newEvent);
           break;
         }

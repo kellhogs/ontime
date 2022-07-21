@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { CursorContext } from '../../../app/context/CursorContext';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 import { useEventAction } from '../../../app/hooks/useEventAction';
+import { duplicateEvent } from '../../../common/utils/eventsManager';
 import EntryBlock from '../EntryBlock/EntryBlock';
 
 import EventListItem from './EventListItem';
@@ -29,13 +30,17 @@ export default function EventList(props) {
       if (cursor === -1) {
         addEvent({ type: type });
       } else {
-        const previousEvent = events[cursor];
-        const nextEvent = events[cursor + 1];
+        const previousEvent = events?.[cursor];
+        const nextEvent = events?.[cursor + 1];
 
         // prevent adding two non event blocks consecutively
         const isPreviousDifferent = previousEvent?.type !== type;
         const isNextDifferent = nextEvent?.type !== type;
-        if (type === 'event' || (isPreviousDifferent && isNextDifferent)) {
+        if (type === 'clone' && previousEvent) {
+          const newEvent = duplicateEvent(previousEvent);
+          newEvent.after = previousEvent.id;
+          addEvent(newEvent);
+        } else if (type === 'event' || (isPreviousDifferent && isNextDifferent)) {
           addEvent({ type: type, after: previousEvent.id });
         }
       }
