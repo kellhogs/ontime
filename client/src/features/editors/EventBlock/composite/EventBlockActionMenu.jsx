@@ -11,7 +11,7 @@ import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
 
 export default function EventBlockActionMenu(props) {
-  const { showAdd, showDelay, showBlock, actionHandler } = props;
+  const { showAdd, showDelay, showBlock, showClone, actionHandler } = props;
 
   const menuStyle = {
     color: '#000000',
@@ -49,13 +49,15 @@ export default function EventBlockActionMenu(props) {
         >
           Add Block after
         </MenuItem>
-        <MenuItem
-          icon={<IoDuplicateOutline />}
-          onClick={() => actionHandler('duplicate')}
-          isDisabled={!showBlock}
-        >
-          Clone event
-        </MenuItem>
+        {showClone && (
+          <MenuItem
+            icon={<IoDuplicateOutline />}
+            onClick={() => actionHandler('clone')}
+            isDisabled={!showBlock}
+          >
+            Clone event
+          </MenuItem>
+        )}
         <Divider />
         <MenuItem
           icon={<FiTrash2 />}
@@ -74,6 +76,6 @@ EventBlockActionMenu.propTypes = {
   showAdd: PropTypes.bool,
   showDelay: PropTypes.bool,
   showBlock: PropTypes.bool,
+  showClone: PropTypes.bool,
   actionHandler: PropTypes.func,
 };
-

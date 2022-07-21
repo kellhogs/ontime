@@ -40,7 +40,7 @@ const EventListItem = (props) => {
   const actionHandler = useCallback(
     (action, payload) => {
       switch (action) {
-        case 'event':
+        case 'event': {
           const newEvent = {
             type: 'event',
             after: data.id,
@@ -51,16 +51,37 @@ const EventListItem = (props) => {
           };
           addEvent(newEvent, options);
           break;
-        case 'delay':
+        }
+        case 'delay': {
           addEvent({ type: 'delay', after: data.id });
           break;
-        case 'block':
+        }
+        case 'block': {
           addEvent({ type: 'block', after: data.id });
           break;
-        case 'delete':
+        }
+        case 'delete': {
           deleteEvent(data.id);
           break;
-        case 'update':
+        }
+        case 'clone': {
+          const newEvent = {
+            type: 'event',
+            after: data.id,
+            title: data.title,
+            subtitle: data.subtitle,
+            presenter: data.presenter,
+            note: data.note,
+            timeStart: data.timeStart,
+            timeEnd: data.timeEnd,
+            isPublic: data.isPublic,
+            skip: data.skip,
+            colour: data.colour,
+          };
+          addEvent(newEvent);
+          break;
+        }
+        case 'update': {
           // Handles and filters update requests
           const { field, value } = payload;
           const newData = { id: data.id };
@@ -85,7 +106,9 @@ const EventListItem = (props) => {
             emitError(`Unknown field: ${field}`);
           }
           break;
+        }
         default:
+          emitError(`Unknown action called: ${action}`);
           break;
       }
     },

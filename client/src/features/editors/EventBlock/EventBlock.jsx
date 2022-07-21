@@ -163,7 +163,7 @@ export default function EventBlock(props) {
               onClick={() => setOpenId(eventId)}
               {...blockBtnStyle}
             />
-            <EventBlockActionMenu showAdd showDelay showBlock actionHandler={actionHandler} />
+            <EventBlockActionMenu showAdd showDelay showBlock showClone actionHandler={actionHandler} />
           </div>
           <div className={style.eventStatus}>
             <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
