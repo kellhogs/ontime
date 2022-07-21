@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/button';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
+import { IoBan } from '@react-icons/all-files/io5/IoBan';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
@@ -8,6 +9,7 @@ import { EventEditorContext } from '../../app/context/EventEditorContext';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { useEventAction } from '../../app/hooks/useEventAction';
 import { useFetch } from '../../app/hooks/useFetch';
+import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import ColourInput from '../../common/input/ColourInput';
 import TextInput from '../../common/input/TextInput';
 import TimeInput from '../../common/input/TimeInput';
@@ -125,11 +127,11 @@ export default function EventEditor() {
             <label className={style.inputLabel}>Title</label>
             <TextInput field='title' initialText={event.title} submitHandler={handleSubmit} />
           </div>
-          <div className={style.inline}>
+          <div>
             <label className={style.inputLabel}>Subtitle</label>
             <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
           </div>
-          <div className={style.inline}>
+          <div>
             <label className={style.inputLabel}>Presenter</label>
             <TextInput
               field='presenter'
@@ -152,10 +154,22 @@ export default function EventEditor() {
         <div className={style.right}>
           <div>
             <label className={style.inputLabel}>Colour</label>
-            <ColourInput
-              value={event?.colour}
-              handleChange={(value) => handleSubmit('colour', value)}
-            />
+            <div className={style.inline}>
+              <ColourInput
+                value={event?.colour}
+                handleChange={(value) => handleSubmit('colour', value)}
+              />
+              <TooltipActionBtn
+                tooltip='Clear colour'
+                openDelay={500}
+                icon={<IoBan />}
+                clickHandler={() => handleSubmit('colour', '')}
+                variant='outline'
+                colorScheme='blue'
+                borderRadius='3px'
+                size='sm'
+              />
+            </div>
           </div>
           <div>
             <label className={style.inputLabel}>Notes</label>
