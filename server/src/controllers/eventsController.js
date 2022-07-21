@@ -242,6 +242,7 @@ export const eventsPut = async (req, res) => {
 
 // Create controller for PATCH request to '/events/'
 // Returns -
+// DEPRECATED
 export const eventsPatch = async (req, res) => {
   // Code is the same as put, call that
   await eventsPut(req, res);
