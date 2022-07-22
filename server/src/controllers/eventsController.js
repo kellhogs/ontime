@@ -11,6 +11,21 @@ import { generateId } from '../utils/generate_id.js';
 import { MAX_EVENTS } from '../settings.js';
 import { getPreviousPlayable } from '../utils/eventUtils.js';
 
+async function _insertAndSync(newEvent) {
+  if (newEvent.order) {
+    const events = data.events;
+    await _insertAt(newEvent, newEvent.order);
+    const previousId = events?.[newEvent.order - 1]?.id;
+    _insertEventInTimerAfterId(newEvent, previousId);
+  } else if (newEvent.after) {
+    await _insertAfterId(newEvent, newEvent.after);
+    _insertEventInTimerAfterId(newEvent, newEvent.after);
+  } else {
+    await _insertAt(newEvent, 0);
+    _insertEventInTimerAfterId(newEvent);
+  }
+}
+
 /**
  * Insets an event after a given index
  * @param entry
@@ -87,13 +102,13 @@ function _updateTimers() {
 /**
  * @description Adds an event to the timer after an event with given id
  * @param {object} event
- * @param {string | null} previousId
+ * @param {string} [previousId]
  * @private
  */
 function _insertEventInTimerAfterId(event, previousId) {
-  if (previousId === null) {
+  if (typeof previousId === 'undefined') {
     global.timer.insertEventAtStart(event);
-  } else if (previousId) {
+  } else {
     try {
       global.timer.insertEventAfterId(event, previousId);
     } catch (error) {
@@ -172,22 +187,9 @@ export const eventsPost = async (req, res) => {
   }
 
   try {
-    // get place where event should be
-    if (newEvent.order) {
-      await _insertAt(newEvent, newEvent.order);
-    } else if (newEvent.after) {
-      await _insertAfterId(newEvent, newEvent.after);
-    } else {
-      await _insertAt(newEvent, 0);
-    }
-
-    // update timers
-    _updateTimers();
-
-    // reply OK
+    _insertAndSync(newEvent);
     res.sendStatus(201);
   } catch (error) {
-    console.log(error);
     res.status(400).send(error);
   }
 };
@@ -235,7 +237,6 @@ export const eventsPut = async (req, res) => {
     }
     res.sendStatus(200);
   } catch (error) {
-    console.log(error);
     res.status(400).send(error);
   }
 };
@@ -283,7 +284,6 @@ export const eventsReorder = async (req, res) => {
 
     res.sendStatus(200);
   } catch (error) {
-    console.log(error);
     res.status(400).send(error);
   }
 };
