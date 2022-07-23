@@ -112,7 +112,7 @@ function _insertEventInTimerAfterId(event, previousId) {
     try {
       global.timer.insertEventAfterId(event, previousId);
     } catch (error) {
-      global.timer.error('SERVER', 'Unable to update object');
+      global.timer.error('SERVER', `Unable to update object: ${error}`);
     }
   }
 }

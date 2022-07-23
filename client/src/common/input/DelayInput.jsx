@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
@@ -19,25 +19,37 @@ const inputProps = {
 };
 
 export default function DelayInput(props) {
-  const { actionHandler, value } = props;
+  const { submitHandler, value } = props;
   const [_value, setValue] = useState(value);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (value == null) return;
     setValue(value);
   }, [value]);
 
-  const handleSubmit = useCallback(
+  const validate = useCallback(
     (newValue) => {
-      if (newValue === value) return;
+      inputRef.current.blur();
       if (newValue === '') setValue(0);
+      const delayValue = clamp(Number(newValue), -60, 60);
 
-      // convert to ms and updates
-      const msVal = clamp(newValue, -60, 60) * 60000;
-      actionHandler('update', { field: 'duration', value: msVal });
+      if (delayValue === value) return;
+      setValue(delayValue);
+
+      submitHandler(delayValue);
     },
-    [actionHandler, value]
+    [submitHandler, value]
   );
+
+  const onKeyDownHandler = useCallback((event) => {
+    if (event.key === 'Enter') {
+      validate(event.target.value);
+    } else if (event.key === 'Escape') {
+      setValue(value);
+      inputRef.current.blur();
+    }
+  }, [validate, value]);
 
   const labelText = `${Math.abs(value) > 1 ? 'minutes' : 'minute'} ${
     value >= 0 ? 'delayed' : 'ahead'
@@ -46,18 +58,14 @@ export default function DelayInput(props) {
   return (
     <div className={style.delayInput}>
       <Input
+        ref={inputRef}
         data-testid='delay-input'
         className={style.inputField}
         {...inputProps}
         value={_value}
         onChange={(event) => setValue(event.target.value)}
-        onBlur={(event) => handleSubmit(event.target.value)}
-        onKeyPress={(event) => {
-          console.log(event)
-          if (event.key === 'Enter') {
-            handleSubmit(event.target.value);
-          }
-        }}
+        onBlur={() => setValue(value)}
+        onKeyDown={onKeyDownHandler}
         type='number'
       />
       <span className={style.label}>{labelText}</span>
@@ -66,6 +74,6 @@ export default function DelayInput(props) {
 }
 
 DelayInput.propTypes = {
-  actionHandler: PropTypes.func,
+  submitHandler: PropTypes.func,
   value: PropTypes.number,
 };
