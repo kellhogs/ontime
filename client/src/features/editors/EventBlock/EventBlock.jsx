@@ -13,6 +13,7 @@ import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../app/config';
 import { EventEditorContext } from '../../../app/context/EventEditorContext';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { useSocket } from '../../../app/context/socketContext';
@@ -33,7 +34,7 @@ const blockBtnStyle = {
 };
 
 const tooltipProps = {
-  openDelay: 300,
+  openDelay: tooltipDelayMid,
   shouldWrapChildren: 'disabled',
 };
 
@@ -112,7 +113,7 @@ export default function EventBlock(props) {
           <div className={style.playbackActions}>
             <TooltipActionBtn
               tooltip='Skip event'
-              openDelay={300}
+              openDelay={tooltipDelayMid}
               icon={<IoRemoveCircleSharp />}
               {...blockBtnStyle}
               variant={skip ? 'solid' : 'outline'}
@@ -120,7 +121,7 @@ export default function EventBlock(props) {
             />
             <TooltipActionBtn
               tooltip='Start event'
-              openDelay={300}
+              openDelay={tooltipDelayMid}
               icon={<IoPlay />}
               disabled={skip}
               {...blockBtnStyle}
@@ -129,7 +130,7 @@ export default function EventBlock(props) {
             />
             <TooltipActionBtn
               tooltip='Load event'
-              openDelay={300}
+              openDelay={tooltipDelayMid}
               icon={<IoReload />}
               disabled={skip}
               {...blockBtnStyle}

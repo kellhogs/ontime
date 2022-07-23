@@ -5,6 +5,7 @@ import { IoBan } from '@react-icons/all-files/io5/IoBan';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
+import { tooltipDelayMid } from '../../app/config';
 import { EventEditorContext } from '../../app/context/EventEditorContext';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { useEventAction } from '../../app/hooks/useEventAction';
@@ -161,7 +162,7 @@ export default function EventEditor() {
               />
               <TooltipActionBtn
                 tooltip='Clear colour'
-                openDelay={500}
+                openDelay={tooltipDelayMid}
                 icon={<IoBan />}
                 clickHandler={() => handleSubmit('colour', '')}
                 variant='outline'

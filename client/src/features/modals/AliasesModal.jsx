@@ -12,6 +12,7 @@ import { useFetch } from 'app/hooks/useFetch';
 
 import { getAliases, postAliases } from '../../app/api/ontimeApi';
 import { viewerLocations } from '../../app/appConstants';
+import { tooltipDelayFast } from '../../app/config';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { validateAlias } from '../../app/utils/aliases';
 import { handleLinks, host } from '../../common/utils/linkUtils';
@@ -252,7 +253,7 @@ export default function AliasesModal() {
                   isInvalid={alias.urlError}
                   onChange={(event) => handleChange(index, 'pathAndParams', event.target.value)}
                 />
-                <Tooltip label={`Test /${alias.pathAndParams}`} openDelay={500}>
+                <Tooltip label={`Test /${alias.pathAndParams}`} openDelay={tooltipDelayFast}>
                   <a
                     href='#!'
                     target='_blank'
@@ -260,7 +261,7 @@ export default function AliasesModal() {
                     onClick={(e) => handleLinks(e, alias.pathAndParams)}
                   />
                 </Tooltip>
-                <Tooltip label='Enable alias' openDelay={500}>
+                <Tooltip label='Enable alias' openDelay={tooltipDelayFast}>
                   <IconButton
                     aria-label='Enable alias'
                     size='xs'
@@ -270,7 +271,7 @@ export default function AliasesModal() {
                     onClick={() => setEnabled(alias.id, !alias.enabled)}
                   />
                 </Tooltip>
-                <Tooltip label='Delete alias' openDelay={500}>
+                <Tooltip label='Delete alias' openDelay={tooltipDelayFast}>
                   <IconButton
                     aria-label='Delete alias'
                     size='xs'

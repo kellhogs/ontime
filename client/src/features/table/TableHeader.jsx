@@ -6,6 +6,7 @@ import { IoMoon } from '@react-icons/all-files/io5/IoMoon';
 
 import { EVENT_TABLE } from '../../app/api/apiConstants';
 import { fetchEvent } from '../../app/api/eventApi';
+import { tooltipDelayFast } from '../../app/config';
 import { useSocket } from '../../app/context/socketContext';
 import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { useFetch } from '../../app/hooks/useFetch';
@@ -118,17 +119,17 @@ export default function TableHeader() {
         <span className={style.timer}>{stringFromMillis(timer.clock)}</span>
       </div>
       <div className={style.headerActions}>
-        <Tooltip openDelay={300} label='Follow selected'>
+        <Tooltip openDelay={tooltipDelayFast} label='Follow selected'>
           <span className={followSelected ? style.actionIcon : style.actionDisabled}>
             <FiTarget onClick={() => toggleFollow()} />
           </span>
         </Tooltip>
-        <Tooltip openDelay={300} label='Show settings'>
+        <Tooltip openDelay={tooltipDelayFast} label='Show settings'>
           <span className={showSettings ? style.actionIcon : style.actionDisabled}>
             <FiSettings onClick={() => toggleSettings()} />
           </span>
         </Tooltip>
-        <Tooltip openDelay={300} label='Toggle dark mode'>
+        <Tooltip openDelay={tooltipDelayFast} label='Toggle dark mode'>
           <span className={style.actionIcon}>
             <IoMoon onClick={() => toggleTheme()} />
           </span>

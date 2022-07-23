@@ -17,6 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayFast } from '../../app/config';
 import { TableSettingsContext } from '../../app/context/TableSettingsContext';
 import { useLocalStorage } from '../../app/hooks/useLocalStorage';
 
@@ -184,7 +185,7 @@ export default function OntimeTable({ tableData, userFields, handleUpdate, selec
               >
                 <tr {...restHeaderGroupProps}>
                   <th className={style.indexColumn}>
-                    <Tooltip label='Event Order' openDelay={300}>
+                    <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
                       #
                     </Tooltip>
                   </th>

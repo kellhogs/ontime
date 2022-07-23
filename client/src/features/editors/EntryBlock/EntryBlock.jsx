@@ -3,6 +3,7 @@ import { Checkbox } from '@chakra-ui/react';
 import { Tooltip } from '@chakra-ui/tooltip';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../app/config';
 import { LocalEventSettingsContext } from '../../../app/context/LocalEventSettingsContext';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { useEventAction } from '../../../app/hooks/useEventAction';
@@ -57,7 +58,7 @@ export default function EntryBlock(props) {
 
   return (
     <div className={`${style.create} ${visible ? style.visible : ''}`}>
-      <Tooltip label='Add Event' openDelay={300}>
+      <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
         <span
           className={style.createEvent}
           onClick={() => handleCreateEvent('event')}
@@ -65,7 +66,7 @@ export default function EntryBlock(props) {
           E{showKbd && <span className={style.keyboard}>Alt + E</span>}
         </span>
       </Tooltip>
-      <Tooltip label='Add Delay' openDelay={300}>
+      <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
         <span
           className={`${style.createDelay} ${disableAddDelay ? style.disabled : ''}`}
           onClick={() => handleCreateEvent('delay')}
@@ -74,7 +75,7 @@ export default function EntryBlock(props) {
           D{showKbd && <span className={style.keyboard}>Alt + D</span>}
         </span>
       </Tooltip>
-      <Tooltip label='Add Block' openDelay={300}>
+      <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
         <span
           className={`${style.createBlock} ${disableAddBlock ? style.disabled : ''}`}
           onClick={() => handleCreateEvent('delay')}
