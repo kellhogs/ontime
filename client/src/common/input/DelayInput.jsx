@@ -28,9 +28,12 @@ export default function DelayInput(props) {
     setValue(value);
   }, [value]);
 
+  /**
+   * @description Prepare delay value for update
+   * @param {string} value string to be parsed
+   */
   const validate = useCallback(
     (newValue) => {
-      inputRef.current.blur();
       if (newValue === '') setValue(0);
       const delayValue = clamp(Number(newValue), -60, 60);
 
@@ -42,12 +45,17 @@ export default function DelayInput(props) {
     [submitHandler, value]
   );
 
+  /**
+   * @description Handles common keys for submit and cancel
+   * @param {KeyboardEvent} event
+   */
   const onKeyDownHandler = useCallback((event) => {
     if (event.key === 'Enter') {
+      inputRef.current.blur();
       validate(event.target.value);
     } else if (event.key === 'Escape') {
-      setValue(value);
       inputRef.current.blur();
+      setValue(value);
     }
   }, [validate, value]);
 

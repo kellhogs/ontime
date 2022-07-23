@@ -37,30 +37,30 @@ export default function TimeInput(props) {
 
   /**
    * @description Submit handler
-   * @param {string} value
+   * @param {string} newValue
    */
   const handleSubmit = useCallback(
-    (value) => {
+    (newValue) => {
       // Check if there is anything there
-      if (value === '') {
+      if (newValue === '') {
         return false;
       }
 
       let newValMillis = 0;
 
       // check for known aliases
-      if (value === 'p' || value === 'prev' || value === 'previous') {
+      if (newValue === 'p' || newValue === 'prev' || newValue === 'previous') {
         // string to pass should be the time of the end before
         if (previousEnd != null) {
           newValMillis = previousEnd;
         }
-      } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
+      } else if (newValue.startsWith('+') || newValue.startsWith('p+') || newValue.startsWith('p +')) {
         // string to pass should add to the end before
-        const val = value.substring(1);
+        const val = newValue.substring(1);
         newValMillis = previousEnd + forgivingStringToMillis(val);
       } else {
         // convert entered value to milliseconds
-        newValMillis = forgivingStringToMillis(value);
+        newValMillis = forgivingStringToMillis(newValue);
       }
 
       // Time now and time submittedVal
@@ -83,16 +83,18 @@ export default function TimeInput(props) {
   /**
    * @description Prepare time fields
    * @param {string} value string to be parsed
-   * @type {(function(*=): void)|*}
    */
   const validateAndSubmit = useCallback(
-    (value) => {
-      const success = handleSubmit(value);
+    (newValue) => {
+      const success = handleSubmit(newValue);
       if (success) {
-        const ms = forgivingStringToMillis(value);
+        const ms = forgivingStringToMillis(newValue);
         setValue(stringFromMillis(ms + delay));
+        console.log('success', newValue, ms, stringFromMillis(ms + delay) )
+
       } else {
         resetValue();
+        console.log('else')
       }
     },
     [delay, handleSubmit, resetValue]
@@ -102,15 +104,18 @@ export default function TimeInput(props) {
    * @description Handles common keys for submit and cancel
    * @param {KeyboardEvent} event
    */
-  const keyHandler = useCallback(
+  const onKeyDownHandler = useCallback(
     (event) => {
-      if (event.key === 'Escape') {
+      console.log(event.target.value)
+      if (event.key === 'Enter') {
+        inputRef.current.blur();
+        validateAndSubmit(event.target.value);
+      } else if (event.key === 'Escape') {
+        inputRef.current.blur();
         resetValue();
-      } else if (event.key === 'Enter') {
-        validateAndSubmit(value);
       }
     },
-    [resetValue, validateAndSubmit, value]
+    [resetValue, validateAndSubmit]
   );
 
   useEffect(() => {
@@ -138,11 +143,10 @@ export default function TimeInput(props) {
         type='text'
         placeholder={name}
         variant='filled'
-        style={{ borderRadius: '3px' }}
-        onFocus={() => handleFocus()}
+        onFocus={handleFocus}
         onChange={(event) => setValue(event.target.value)}
-        onBlur={(event) => validateAndSubmit(event.target.value)}
-        onKeyDown={(event) => keyHandler(event)}
+        onBlur={resetValue}
+        onKeyDown={onKeyDownHandler}
         value={value}
         maxLength={8}
       />
