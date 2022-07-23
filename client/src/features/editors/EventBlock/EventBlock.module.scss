@@ -118,17 +118,8 @@
     // style - text
 
     .drag {
+      @include drag-style;
       position: absolute;
-      text-align: center;
-      font-size: 20px;
-      opacity: 0.1;
-      cursor: grab;
-      transition: opacity 0.3s;
-    }
-    &:hover {
-      .drag {
-        opacity: 1;
-      }
     }
   }
 

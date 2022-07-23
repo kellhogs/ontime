@@ -5,7 +5,7 @@ $clearance: 8px;
 $block-border-radius: 3px;
 
 @mixin block-spacing() {
-  margin: $block-gap 0;
+  margin: $block-gap 2px;
   padding: 4px 10px 4px 4px;
   gap: 2px;
 }
@@ -25,6 +25,12 @@ $block-border-radius: 3px;
 }
 
 @mixin drag-style() {
-  align-self: center;
   font-size: 20px;
+  text-align: center;
+  opacity: 0.1;
+  cursor: grab;
+  transition: opacity 0.3s;
+  &:hover {
+    opacity: 1;
+  }
 }

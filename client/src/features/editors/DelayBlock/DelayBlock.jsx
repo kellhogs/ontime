@@ -17,13 +17,28 @@ import style from './DelayBlock.module.scss';
 
 export default function DelayBlock(props) {
   const { data, index, actionHandler } = props;
-  const { applyDelay } = useEventAction();
+  const { applyDelay, deleteEvent, updateEvent } = useEventAction();
 
   const applyDelayHandler = useCallback(() => {
     applyDelay(data.id)
-  }, [applyDelay, data.id]);
+  }, [data.id, applyDelay]);
+
+  const deleteHandler = useCallback(() => {
+    deleteEvent(data.id)
+  }, [data.id, deleteEvent]);
+
+  const delaySubmitHandler = useCallback((value) => {
+    const newEvent = {
+      id: data.id,
+      duration: value * 60000
+    }
+
+    updateEvent(newEvent)
+  }, [data.id, updateEvent]);
+
 
   const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
+
   return (
     <Draggable key={data.id} draggableId={data.id} index={index}>
       {(provided) => (
@@ -31,7 +46,7 @@ export default function DelayBlock(props) {
           <span className={style.drag} {...provided.dragHandleProps}>
             <IoReorderTwo />
           </span>
-          <DelayInput className={style.input} value={delayValue} actionHandler={actionHandler} />
+          <DelayInput className={style.input} value={delayValue} submitHandler={delaySubmitHandler} />
           <HStack spacing='4px' className={style.actionOverlay}>
             <TooltipActionBtn
               clickHandler={applyDelayHandler}
@@ -41,7 +56,7 @@ export default function DelayBlock(props) {
               _hover={{ bg: 'orange.400' }}
             />
             <TooltipLoadingActionBtn
-              clickHandler={() => actionHandler('delete')}
+              clickHandler={deleteHandler}
               icon={<IoRemove />}
               colorScheme='red'
               tooltip='Delete'
