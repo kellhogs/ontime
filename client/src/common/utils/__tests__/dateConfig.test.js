@@ -154,27 +154,27 @@ describe('test millisToMinutes function', () => {
 
   it('test with negative millis', () => {
     const t = { val: -3600000, result: -60 };
-    expect(millisToMinutes(t.val, false)).toBe(t.result);
+    expect(millisToMinutes(t.val)).toBe(t.result);
   });
 
   it('test  with 0', () => {
     const t = { val: 0, result: 0 };
-    expect(millisToMinutes(t.val, false)).toBe(t.result);
+    expect(millisToMinutes(t.val)).toBe(t.result);
   });
 
   it('test with -0', () => {
     const t = { val: -0, result: -0 };
-    expect(millisToMinutes(t.val, false)).toBe(t.result);
+    expect(millisToMinutes(t.val)).toBe(t.result);
   });
 
   it('test with 86401000 (24 hours and 1 second)', () => {
     const t = { val: 86401000, result: 1440 };
-    expect(millisToMinutes(t.val, false)).toBe(t.result);
+    expect(millisToMinutes(t.val)).toBe(t.result);
   });
 
   it('test with -86401000 (-24 hours and 1 second)', () => {
     const t = { val: -86401000, result: -1440 };
-    expect(millisToMinutes(t.val, false)).toBe(t.result);
+    expect(millisToMinutes(t.val)).toBe(t.result);
   });
 });
 
