@@ -4,13 +4,13 @@ const theme = extendTheme({
   components: {
     Button: {
       baseStyle: {
-        borderRadius: '4px',
+        borderRadius: '3px',
       },
     },
     Input: {
       baseStyle: {
         field: {
-          borderRadius: 4,
+          borderRadius: 3,
         },
       },
       sizes: {},
