@@ -70,11 +70,13 @@ export default function EventBlock(props) {
 
   const handleTitle = useCallback(
     (text) => {
-      if (text === title || !text) {
+      if (text === title) {
         return;
       }
 
       const cleanVal = text.trim();
+      setBlockTitle(cleanVal);
+
       // Todo: no need for action handler
       actionHandler('update', { field: 'title', value: cleanVal });
     },
@@ -106,7 +108,6 @@ export default function EventBlock(props) {
           }`}
           {...provided.draggableProps} ref={provided.innerRef}
         >
-          <div className={style.binder} style={{ ...binderColours }}  {...provided.dragHandleProps}>
             <IoReorderTwo className={style.drag} />
             {eventIndex}
           </div>
