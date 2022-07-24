@@ -33,7 +33,7 @@ export default function TimeInput(props) {
    */
   const handleFocus = useCallback(() => {
     inputRef.current.select();
-  },[]);
+  }, []);
 
   /**
    * @description Submit handler
@@ -54,7 +54,11 @@ export default function TimeInput(props) {
         if (previousEnd != null) {
           newValMillis = previousEnd;
         }
-      } else if (newValue.startsWith('+') || newValue.startsWith('p+') || newValue.startsWith('p +')) {
+      } else if (
+        newValue.startsWith('+') ||
+        newValue.startsWith('p+') ||
+        newValue.startsWith('p +')
+      ) {
         // string to pass should add to the end before
         const val = newValue.substring(1);
         newValMillis = previousEnd + forgivingStringToMillis(val);
@@ -106,7 +110,10 @@ export default function TimeInput(props) {
       if (event.key === 'Enter') {
         inputRef.current.blur();
         validateAndSubmit(event.target.value);
-      } else if (event.key === 'Escape') {
+      } else if (event.key === 'Tab') {
+        validateAndSubmit(event.target.value);
+      }
+      if (event.key === 'Escape') {
         inputRef.current.blur();
         resetValue();
       }
