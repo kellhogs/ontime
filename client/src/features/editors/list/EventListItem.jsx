@@ -21,7 +21,7 @@ const areEqual = (prevProps, nextProps) => {
 };
 
 const EventListItem = (props) => {
-  const { type, index, eventIndex, data, selected, next, delay, previousEnd } = props;
+  const { type, index, eventIndex, data, selected, next, delay, previousEnd, setCursor } = props;
   const { emitError } = useContext(LoggingContext);
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const { addEvent, updateEvent, deleteEvent } = useEventAction();
@@ -41,6 +41,10 @@ const EventListItem = (props) => {
   const actionHandler = useCallback(
     (action, payload) => {
       switch (action) {
+        case 'set-cursor': {
+          setCursor(payload);
+          break;
+        }
         case 'event': {
           const newEvent = {
             type: 'event',
@@ -156,4 +160,5 @@ EventListItem.propTypes = {
   next: PropTypes.bool,
   delay: PropTypes.number,
   previousEnd: PropTypes.number,
+  setCursor: PropTypes.func,
 };

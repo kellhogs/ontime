@@ -9,6 +9,7 @@ export const CursorContext = createContext({
   setCursor: () => undefined,
   moveCursorUp: () => undefined,
   moveCursorDown: () => undefined,
+  moveCursorTo: () => undefined,
 });
 
 export const CursorProvider = ({ children }) => {
@@ -25,6 +26,10 @@ export const CursorProvider = ({ children }) => {
 
   const moveCursorDown = useCallback(() => {
     setCursor((prev) => prev + 1);
+  }, []);
+
+  const moveCursorTo = useCallback((index) => {
+    setCursor(index);
   }, []);
 
   /**
@@ -56,6 +61,7 @@ export const CursorProvider = ({ children }) => {
         setCursor,
         moveCursorUp,
         moveCursorDown,
+        moveCursorTo,
       }}
     >
       {children}

@@ -14,7 +14,7 @@ export default function EntryBlock(props) {
   const {
     showKbd,
     previousId,
-    visible,
+    visible = true,
     disableAddDelay = true,
     disableAddBlock,
   } = props;

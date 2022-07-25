@@ -244,7 +244,7 @@ export default function AppSettingsModal() {
                 handleContextChange();
               }}
             >
-              Show quick entry on hover
+              Show quick entry on cursor
             </Checkbox>
             <Checkbox
               isChecked={doStarTimeIsLastEnd}

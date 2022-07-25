@@ -16,7 +16,7 @@ import style from './List.module.scss';
 
 export default function EventList(props) {
   const { events } = props;
-  const { cursor, moveCursorUp, moveCursorDown, setCursor, isCursorLocked } =
+  const { cursor, moveCursorUp, moveCursorDown, moveCursorTo, isCursorLocked } =
     useContext(CursorContext);
   const { starTimeIsLastEnd, defaultPublic } = useContext(LocalEventSettingsContext);
   const { addEvent, reorderEvent } = useEventAction();
@@ -103,18 +103,24 @@ export default function EventList(props) {
     [cursor, events.length, insertAtCursor, moveCursorDown, moveCursorUp]
   );
 
+  const handleSetCursor = useCallback((index) => {
+    if (index >= 0 && index < events.length) {
+      moveCursorTo(index);
+    }
+  }, [events.length, moveCursorTo]);
+
   useEffect(() => {
     // attach the event listener
     document.addEventListener('keydown', handleKeyPress);
 
-    if (cursor > events.length - 1) setCursor(events.length - 1);
-    if (events.length > 0 && cursor === -1) setCursor(0);
+    if (cursor > events.length - 1) moveCursorTo(events.length - 1);
+    if (events.length > 0 && cursor === -1) moveCursorTo(0);
 
     // remove the event listener
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [handleKeyPress, cursor, events, setCursor]);
+  }, [handleKeyPress, cursor, events, moveCursorTo]);
 
   // handle incoming messages
   useEffect(() => {
@@ -167,7 +173,7 @@ export default function EventList(props) {
     }
     if (found) {
       // move cursor
-      setCursor(gotoIndex);
+      moveCursorTo(gotoIndex);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, isCursorLocked]);
@@ -218,11 +224,9 @@ export default function EventList(props) {
                 return (
                   <div
                     key={e.id}
-                    className={`${
-                      e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''
-                    }`}
+                    className={`${style.bgElement}
+                    ${e.type === 'event' && cumulativeDelay !== 0 ? style.delayed : ''}`}
                   >
-                    {index === 0 && showQuickEntry && <EntryBlock index={e.id} />}
                     <div
                       ref={cursor === index ? cursorRef : undefined}
                       className={cursor === index ? style.cursor : ''}
@@ -236,13 +240,13 @@ export default function EventList(props) {
                         next={nextId === e.id}
                         delay={cumulativeDelay}
                         previousEnd={previousEnd}
+                        setCursor={handleSetCursor}
                       />
                     </div>
-                    {(showQuickEntry || isLast) && (
+                    {((showQuickEntry && index === cursor) || isLast) && (
                       <EntryBlock
                         showKbd={index === cursor}
                         previousId={e.id}
-                        visible={isLast}
                         disableAddDelay={e.type === 'delay'}
                         disableAddBlock={e.type === 'block'}
                       />
