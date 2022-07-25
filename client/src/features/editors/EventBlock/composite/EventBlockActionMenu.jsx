@@ -29,7 +29,7 @@ export default function EventBlockActionMenu(props) {
   return (
     <Menu isLazy lazyBehavior='unmount'>
       <Tooltip label='Add ...' delay={500}>
-        <MenuButton as={IconButton} aria-label='Options' icon={<FiPlus />} {...blockBtnStyle} />
+        <MenuButton as={IconButton} aria-label='Options' icon={<FiPlus />} tabIndex={-1} {...blockBtnStyle} />
       </Tooltip>
       <MenuList style={menuStyle}>
         <MenuItem icon={<FiPlus />} onClick={() => actionHandler('event')} isDisabled={!showAdd}>

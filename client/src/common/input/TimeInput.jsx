@@ -137,6 +137,7 @@ export default function TimeInput(props) {
           aria-label='automate'
           colorScheme='blue'
           style={{ borderRadius: '2px', width: 'min-content' }}
+          tabIndex={-1}
         />
       </InputLeftElement>
       <Input

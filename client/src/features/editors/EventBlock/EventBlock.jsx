@@ -35,7 +35,6 @@ const blockBtnStyle = {
 
 const tooltipProps = {
   openDelay: tooltipDelayMid,
-  shouldWrapChildren: 'disabled',
 };
 
 export default function EventBlock(props) {
@@ -108,6 +107,7 @@ export default function EventBlock(props) {
           }`}
           {...provided.draggableProps} ref={provided.innerRef}
         >
+            tabIndex={-1}
             <IoReorderTwo className={style.drag} />
             {eventIndex}
           </div>
@@ -119,6 +119,7 @@ export default function EventBlock(props) {
               {...blockBtnStyle}
               variant={skip ? 'solid' : 'outline'}
               clickHandler={() => actionHandler('update', { field: 'skip', value: !skip })}
+              tabIndex={-1}
             />
             <TooltipActionBtn
               tooltip='Start event'
@@ -128,6 +129,7 @@ export default function EventBlock(props) {
               {...blockBtnStyle}
               variant={selected && playback === 'start' ? 'solid' : 'outline'}
               onClick={() => playbackActions('play')}
+              tabIndex={-1}
             />
             <TooltipActionBtn
               tooltip='Load event'
@@ -164,31 +166,38 @@ export default function EventBlock(props) {
               aria-label='event options'
               onClick={() => setOpenId(eventId)}
               {...blockBtnStyle}
+              tabIndex={-1}
             />
             <EventBlockActionMenu showAdd showDelay showBlock showClone actionHandler={actionHandler} />
           </div>
           <div className={style.eventStatus}>
             <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>
-              <IoReturnDownForward
+              <span
                 className={`${style.statusIcon} ${style.statusNext} ${next ? style.enabled : ''}`}
-              />
+              >
+                <IoReturnDownForward />
+              </span>
             </Tooltip>
             <Tooltip label='Event has delay' isDisabled={!hasDelay} {...tooltipProps}>
-              <IoTimerOutline
+              <span
                 className={`${style.statusIcon} ${style.statusDelay} ${
                   hasDelay ? style.enabled : ''
                 }`}
-              />
+              >
+                <IoTimerOutline />
+              </span>
             </Tooltip>
             <Tooltip
               label={`${isPublic ? 'Event is public' : 'Event is private'}`}
               {...tooltipProps}
             >
-              <FiUsers
+              <span
                 className={`${style.statusIcon} ${style.statusPublic} ${
                   isPublic ? style.enabled : ''
                 }`}
-              />
+              >
+                <FiUsers />
+              </span>
             </Tooltip>
           </div>
         </div>
