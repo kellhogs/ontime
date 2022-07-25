@@ -10,6 +10,8 @@ import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutlin
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import PropTypes from 'prop-types';
 
+import { tooltipDelayMid } from '../../../../app/config';
+
 export default function EventBlockActionMenu(props) {
   const { showAdd, showDelay, showBlock, showClone, actionHandler } = props;
 
@@ -23,12 +25,11 @@ export default function EventBlockActionMenu(props) {
     colorScheme: 'blue',
     variant: 'outline',
     borderRadius: '3px',
-    fontSize: '20px',
   };
 
   return (
     <Menu isLazy lazyBehavior='unmount'>
-      <Tooltip label='Add ...' delay={500}>
+      <Tooltip label='Add ...' delay={tooltipDelayMid}>
         <MenuButton as={IconButton} aria-label='Options' icon={<FiPlus />} tabIndex={-1} {...blockBtnStyle} />
       </Tooltip>
       <MenuList style={menuStyle}>

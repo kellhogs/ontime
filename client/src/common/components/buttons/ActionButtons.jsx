@@ -23,10 +23,7 @@ export default function ActionButtons(props) {
           aria-label='Options'
           size='xs'
           icon={<FiPlus />}
-          _expanded={{ bg: 'orange.300', color: 'white' }}
-          _focus={{ boxShadow: 'none' }}
-          backgroundColor='orange.200'
-          color='orange.500'
+          colorScheme='blue'
         />
       </Tooltip>
       <MenuList style={menuStyle}>
