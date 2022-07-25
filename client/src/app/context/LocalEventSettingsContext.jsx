@@ -1,4 +1,6 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext } from 'react';
+
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export const LocalEventSettingsContext = createContext({
   showQuickEntry: false,
@@ -11,9 +13,9 @@ export const LocalEventSettingsContext = createContext({
 });
 
 export const LocalEventSettingsProvider = ({ children }) => {
-  const [showQuickEntry, setShowQuickEntry] = useState(false);
-  const [starTimeIsLastEnd, setStarTimeIsLastEnd] = useState(true);
-  const [defaultPublic, setDefaultPublic] = useState(false);
+  const [showQuickEntry, setShowQuickEntry] = useLocalStorage('settings-showQuickEntry', false);
+  const [starTimeIsLastEnd, setStarTimeIsLastEnd] = useLocalStorage('settings-startTimeIsLastEnd', true);
+  const [defaultPublic, setDefaultPublic] = useLocalStorage('settings-defaultPublic', false);
 
   return (
     <LocalEventSettingsContext.Provider
