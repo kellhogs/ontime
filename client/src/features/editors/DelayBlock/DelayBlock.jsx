@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import { Button } from '@chakra-ui/button';
 import { HStack } from '@chakra-ui/react';
 import { FiCheck } from '@react-icons/all-files/fi/FiCheck';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
@@ -10,7 +11,6 @@ import PropTypes from 'prop-types';
 
 import { useEventAction } from '../../../app/hooks/useEventAction';
 import ActionButtons from '../../../common/components/buttons/ActionButtons';
-import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import TooltipLoadingActionBtn from '../../../common/components/buttons/TooltipLoadingActionBtn';
 
 import style from './DelayBlock.module.scss';
@@ -20,22 +20,24 @@ export default function DelayBlock(props) {
   const { applyDelay, deleteEvent, updateEvent } = useEventAction();
 
   const applyDelayHandler = useCallback(() => {
-    applyDelay(data.id)
+    applyDelay(data.id);
   }, [data.id, applyDelay]);
 
   const deleteHandler = useCallback(() => {
-    deleteEvent(data.id)
+    deleteEvent(data.id);
   }, [data.id, deleteEvent]);
 
-  const delaySubmitHandler = useCallback((value) => {
-    const newEvent = {
-      id: data.id,
-      duration: value * 60000
-    }
+  const delaySubmitHandler = useCallback(
+    (value) => {
+      const newEvent = {
+        id: data.id,
+        duration: value * 60000,
+      };
 
-    updateEvent(newEvent)
-  }, [data.id, updateEvent]);
-
+      updateEvent(newEvent);
+    },
+    [data.id, updateEvent]
+  );
 
   const delayValue = data.duration != null ? millisToMinutes(data.duration) : undefined;
 
@@ -46,15 +48,21 @@ export default function DelayBlock(props) {
           <span className={style.drag} {...provided.dragHandleProps}>
             <IoReorderTwo />
           </span>
-          <DelayInput className={style.input} value={delayValue} submitHandler={delaySubmitHandler} />
+          <DelayInput
+            className={style.input}
+            value={delayValue}
+            submitHandler={delaySubmitHandler}
+          />
           <HStack spacing='4px' className={style.actionOverlay}>
-            <TooltipActionBtn
-              clickHandler={applyDelayHandler}
-              icon={<FiCheck />}
+            <Button
+              onClick={applyDelayHandler}
+              size='xs'
               colorScheme='orange'
-              tooltip='Apply delays'
               _hover={{ bg: 'orange.400' }}
-            />
+              leftIcon={<FiCheck />}
+            >
+              Apply delay
+            </Button>
             <TooltipLoadingActionBtn
               clickHandler={deleteHandler}
               icon={<IoRemove />}
