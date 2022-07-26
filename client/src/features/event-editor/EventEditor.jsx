@@ -5,12 +5,10 @@ import { IoBan } from '@react-icons/all-files/io5/IoBan';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
-import { tooltipDelayMid } from '../../app/config';
 import { EventEditorContext } from '../../app/context/EventEditorContext';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { useEventAction } from '../../app/hooks/useEventAction';
 import { useFetch } from '../../app/hooks/useFetch';
-import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import ColourInput from '../../common/input/ColourInput';
 import TextInput from '../../common/input/TextInput';
 import TimeInput from '../../common/input/TimeInput';
@@ -160,16 +158,16 @@ export default function EventEditor() {
                 value={event?.colour}
                 handleChange={(value) => handleSubmit('colour', value)}
               />
-              <TooltipActionBtn
-                tooltip='Clear colour'
-                openDelay={tooltipDelayMid}
-                icon={<IoBan />}
-                clickHandler={() => handleSubmit('colour', '')}
+              <Button
+                leftIcon={<IoBan />}
+                onClick={() => handleSubmit('colour', '')}
                 variant='outline'
                 colorScheme='blue'
                 borderRadius='3px'
                 size='sm'
-              />
+              >
+                Clear colour
+              </Button>
             </div>
           </div>
           <div>

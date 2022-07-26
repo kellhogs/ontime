@@ -7,17 +7,17 @@
   @include block-spacing;
 
   display: grid;
-  grid-template-columns: 36px 1fr auto;
+  grid-template-columns: 32px 1fr auto;
   grid-template-areas: 'drag inpt btns';
   align-items: center;
   height: 40px;
 
-  border-radius: $block-border-radius $block-border-radius 1px 1px;
+  border-radius: $block-border-radius $block-border-radius 2px 2px;
   background-color: rgba(214, 158, 46, 0.4);
   background: linear-gradient(
     180deg,
     rgba(214, 158, 46, 0.4) 0%,
-    rgba(236, 201, 75, 0.4) 20%,
+    rgba(214, 158, 46, 0.4) 20%,
     rgba(214, 158, 46, 0.17) 21%
   );
 }

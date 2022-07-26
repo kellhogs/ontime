@@ -23,7 +23,7 @@ export default function InputRow(props) {
           className={style.inline}
           color={text === '' ? '#666' : 'inherit'}
         >
-          <EditablePreview className={style.padleft} />
+          <EditablePreview className={`${style.padleft} ${style.fullWidth}`} />
           <EditableInput className={style.padleft} />
         </Editable>
         <Tooltip label={visible ? 'Make invisible' : 'Make visible'} openDelay={tooltipDelayMid}>

@@ -13,9 +13,7 @@
   grid-template-columns: $binder-width auto 1fr auto;
   grid-template-rows: $element-spacing 36px 36px 36px $element-spacing;
   align-items: center;
-  margin-top: $block-gap;
-  margin-left: 2px;
-  margin-right: 2px;
+  margin: 2px 1px;
   padding-right: $clearance;
 
   // style - general
@@ -47,7 +45,7 @@
 
     .binder,
     .eventTimers,
-    .eventStatus{
+    .eventStatus {
       opacity: $opacity-disabled;
     }
   }
@@ -98,7 +96,6 @@
 
   }
 
-
   .binder {
     // layout
     grid-area: binder;
@@ -106,10 +103,11 @@
     display: grid;
     place-content: center;
     position: relative;
+    cursor: pointer;
 
     // style - general
     border-radius: 3px 0 0 3px;
-    border-right:  1px solid $bg-gray-900;
+    border-right: 1px solid $bg-gray-900;
 
     // style - colour
     background-color: $bg-gray-950; // override inline
@@ -150,6 +148,21 @@
     grid-area: title;
     display: block;
     font-size: 18px;
+
+    .eventTitle__preview {
+      width: 100%;
+    }
+
+    &.noTitle {
+      span {
+        opacity: $opacity-disabled;
+      }
+    }
+
+    input {
+      border-radius: 2px;
+      border: 1px;
+    }
   }
 
   .eventNote {
@@ -184,6 +197,7 @@
 
     .statusIcon.statusNext {
       border: 1px solid transparent;
+
       &.enabled {
         color: $ontime-accent;
         border: 1px solid $ontime-accent;
@@ -209,4 +223,5 @@
   .eventOptions {
     margin: $element-spacing 16px $element-spacing 0;
   }
+
 }

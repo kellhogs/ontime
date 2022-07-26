@@ -58,7 +58,7 @@ export default function EventBlock(props) {
     actionHandler,
   } = props;
 
-  const { setOpenId } = useContext(EventEditorContext);
+  const { openId, setOpenId } = useContext(EventEditorContext);
   const { emitError } = useContext(LoggingContext);
   const [blockTitle, setBlockTitle] = useState(title || '');
   const socket = useSocket();
@@ -107,8 +107,13 @@ export default function EventBlock(props) {
           }`}
           {...provided.draggableProps} ref={provided.innerRef}
         >
+          <div
+            className={style.binder}
+            style={{ ...binderColours }}
             tabIndex={-1}
-            <IoReorderTwo className={style.drag} />
+            onClick={() => actionHandler('set-cursor', index)}
+          >
+            <IoReorderTwo className={style.drag} {...provided.dragHandleProps} />
             {eventIndex}
           </div>
           <div className={style.playbackActions}>
@@ -139,6 +144,7 @@ export default function EventBlock(props) {
               {...blockBtnStyle}
               variant={loaded ? 'solid' : 'outline'}
               onClick={() => playbackActions('load')}
+              tabIndex={-1}
             />
           </div>
           <EventBlockTimers
@@ -151,12 +157,12 @@ export default function EventBlock(props) {
           />
           <Editable
             value={blockTitle}
-            className={style.eventTitle}
+            className={`${style.eventTitle} ${!title || title === '' ? style.noTitle : ''}`}
             placeholder='Event title'
             onChange={(value) => setBlockTitle(value)}
             onSubmit={(value) => handleTitle(value)}
           >
-            <EditablePreview style={{ width: '100%' }} />
+            <EditablePreview className={style.eventTitle__preview} />
             <EditableInput />
           </Editable>
           <span className={style.eventNote}>{note}</span>
@@ -166,9 +172,16 @@ export default function EventBlock(props) {
               aria-label='event options'
               onClick={() => setOpenId(eventId)}
               {...blockBtnStyle}
+              variant={openId === eventId ? 'solid' : 'outline'}
               tabIndex={-1}
             />
-            <EventBlockActionMenu showAdd showDelay showBlock showClone actionHandler={actionHandler} />
+            <EventBlockActionMenu
+              showAdd
+              showDelay
+              showBlock
+              showClone
+              actionHandler={actionHandler}
+            />
           </div>
           <div className={style.eventStatus}>
             <Tooltip label='Next event' isDisabled={!next} {...tooltipProps}>

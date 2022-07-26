@@ -26,6 +26,8 @@
   border-radius: 3px;
 }
 
-.delayed {
-  background: rgba(214, 158, 46, 0.03);
+.bgElement {
+  &.delayed {
+    background: rgba(214, 158, 46, 0.3);
+  }
 }
