@@ -168,8 +168,9 @@
   .eventNote {
     grid-area: notes;
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     color: $notes-color;
+    line-height: 15px;
   }
 
   .eventActions {

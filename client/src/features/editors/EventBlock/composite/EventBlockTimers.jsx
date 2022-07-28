@@ -48,6 +48,7 @@ export default function EventBlockTimers(props) {
         validationHandler={handleValidation}
         time={timeStart}
         delay={delay}
+        placeholder='Start'
         previousEnd={previousEnd}
       />
       <TimeInput
@@ -56,6 +57,7 @@ export default function EventBlockTimers(props) {
         validationHandler={handleValidation}
         time={timeEnd}
         delay={delay}
+        placeholder='End'
         previousEnd={previousEnd}
       />
       <TimeInput
@@ -64,6 +66,7 @@ export default function EventBlockTimers(props) {
         validationHandler={handleValidation}
         time={duration}
         delay={delay}
+        placeholder='Duration'
         previousEnd={previousEnd}
       />
       {delay !== 0 && delay !== null && (
