@@ -11,7 +11,7 @@ import { stringFromMillis } from '../utils/time';
 import style from './TimeInput.module.scss';
 
 export default function TimeInput(props) {
-  const { name, submitHandler, time = 0, delay, validationHandler, previousEnd } = props;
+  const { name, submitHandler, time = 0, delay, placeholder, validationHandler, previousEnd } = props;
   const { emitError } = useContext(LoggingContext);
   const inputRef = useRef(null);
   const [value, setValue] = useState('');
@@ -145,7 +145,7 @@ export default function TimeInput(props) {
         data-testid='time-input'
         className={style.inputField}
         type='text'
-        placeholder={name}
+        placeholder={placeholder}
         variant='filled'
         onFocus={handleFocus}
         onChange={(event) => setValue(event.target.value)}
@@ -163,6 +163,7 @@ TimeInput.propTypes = {
   submitHandler: PropTypes.func,
   time: PropTypes.number,
   delay: PropTypes.number,
+  placeholder: PropTypes.string,
   validationHandler: PropTypes.func,
   previousEnd: PropTypes.number,
 };

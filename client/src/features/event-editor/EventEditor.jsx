@@ -12,6 +12,9 @@ import { useFetch } from '../../app/hooks/useFetch';
 import ColourInput from '../../common/input/ColourInput';
 import TextInput from '../../common/input/TextInput';
 import TimeInput from '../../common/input/TimeInput';
+import { millisToMinutes } from '../../common/utils/dateConfig';
+import getDelayTo from '../../common/utils/getDelayTo';
+import { stringFromMillis } from '../../common/utils/time';
 import { calculateDuration, validateEntry } from '../../common/utils/timesManager';
 
 import style from './EventEditor.module.scss';
@@ -22,17 +25,19 @@ export default function EventEditor() {
   const { emitWarning, emitError } = useContext(LoggingContext);
   const { updateEvent } = useEventAction();
   const [event, setEvent] = useState(null);
+  const [delay, setDelay] = useState(0);
 
   useEffect(() => {
     if (!data || !openId) {
       return;
     }
 
-    const event = data.find((event) => event.id === openId);
-    if (event) {
-      setEvent(event);
+    const eventIndex = data.findIndex((event) => event.id === openId);
+    if (eventIndex > -1) {
+      setDelay(getDelayTo(data, eventIndex));
+      setEvent(data[eventIndex]);
     }
-  }, [data, openId]);
+  }, [data, event, openId]);
 
   const handleSubmit = useCallback(
     (field, value) => {
@@ -90,27 +95,39 @@ export default function EventEditor() {
   if (!event) {
     return 'Loading';
   }
+  const delayed = delay !== 0;
+  const addedTime =
+    delayed ? `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))} minutes` : null;
+  const newStart = delayed ? `New start ${stringFromMillis(event.timeStart + delay)}` : null;
+  const newEnd = delayed ? `New end ${stringFromMillis(event.timeEnd + delay)}` : null;
 
   return (
     <div className={style.eventEditor}>
       <div className={style.eventEditor__timers}>
-        <label className={style.inputLabel}>Start time</label>
+        <label className={style.inputLabel}>
+          Start time {delayed  && <span className={style.delayLabel}>{addedTime}</span>}
+          {delayed && <div className={style.delayLabel}>{newStart}</div>}
+        </label>
         <TimeInput
           name='timeStart'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}
           time={event.timeStart}
           delay={0}
+          placeholder='Start'
         />
-        <label className={style.inputLabel}>End time</label>
+        <label className={style.inputLabel}>
+          End time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
+          {delayed && <div className={style.delayLabel}>{newEnd}</div>}
+        </label>
         <TimeInput
           name='timeEnd'
           submitHandler={handleSubmit}
           validationHandler={timerValidationHandler}
           time={event.timeEnd}
           delay={0}
+          placeholder='End'
         />
-
         <label className={style.inputLabel}>Duration</label>
         <TimeInput
           name='duration'
@@ -118,19 +135,20 @@ export default function EventEditor() {
           validationHandler={timerValidationHandler}
           time={event.duration}
           delay={0}
+          placeholder='Duration'
         />
       </div>
       <div className={style.eventEditor__titles}>
         <div className={style.left}>
-          <div>
+          <div className={style.column}>
             <label className={style.inputLabel}>Title</label>
             <TextInput field='title' initialText={event.title} submitHandler={handleSubmit} />
           </div>
-          <div>
+          <div className={style.column}>
             <label className={style.inputLabel}>Subtitle</label>
             <TextInput field='subtitle' initialText={event.subtitle} submitHandler={handleSubmit} />
           </div>
-          <div>
+          <div className={style.column}>
             <label className={style.inputLabel}>Presenter</label>
             <TextInput
               field='presenter'
@@ -138,7 +156,7 @@ export default function EventEditor() {
               submitHandler={handleSubmit}
             />
           </div>
-          <div>
+          <div className={style.padTop}>
             <Button
               leftIcon={<FiUsers />}
               size='sm'
@@ -151,7 +169,7 @@ export default function EventEditor() {
           </div>
         </div>
         <div className={style.right}>
-          <div>
+          <div className={style.column}>
             <label className={style.inputLabel}>Colour</label>
             <div className={style.inline}>
               <ColourInput
@@ -170,7 +188,7 @@ export default function EventEditor() {
               </Button>
             </div>
           </div>
-          <div>
+          <div className={style.column}>
             <label className={style.inputLabel}>Notes</label>
             <TextInput
               field='note'
