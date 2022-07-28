@@ -105,7 +105,8 @@ export default function EventBlock(props) {
           className={`${style.eventBlock} ${skip ? style.skip : ''} ${
             selected ? style.selected : ''
           }`}
-          {...provided.draggableProps} ref={provided.innerRef}
+          {...provided.draggableProps}
+          ref={provided.innerRef}
         >
           <div
             className={style.binder}
@@ -113,7 +114,9 @@ export default function EventBlock(props) {
             tabIndex={-1}
             onClick={() => actionHandler('set-cursor', index)}
           >
-            <IoReorderTwo className={style.drag} {...provided.dragHandleProps} />
+            <span className={style.drag} {...provided.dragHandleProps}>
+              <IoReorderTwo />
+            </span>
             {eventIndex}
           </div>
           <div className={style.playbackActions}>
