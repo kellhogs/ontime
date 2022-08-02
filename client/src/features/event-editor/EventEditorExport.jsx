@@ -1,9 +1,10 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { IconButton } from '@chakra-ui/button';
 import { Box } from '@chakra-ui/layout';
 import { FiX } from '@react-icons/all-files/fi/FiX';
+import { useAtom } from 'jotai';
 
-import { EventEditorContext } from '../../app/context/EventEditorContext';
+import { editorEventId } from '../../app/atoms/eventStore';
 import ErrorBoundary from '../../common/components/errorBoundary/ErrorBoundary';
 
 import EventEditor from './EventEditor';
@@ -19,7 +20,7 @@ const closeBtnStyle = {
 };
 
 export default function InfoExport() {
-  const { setOpenId } = useContext(EventEditorContext);
+  const [, setOpenId] = useAtom(editorEventId);
 
   return (
     <Box className={style.eventEditor}>

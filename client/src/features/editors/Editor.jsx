@@ -1,10 +1,11 @@
-import React, { lazy, useContext, useEffect } from 'react';
+import React, { lazy, useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/hooks';
 import { Box } from '@chakra-ui/layout';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import ModalManager from 'features/modals/ModalManager';
+import { useAtom } from 'jotai';
 
-import { EventEditorContext } from '../../app/context/EventEditorContext';
+import { editorEventId } from '../../app/atoms/eventStore';
 import { LocalEventSettingsProvider } from '../../app/context/LocalEventSettingsContext';
 import { LoggingProvider } from '../../app/context/LoggingContext';
 import MenuBar from '../menu/MenuBar';
@@ -19,7 +20,7 @@ const EventEditor = lazy(() => import('features/event-editor/EventEditorExport')
 
 export default function Editor() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isEventDrawerOpen } = useContext(EventEditorContext);
+  const [openId] = useAtom(editorEventId);
 
   // Set window title
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function Editor() {
           <TimerControl />
           <Info />
         </div>
-        {isEventDrawerOpen && <EventEditor />}
+        {openId && <EventEditor />}
       </LocalEventSettingsProvider>
     </LoggingProvider>
   );

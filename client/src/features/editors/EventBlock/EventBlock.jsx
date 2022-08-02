@@ -11,10 +11,11 @@ import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoReturnDownForward } from '@react-icons/all-files/io5/IoReturnDownForward';
 import { IoSettingsSharp } from '@react-icons/all-files/io5/IoSettingsSharp';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
+import { useAtom } from 'jotai';
 import PropTypes from 'prop-types';
 
+import { editorEventId } from '../../../app/atoms/eventStore';
 import { tooltipDelayMid } from '../../../app/config';
-import { EventEditorContext } from '../../../app/context/EventEditorContext';
 import { LoggingContext } from '../../../app/context/LoggingContext';
 import { useSocket } from '../../../app/context/socketContext';
 import { getAccessibleColour } from '../../../app/utils/styleUtils';
@@ -58,7 +59,7 @@ export default function EventBlock(props) {
     actionHandler,
   } = props;
 
-  const { openId, setOpenId } = useContext(EventEditorContext);
+  const [openId, setOpenId] = useAtom(editorEventId);
   const { emitError } = useContext(LoggingContext);
   const [blockTitle, setBlockTitle] = useState(title || '');
   const socket = useSocket();

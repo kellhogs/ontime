@@ -5,11 +5,9 @@ import withSocket from 'features/viewers/ViewWrapper';
 
 import { ALIASES } from './app/api/apiConstants';
 import { getAliases } from './app/api/ontimeApi';
-import { EventEditorProvider } from './app/context/EventEditorContext';
 import { useFetch } from './app/hooks/useFetch';
 
 import './App.scss';
-
 
 const Editor = lazy(() => import('features/editors/ProtectedEditor'));
 const Table = lazy(() => import('features/table/ProtectedTable'));
@@ -108,14 +106,7 @@ function App() {
             <Route path='/lower' element={<SLowerThird />} />
 
             {/*/!* Protected Routes *!/*/}
-            <Route
-              path='/editor'
-              element={
-                <EventEditorProvider>
-                  <Editor />
-                </EventEditorProvider>
-              }
-            />
+            <Route path='/editor' element={<Editor />} />
             <Route path='/cuesheet' element={<Table />} />
             <Route path='/cuelist' element={<Table />} />
             <Route path='/table' element={<Table />} />

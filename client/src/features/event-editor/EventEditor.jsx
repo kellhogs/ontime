@@ -2,10 +2,11 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/button';
 import { FiUsers } from '@react-icons/all-files/fi/FiUsers';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
+import { useAtom } from 'jotai';
 
 import { EVENTS_TABLE } from '../../app/api/apiConstants';
 import { fetchAllEvents } from '../../app/api/eventsApi';
-import { EventEditorContext } from '../../app/context/EventEditorContext';
+import { editorEventId } from '../../app/atoms/eventStore';
 import { LoggingContext } from '../../app/context/LoggingContext';
 import { useEventAction } from '../../app/hooks/useEventAction';
 import { useFetch } from '../../app/hooks/useFetch';
@@ -20,7 +21,7 @@ import { calculateDuration, validateEntry } from '../../common/utils/timesManage
 import style from './EventEditor.module.scss';
 
 export default function EventEditor() {
-  const { openId } = useContext(EventEditorContext);
+  const [openId] = useAtom(editorEventId);
   const { data } = useFetch(EVENTS_TABLE, fetchAllEvents);
   const { emitWarning, emitError } = useContext(LoggingContext);
   const { updateEvent } = useEventAction();
@@ -96,8 +97,9 @@ export default function EventEditor() {
     return 'Loading';
   }
   const delayed = delay !== 0;
-  const addedTime =
-    delayed ? `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))} minutes` : null;
+  const addedTime = delayed
+    ? `${delay >= 0 ? '+' : '-'} ${millisToMinutes(Math.abs(delay))} minutes`
+    : null;
   const newStart = delayed ? `New start ${stringFromMillis(event.timeStart + delay)}` : null;
   const newEnd = delayed ? `New end ${stringFromMillis(event.timeEnd + delay)}` : null;
 
@@ -105,7 +107,7 @@ export default function EventEditor() {
     <div className={style.eventEditor}>
       <div className={style.eventEditor__timers}>
         <label className={style.inputLabel}>
-          Start time {delayed  && <span className={style.delayLabel}>{addedTime}</span>}
+          Start time {delayed && <span className={style.delayLabel}>{addedTime}</span>}
           {delayed && <div className={style.delayLabel}>{newStart}</div>}
         </label>
         <TimeInput
