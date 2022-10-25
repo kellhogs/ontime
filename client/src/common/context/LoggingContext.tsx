@@ -1,9 +1,8 @@
 import { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
+import socket from 'common/utils/socket';
 
 import { generateId } from '../utils/generate_id';
 import { nowInMillis, stringFromMillis } from '../utils/time';
-
-import { useSocket } from './socketContext';
 
 type LOG_LEVEL = 'INFO' | 'WARN' | 'ERROR';
 type Log = {
@@ -23,8 +22,8 @@ interface LoggingProviderState {
 }
 
 type LoggingProviderProps = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 const notInitialised = () => {
   throw new Error('Not initialised');
@@ -40,14 +39,11 @@ export const LoggingContext = createContext<LoggingProviderState>({
 
 export const LoggingProvider = ({ children }: LoggingProviderProps) => {
   const MAX_MESSAGES = 100;
-  const socket = useSocket();
   const [logData, setLogData] = useState<Log[]>([]);
   const origin = 'USER';
 
   // handle incoming messages
   useEffect(() => {
-    if (socket == null) return;
-
     // Ask for log data
     socket.emit('get-logger');
 
@@ -84,7 +80,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
         setLogData((currentLog) => currentLog.slice(1));
       }
     },
-    [logData.length, setLogData, socket],
+    [logData.length, setLogData, socket]
   );
 
   /**
@@ -95,7 +91,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'INFO');
     },
-    [_send],
+    [_send]
   );
 
   /**
@@ -106,7 +102,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'WARN');
     },
-    [_send],
+    [_send]
   );
 
   /**
@@ -117,7 +113,7 @@ export const LoggingProvider = ({ children }: LoggingProviderProps) => {
     (text: string) => {
       _send(text, 'ERROR');
     },
-    [_send],
+    [_send]
   );
 
   /**

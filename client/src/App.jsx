@@ -6,7 +6,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ErrorBoundary from 'common/components/errorBoundary/ErrorBoundary';
 import { AppContextProvider } from 'common/context/AppContext';
 import { LoggingProvider } from 'common/context/LoggingContext';
-import SocketProvider from 'common/context/socketContext';
 
 import { ontimeQueryClient } from './common/queryClient';
 import theme from './theme/theme';
@@ -16,7 +15,6 @@ import AppRouter from './AppRouter';
 import('typeface-open-sans');
 
 function App() {
-
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback((e) => {
     // handle held key
@@ -45,24 +43,22 @@ function App() {
 
   return (
     <ChakraProvider resetCSS theme={theme}>
-      <SocketProvider>
-        <LoggingProvider>
-          <QueryClientProvider client={ontimeQueryClient}>
-            <AppContextProvider>
-              <BrowserRouter>
-                <div className='App'>
-                  <ErrorBoundary>
-                    <Suspense fallback={null}>
-                      <AppRouter />
-                    </Suspense>
-                  </ErrorBoundary>
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </div>
-              </BrowserRouter>
-            </AppContextProvider>
-          </QueryClientProvider>
-        </LoggingProvider>
-      </SocketProvider>
+      <LoggingProvider>
+        <QueryClientProvider client={ontimeQueryClient}>
+          <AppContextProvider>
+            <BrowserRouter>
+              <div className='App'>
+                <ErrorBoundary>
+                  <Suspense fallback={null}>
+                    <AppRouter />
+                  </Suspense>
+                </ErrorBoundary>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </div>
+            </BrowserRouter>
+          </AppContextProvider>
+        </QueryClientProvider>
+      </LoggingProvider>
     </ChakraProvider>
   );
 }

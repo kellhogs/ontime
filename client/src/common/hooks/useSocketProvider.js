@@ -22,7 +22,7 @@ export const useEventListProvider = () => {
       nextEventId: null,
       playback: null,
     }),
-    [],
+    []
   );
   return data ?? placeholder;
 };
@@ -49,7 +49,7 @@ export const useMessageControlProvider = () => {
       },
       onAir: false,
     }),
-    [],
+    []
   );
 
   const returnData = data ?? placeholder;
@@ -64,7 +64,7 @@ export const useMessageControlProvider = () => {
       lowerVisible: (payload) => socket.emit('set-lower-message-visible', payload),
       onAir: (payload) => socket.emit('set-onAir', payload),
     }),
-    [socket],
+    [socket]
   );
 
   return { data: returnData, setMessage };
@@ -83,7 +83,7 @@ export const usePlaybackControlProvider = () => {
       selectedEventId: null,
       numEvents: 0,
     }),
-    [],
+    []
   );
 
   const resetData = useCallback(() => {
@@ -119,7 +119,7 @@ export const usePlaybackControlProvider = () => {
         socket.emit('set-delay', amount);
       },
     }),
-    [resetData, socket],
+    [resetData, socket]
   );
 
   const returnData = data ?? placeholder;
@@ -149,7 +149,7 @@ export const useInfoProvider = () => {
       selectedEventIndex: null,
       numEvents: 0,
     }),
-    [],
+    []
   );
   return data ?? placeholder;
 };
@@ -164,7 +164,7 @@ export const useCuesheetProvider = () => {
       selectedEventId: null,
       titleNow: '',
     }),
-    [],
+    []
   );
 
   return data ?? placeholder;
@@ -184,7 +184,7 @@ export const useTimerProvider = () => {
       expectedFinish: null,
       startedAt: null,
     }),
-    [],
+    []
   );
   return data ?? placeholder;
 };
@@ -192,61 +192,14 @@ export const useTimerProvider = () => {
 export const useEventProvider = (eventId) => {
   const socket = useSocket();
 
-  const setPlayback = useMemo(() => ({
-    loadEvent: () => socket.emit('set-loadid', eventId),
-    startEvent: () => socket.emit('set-startid', eventId),
-    pause: () => socket.emit('set-pause'),
-  }), [socket]);
+  const setPlayback = useMemo(
+    () => ({
+      loadEvent: () => socket.emit('set-loadid', eventId),
+      startEvent: () => socket.emit('set-startid', eventId),
+      pause: () => socket.emit('set-pause'),
+    }),
+    [socket]
+  );
 
   return { setPlayback };
-};
-
-export const useSocketProvider = () => {
-  const queryClient = useQueryClient();
-  const socket = useSocket();
-
-  useEffect(() => {
-    if (!socket) {
-      return;
-    }
-
-    socket.emit('get-ontime-feat-eventlist');
-    socket.on('ontime-feat-eventlist', (featureData) => {
-      queryClient.setQueryData(FEAT_EVENTLIST, () => featureData);
-    });
-
-    socket.emit('get-ontime-feat-messagecontrol');
-    socket.on('ontime-feat-messagecontrol', (featureData) => {
-      queryClient.setQueryData(FEAT_MESSAGECONTROL, () => featureData);
-    });
-
-    socket.emit('get-ontime-feat-playbackcontrol');
-    socket.on('ontime-feat-playbackcontrol', (featureData) => {
-      queryClient.setQueryData(FEAT_PLAYBACKCONTROL, () => featureData);
-    });
-
-    socket.emit('get-ontime-feat-info');
-    socket.on('ontime-feat-info', (featureData) => {
-      queryClient.setQueryData(FEAT_INFO, () => featureData);
-    });
-
-    socket.emit('get-ontime-feat-cuesheet');
-    socket.on('ontime-feat-cuesheet', (featureData) => {
-      queryClient.setQueryData(FEAT_CUESHEET, () => featureData);
-    });
-
-    socket.emit('get-ontime-timer');
-    socket.on('ontime-timer', (featureData) => {
-      queryClient.setQueryData(TIMER, () => featureData);
-    });
-
-    return () => {
-      socket.off('ontime-feat-eventlist');
-      socket.off('ontime-feat-messagecontrol');
-      socket.off('ontime-feat-playbackcontrol');
-      socket.off('ontime-feat-info');
-      socket.off('ontime-feat-cuesheet');
-      socket.off('ontime-timer');
-    };
-  }, [queryClient, socket]);
 };

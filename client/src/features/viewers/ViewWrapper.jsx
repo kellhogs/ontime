@@ -1,11 +1,12 @@
 /* eslint-disable react/display-name */
 import { useEffect, useMemo, useState } from 'react';
+import socket from 'common/utils/socket';
 
-import { useSocket } from '../../common/context/socketContext';
 import useSubscription from '../../common/hooks/useSubscription';
 import useEvent from '../../common/hooks-query/useEvent';
 import useEventsList from '../../common/hooks-query/useEventsList';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
+import { useTimer } from 'common/hooks/useSocket';
 
 const withSocket = (Component) => {
   return (props) => {
@@ -13,7 +14,6 @@ const withSocket = (Component) => {
     const { data: genData } = useEvent();
     const { data: viewSettings } = useViewSettings();
 
-    const socket = useSocket();
     const [pres, setPres] = useState({
       text: '',
       visible: false,
@@ -28,13 +28,7 @@ const withSocket = (Component) => {
     });
     const [publicSelectedId, setPublicSelectedId] = useState(null);
 
-    const [timer] = useSubscription('timer', {
-      clock: 0,
-      running: 0,
-      isNegative: false,
-      startedAt: null,
-      expectedFinish: null,
-    });
+    const { data: timer } = useTimer();
     const [titles] = useSubscription('titles', {
       titleNow: '',
       subtitleNow: '',
@@ -58,10 +52,6 @@ const withSocket = (Component) => {
 
     // Ask for update on load
     useEffect(() => {
-      if (!socket) {
-        return;
-      }
-
       // Handle timer messages
       socket.on('messages-timer', (data) => {
         setPres({ ...data });
@@ -92,14 +82,13 @@ const withSocket = (Component) => {
       };
     }, [socket]);
 
-
     const publicEvents = useMemo(() => {
       if (Array.isArray(eventsData)) {
         return eventsData.filter((d) => d.type === 'event' && d.title !== '' && d.isPublic);
       } else {
         return [];
       }
-    },[eventsData])
+    }, [eventsData]);
 
     /********************************************/
     /***  + titleManager                      ***/
