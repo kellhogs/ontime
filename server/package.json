@@ -23,7 +23,9 @@
     "nodemon": "^2.0.15",
     "prettier": "^2.6.2",
     "start-server-and-test": "^1.14.0",
-    "supertest": "^6.2.2"
+    "supertest": "^6.2.2",
+    "tsup": "^6.4.0",
+    "typescript": "^4.8.4"
   },
   "scripts": {
     "nodestart": "NODE_ENV=development node src/app.js",
@@ -39,7 +41,8 @@
     "dist-win": "electron-builder --publish=never  --x64 --win",
     "dist-mac": "electron-builder --publish=never  --x64 --mac",
     "dist-linux": "electron-builder --publish=never  --x64 --linux",
-    "dist-all": "electron-builder -mw"
+    "dist-all": "electron-builder -mw",
+    "build": "tsup src/run.js --format esm --dts --watch"
   },
   "jest": {
     "testEnvironment": "node",

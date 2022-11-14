@@ -1,14 +1,3 @@
-(async () => {
-  let loaded;
-  try {
-    const { startServer, startOSCServer } = await import('./app.js');
-    // Start express server
-    loaded = await startServer();
+import { startServer, startOSCServer } from './app.js';
 
-    // Start OSC Server (API)
-    await startOSCServer();
-  } catch (error) {
-    console.log(error);
-  }
-  console.log(loaded);
-})();
+startServer().then(startOSCServer);

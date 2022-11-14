@@ -20,8 +20,8 @@ let loaded = 'Nothing loaded';
 let isQuitting = false;
 
 const nodePath = isProduction
-  ? path.join('file://', __dirname, '../', 'extraResources', 'src/app.js')
-  : path.join('file://', __dirname, 'src/app.js');
+  ? path.join('file://', __dirname, '../', 'extraResources', 'dist/run.mjs')
+  : path.join('file://', __dirname, 'dist/run.mjs');
 
 (async () => {
   try {
