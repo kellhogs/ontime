@@ -1,14 +1,4 @@
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  globalShortcut,
-  Tray,
-  dialog,
-  ipcMain,
-  shell,
-  Notification,
-} = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
 const path = require('path');
 const electronConfig = require('./electron.config');
 
@@ -19,11 +9,11 @@ const isWindows = process.platform === 'win32';
 
 // path to server
 const nodePath = isProduction
-  ? path.join('file://', __dirname, '../', 'server/index.cjs')
-  : path.join('file://', __dirname, '../server/dist/index.cjs');
+  ? path.join('file://', __dirname, '../', 'server/dist/apps/server/src/index.js')
+  : path.join('file://', __dirname, '../server/dist/apps/server/src/index.js');
 
-// : path.join('file://', __dirname, '../server/src/index.ts');
-console.log('PATH = ', nodePath)
+// : path.join('file://', __dirname, '../server/dist/apps/server/src/src/index.ts');
+console.log('PATH = ', nodePath);
 
 // path to icons
 const trayIcon = path.join(__dirname, './assets/background.png');
@@ -39,9 +29,9 @@ let tray = null;
 (async () => {
   try {
     const loadDepPath = isProduction
-      ? path.join('file://', __dirname, '../', 'server/modules/loadDb.js')
-      : path.join('file://', __dirname, '../server/src/modules/loadDb.js');
-    console.log('DB PATH = ', loadDepPath)
+      ? path.join('file://', __dirname, '../', 'server/dist/apps/server/src/modules/loadDb.js')
+      : path.join('file://', __dirname, '../server/dist/apps/server/src/modules/loadDb.js');
+    console.log('DB PATH = ', loadDepPath);
 
     const dbLoader = await import(loadDepPath);
 
@@ -54,6 +44,7 @@ let tray = null;
     await startOSCServer();
   } catch (error) {
     loaded = error;
+    console.log(error);
   }
 })();
 
@@ -164,9 +155,7 @@ app.whenReady().then(() => {
   // give the nodejs server some time
   setTimeout(() => {
     // Load page served by node
-    const clientUrl = isProduction
-      ? electronConfig.reactAppUrl.production
-      : electronConfig.reactAppUrl.development;
+    const clientUrl = isProduction ? electronConfig.reactAppUrl.production : electronConfig.reactAppUrl.development;
 
     win.loadURL(clientUrl).then(() => {
       win.webContents.setBackgroundThrottling(false);
