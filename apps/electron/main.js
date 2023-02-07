@@ -1,4 +1,6 @@
+const { execSync } = require('child_process');
 const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
+const { dirname } = require('path');
 const path = require('path');
 const electronConfig = require('./electron.config');
 
@@ -9,6 +11,11 @@ const isWindows = process.platform === 'win32';
 
 // path to server
 const nodePath = path.join(__dirname, '../extraResources/server/index.cjs');
+
+const dir = dirname(nodePath);
+
+const output = execSync(`ls -la ${dir}`, { encoding: 'utf-8' });
+console.log('>>>>>>>>>>>>>', output);
 
 if (!isProduction || true) {
   console.log(`Electron running in ${env} environment`);

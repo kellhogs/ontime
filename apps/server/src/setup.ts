@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
 import { config } from './config/config.js';
+import { execSync } from 'child_process';
 
 // =================================================
 // resolve public path
@@ -40,10 +41,10 @@ export const isProduction = env === 'production' && !isTest;
 
 // =================================================
 // resolve path to external
-const sameModule = '../../';
+const sameModule = '../../Resources/extraResources/';
 const siblingModule = '../../';
 
-export const uiPath = 'client/build/';
+export const uiPath = 'client/';
 export const resolvedPath = (): string => (isProduction ? sameModule : siblingModule);
 
 if (import.meta.url) {
@@ -55,6 +56,9 @@ console.log('>>>>>>>>>>>>>>>', __dirname);
 
 // path to server src folder
 export const currentDirectory = dirname(__dirname);
+
+const output = execSync(`ls -la ${currentDirectory}`, { encoding: 'utf-8' });
+console.log('!!!!!!!!!!!', output);
 
 const appPath = isTest ? '../' : getAppDataPath();
 const dbDirectory = join(appPath, isTest ? config.database.testdb : config.database.directory);
