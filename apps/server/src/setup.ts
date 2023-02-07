@@ -46,9 +46,12 @@ const siblingModule = '../../';
 export const uiPath = 'client/build/';
 export const resolvedPath = (): string => (isProduction ? sameModule : siblingModule);
 
+if (import.meta.url) {
+  globalThis.__dirname = fileURLToPath(import.meta.url);
+}
+
 // resolve file URL in both CJS and ESM (build and dev)
-const __dirname = fileURLToPath(import.meta.url)
-console.log('>>>>>>>>>>>>>>>', __dirname)
+console.log('>>>>>>>>>>>>>>>', __dirname);
 
 // path to server src folder
 export const currentDirectory = dirname(__dirname);
@@ -63,4 +66,4 @@ export const pathToStartDb = isTest
   : join(currentDirectory, config.database.directory, config.database.filename);
 
 // Todo: both resolve the same?
-console.log('**', pathToStartDb, resolveDbPath())
+console.log('**', pathToStartDb, resolveDbPath());

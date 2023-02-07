@@ -1,14 +1,4 @@
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  globalShortcut,
-  Tray,
-  dialog,
-  ipcMain,
-  shell,
-  Notification,
-} = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
 const path = require('path');
 const electronConfig = require('./electron.config');
 
@@ -18,7 +8,7 @@ const isMac = process.platform === 'darwin';
 const isWindows = process.platform === 'win32';
 
 // path to server
-const nodePath = path.join('file://', __dirname, '../', 'server/index.cjs')
+const nodePath = path.join(__dirname, '../extraResources/server/index.cjs');
 
 if (!isProduction || true) {
   console.log(`Electron running in ${env} environment`);
@@ -38,12 +28,6 @@ let splash;
 let tray = null;
 
 (async () => {
-
-  // in dev mode, we expect both UI and server to be running
-  if (!isProduction)  {
-    return
-  }
-
   try {
     // const loadDepPath = isProduction
     //   ? path.join('file://', __dirname, '../', 'server/src/modules/loadDb.js')
@@ -54,7 +38,8 @@ let tray = null;
     // const dbLoader = await import(loadDepPath);
 
     // await dbLoader.promise;
-    const { startServer, startOSCServer } = await import(nodePath);
+    const stuff = require(nodePath);
+    const { startServer, startOSCServer } = stuff;
     // Start express server
     loaded = await startServer();
 
@@ -63,7 +48,7 @@ let tray = null;
   } catch (error) {
     loaded = error;
   }
-  console.log('initiated status: ', loaded)
+  console.log('initiated status: ', loaded);
 })();
 
 /**
@@ -172,9 +157,7 @@ app.whenReady().then(() => {
   // give the nodejs server some time
   setTimeout(() => {
     // Load page served by node
-    const clientUrl = isProduction
-      ? electronConfig.reactAppUrl.production
-      : electronConfig.reactAppUrl.development;
+    const clientUrl = isProduction ? electronConfig.reactAppUrl.production : electronConfig.reactAppUrl.development;
 
     win.loadURL(clientUrl).then(() => {
       win.webContents.setBackgroundThrottling(false);
