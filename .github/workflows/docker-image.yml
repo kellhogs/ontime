@@ -32,8 +32,12 @@ jobs:
       with:
         # Version of pnpm to install
         version: 7.26.3
-        # If specified, run `pnpm install`
-        run_install: true
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Build project packages
+      run: pnpm turbo build
         
     - name: Docker Login
       # You may pin to the exact commit or the version.
