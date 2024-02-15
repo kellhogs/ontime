@@ -3,10 +3,14 @@ export const config = {
     testdb: 'test-db',
     directory: 'db',
     filename: 'db.json',
-    tablename: 'events',
   },
   styles: {
     directory: 'styles',
     filename: 'override.css',
   },
+  demo: {
+    directory: 'demo',
+    filename: ['app.js', 'index.html', 'styles.css'],
+  },
+  restoreFile: 'ontime.restore',
 };

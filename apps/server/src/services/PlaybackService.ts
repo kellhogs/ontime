@@ -1,10 +1,12 @@
-import { OntimeEvent, Playback } from 'ontime-types';
+import { LogOrigin, OntimeEvent, Playback } from 'ontime-types';
+import { validatePlayback } from 'ontime-utils';
 
 import { eventLoader, EventLoader } from '../classes/event-loader/EventLoader.js';
 import { eventStore } from '../stores/EventStore.js';
 import { eventTimer } from './TimerService.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
+import { RestorePoint } from './RestoreService.js';
 
 /**
  * Service manages playback status of app
@@ -19,9 +21,9 @@ export class PlaybackService {
   static loadEvent(event: OntimeEvent): boolean {
     let success = false;
     if (!event) {
-      logger.error('PLAYBACK', 'No event found');
+      logger.error(LogOrigin.Playback, 'No event found');
     } else if (event.skip) {
-      logger.warning('PLAYBACK', `Refused playback of skipped event ID ${event.id}`);
+      logger.warning(LogOrigin.Playback, `Refused playback of skipped event ID ${event.id}`);
     } else {
       eventLoader.loadEvent(event);
       eventTimer.load(event);
@@ -40,7 +42,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
       PlaybackService.start();
     }
     return success;
@@ -55,7 +57,22 @@ export class PlaybackService {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      PlaybackService.start();
+    }
+    return success;
+  }
+
+  /**
+   * starts first event matching given cue
+   * @param {string} cue
+   * @return {boolean} success
+   */
+  static startByCue(cue: string): boolean {
+    const event = EventLoader.getEventWithCue(cue);
+    const success = PlaybackService.loadEvent(event);
+    if (success) {
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
       PlaybackService.start();
     }
     return success;
@@ -70,7 +87,7 @@ export class PlaybackService {
     const event = EventLoader.getEventWithId(eventId);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
     return success;
   }
@@ -84,7 +101,21 @@ export class PlaybackService {
     const event = EventLoader.getEventAtIndex(eventIndex);
     const success = PlaybackService.loadEvent(event);
     if (success) {
-      logger.info('PLAYBACK', `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+    }
+    return success;
+  }
+
+  /**
+   * loads first event matching given cue
+   * @param {string} cue
+   * @return {boolean} success
+   */
+  static loadByCue(cue: string): boolean {
+    const event = EventLoader.getEventWithCue(cue);
+    const success = PlaybackService.loadEvent(event);
+    if (success) {
+      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }
     return success;
   }
@@ -97,7 +128,7 @@ export class PlaybackService {
     if (previousEvent) {
       const success = PlaybackService.loadEvent(previousEvent);
       if (success) {
-        logger.info('PLAYBACK', `Loaded event with ID ${previousEvent.id}`);
+        logger.info(LogOrigin.Playback, `Loaded event with ID ${previousEvent.id}`);
       }
     }
   }
@@ -112,19 +143,19 @@ export class PlaybackService {
     if (nextEvent) {
       const success = PlaybackService.loadEvent(nextEvent);
       if (success) {
-        logger.info('PLAYBACK', `Loaded event with ID ${nextEvent.id}`);
+        logger.info(LogOrigin.Playback, `Loaded event with ID ${nextEvent.id}`);
         return true;
       }
     } else if (fallbackAction === 'stop') {
-      logger.info('PLAYBACK', 'No next event found! Stopping playback');
+      logger.info(LogOrigin.Playback, 'No next event found! Stopping playback');
       PlaybackService.stop();
       return false;
     } else if (fallbackAction === 'pause') {
-      logger.info('PLAYBACK', 'No next event found! Pausing playback');
+      logger.info(LogOrigin.Playback, 'No next event found! Pausing playback');
       PlaybackService.pause();
       return false;
     } else {
-      logger.info('PLAYBACK', 'No next event found! Continuing playback');
+      logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
       return false;
     }
   }
@@ -133,10 +164,10 @@ export class PlaybackService {
    * Starts playback on selected event
    */
   static start() {
-    if (eventTimer.playback === Playback.Armed || eventTimer.playback === Playback.Pause) {
+    if (validatePlayback(eventTimer.playback).start) {
       eventTimer.start();
       const newState = eventTimer.playback;
-      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
 
@@ -155,10 +186,10 @@ export class PlaybackService {
    * Pauses playback on selected event
    */
   static pause() {
-    if (eventTimer.playback === Playback.Play) {
+    if (validatePlayback(eventTimer.playback).pause) {
       eventTimer.pause();
       const newState = eventTimer.playback;
-      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
 
@@ -166,11 +197,11 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (eventTimer.playback !== Playback.Stop) {
+    if (validatePlayback(eventTimer.playback).stop) {
       eventLoader.reset();
       eventTimer.stop();
       const newState = eventTimer.playback;
-      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
 
@@ -192,14 +223,14 @@ export class PlaybackService {
 
       // nothing to play
       if (rollTimers === null) {
-        logger.warning('SERVER', 'Roll: no events found');
+        logger.warning(LogOrigin.Server, 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
 
       const { currentEvent, nextEvent } = rollTimers;
       if (!currentEvent && !nextEvent) {
-        logger.warning('SERVER', 'Roll: no events found');
+        logger.warning(LogOrigin.Server, 'Roll: no events found');
         PlaybackService.stop();
         return;
       }
@@ -207,21 +238,57 @@ export class PlaybackService {
       eventTimer.roll(currentEvent, nextEvent);
 
       const newState = eventTimer.playback;
-      logger.info('PLAYBACK', `Play Mode ${newState.toUpperCase()}`);
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
+    }
+  }
+
+  /**
+   * @description resume playback state given a restore point
+   * @param restorePoint
+   */
+  static resume(restorePoint: RestorePoint) {
+    const willResume = () => logger.info(LogOrigin.Server, 'Resuming playback');
+
+    if (restorePoint.playback === Playback.Roll) {
+      willResume();
+      PlaybackService.roll();
+    }
+
+    if (restorePoint.selectedEventId) {
+      const event = EventLoader.getEventWithId(restorePoint.selectedEventId);
+      // the db would have to change for the event not to exist
+      // we do not kow the reason for the crash, so we check anyway
+      if (!event) {
+        return;
+      }
+
+      eventLoader.loadEvent(event);
+      eventTimer.resume(event, restorePoint);
+      eventStore.broadcast();
+      return;
+    }
+  }
+
+  /**
+   * Adds time to current event
+   * @param {number} time - time to add in seconds
+   */
+  static addTime(time: number) {
+    if (eventTimer.loadedTimerId) {
+      const timeInMs = time * 1000;
+      eventTimer.addTime(timeInMs);
+      timeInMs > 0
+        ? logger.info(LogOrigin.Playback, `Added ${time} sec`)
+        : logger.info(LogOrigin.Playback, `Removed ${time} sec`);
     }
   }
 
   /**
    * Adds delay to current event
+   * @deprecated Use addTime
    * @param {number} delayTime time in minutes
    */
   static setDelay(delayTime: number) {
-    if (eventTimer.loadedTimerId) {
-      const delayInMs = delayTime * 1000 * 60;
-      eventTimer.delay(delayInMs);
-      delayInMs > 0
-        ? logger.info('PLAYBACK', `Added ${delayTime} min delay`)
-        : logger.info('PLAYBACK', `Removed ${delayTime} min delay`);
-    }
+    this.addTime(delayTime * 60);
   }
 }

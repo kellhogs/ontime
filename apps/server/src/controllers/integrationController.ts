@@ -1,9 +1,27 @@
 import { messageService } from '../services/message-service/MessageService.js';
 import { PlaybackService } from '../services/PlaybackService.js';
 import { eventStore } from '../stores/EventStore.js';
+import { parse, updateEvent } from './integrationController.config.js';
 
-export function dispatchFromAdapter(type: string, payload: unknown, source?: 'osc' | 'ws') {
-  switch (type.toLowerCase()) {
+export type ChangeOptions = {
+  eventId: string;
+  property: string;
+  value: unknown;
+};
+
+//TODO: re-throwing the error does not add any extra information or value
+export function dispatchFromAdapter(
+  type: string,
+  args: {
+    payload: unknown;
+  },
+  _source?: 'osc' | 'ws',
+) {
+  const payload = args.payload;
+  const typeComponents = type.toLowerCase().split('/');
+  const mainType = typeComponents[0];
+
+  switch (mainType) {
     case 'test-ontime': {
       return { topic: 'hello' };
     }
@@ -29,6 +47,20 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
 
     case 'offair': {
       messageService.setOnAir(false);
+      break;
+    }
+
+    case 'set-timer-blink': {
+      if (typeof payload !== 'undefined') {
+        messageService.setTimerBlink(Boolean(payload));
+      }
+      break;
+    }
+
+    case 'set-timer-blackout': {
+      if (typeof payload !== 'undefined') {
+        messageService.setTimerBlackout(Boolean(payload));
+      }
       break;
     }
 
@@ -77,6 +109,20 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       break;
     }
 
+    case 'set-external-message-text': {
+      if (typeof payload !== 'string') {
+        throw new Error(`Unable to parse payload: ${payload}`);
+      }
+      messageService.setExternalText(payload);
+      return;
+    }
+    case 'set-external-message-visible': {
+      if (typeof payload === 'undefined') {
+        throw new Error(`Unable to parse payload: ${payload}`);
+      }
+      messageService.setExternalVisibility(Boolean(payload));
+      break;
+    }
     case 'start': {
       PlaybackService.start();
       break;
@@ -93,11 +139,10 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
         throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
 
-      try {
-        // Indexes in frontend are 1 based
-        PlaybackService.startByIndex(eventIndex - 1);
-      } catch (error) {
-        throw new Error(`Error loading event:: ${error}`);
+      // Indexes in frontend are 1 based
+      const success = PlaybackService.startByIndex(eventIndex - 1);
+      if (!success) {
+        throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
       break;
     }
@@ -109,6 +154,15 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       PlaybackService.startById(payload);
       break;
     }
+
+    case 'startcue': {
+      if (!payload || typeof payload !== 'string') {
+        throw new Error(`Event cue not recognised: ${payload}`);
+      }
+      PlaybackService.startByCue(payload);
+      break;
+    }
+
     case 'pause': {
       PlaybackService.pause();
       break;
@@ -134,17 +188,23 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
       PlaybackService.roll();
       break;
     }
+    case 'addtime': {
+      const time = Number(payload);
+      if (isNaN(time)) {
+        throw new Error(`Time not recognised ${payload}`);
+      }
+
+      PlaybackService.addTime(time);
+      break;
+    }
+    //deprecated
     case 'delay': {
       const delayTime = Number(payload);
       if (isNaN(delayTime)) {
         throw new Error(`Delay time not recognised ${payload}`);
       }
 
-      try {
-        PlaybackService.setDelay(delayTime);
-      } catch (error) {
-        throw new Error(`Could not add delay: ${error}`);
-      }
+      PlaybackService.setDelay(delayTime);
       break;
     }
     case 'gotoindex':
@@ -154,11 +214,10 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
         throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
 
-      try {
-        // Indexes in frontend are 1 based
-        PlaybackService.loadByIndex(eventIndex - 1);
-      } catch (error) {
-        throw new Error(`Event index not recognised or out of range ${error}`);
+      // Indexes in frontend are 1 based
+      const success = PlaybackService.loadByIndex(eventIndex - 1);
+      if (!success) {
+        throw new Error(`Event index not recognised or out of range ${eventIndex}`);
       }
       break;
     }
@@ -168,10 +227,21 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
         throw new Error(`Event ID not recognised: ${payload}`);
       }
 
-      try {
-        PlaybackService.loadById(payload.toString().toLowerCase());
-      } catch (error) {
-        throw new Error(`OSC IN: error calling goto ${error}`);
+      const success = PlaybackService.loadById(payload.toString().toLowerCase());
+      if (!success) {
+        throw new Error(`Event ID not found: ${payload}`);
+      }
+      break;
+    }
+    case 'gotocue':
+    case 'loadcue': {
+      if (!payload || typeof payload !== 'string') {
+        throw new Error(`Event cue not recognised: ${payload}`);
+      }
+
+      const success = PlaybackService.loadByCue(payload);
+      if (!success) {
+        throw new Error(`Event cue not found: ${payload}`);
       }
       break;
     }
@@ -184,6 +254,13 @@ export function dispatchFromAdapter(type: string, payload: unknown, source?: 'os
     case 'get-timer': {
       const timer = eventStore.get('timer');
       return { topic: 'timer', payload: timer };
+    }
+
+    // WS: {type: 'change', payload: { eventId, property, value } }
+    case 'change': {
+      const { eventId, property, value } = payload as ChangeOptions;
+      const { parsedPayload, parsedProperty } = parse(property, value);
+      return updateEvent(eventId, parsedProperty, parsedPayload);
     }
 
     default: {

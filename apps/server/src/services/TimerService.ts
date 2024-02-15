@@ -1,32 +1,63 @@
-import { EndAction, OntimeEvent, Playback, TimerLifeCycle, TimerState } from 'ontime-types';
+import { EndAction, LogOrigin, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
+import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { eventStore } from '../stores/EventStore.js';
 import { PlaybackService } from './PlaybackService.js';
 import { updateRoll } from './rollUtils.js';
-import { DAY_TO_MS } from '../utils/time.js';
 import { integrationService } from './integration-service/IntegrationService.js';
-import { getCurrent, getElapsed, getExpectedFinish } from './timerUtils.js';
+import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './timerUtils.js';
 import { clock } from './Clock.js';
+import { logger } from '../classes/Logger.js';
+import type { RestorePoint } from './RestoreService.js';
+
+type initialLoadingData = {
+  startedAt?: number | null;
+  expectedFinish?: number | null;
+  current?: number | null;
+};
+
+type RestoreCallback = (newState: RestorePoint) => Promise<void>;
+
+export const timeSkipLimit = 3 * 32;
 
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
+  private _updateInterval: number;
+  private _lastUpdate: number | null;
+  private _skipThreshold: number;
 
   playback: Playback;
   timer: TimerState;
 
   loadedTimerId: string | null;
+  private loadedTimerStart: number | null;
+  private loadedTimerEnd: number | null;
+
   private pausedTime: number;
   private pausedAt: number | null;
   private secondaryTarget: number | null;
 
+  private saveRestorePoint: RestoreCallback;
   /**
    * @constructor
    * @param {object} [timerConfig]
    * @param {number} [timerConfig.refresh]
+   * @param {number} [timerConfig.updateInterval]
+   * @param {number} [timerConfig.skipThreshold]
    */
-  constructor(timerConfig?) {
+  constructor(timerConfig: { refresh: number; updateInterval: number; skipThreshold: number }) {
     this._clear();
-    this._interval = setInterval(() => this.update(), timerConfig?.refresh || 1000);
+    this._interval = setInterval(() => this.update(), timerConfig.refresh);
+    this._updateInterval = timerConfig.updateInterval;
+    this._skipThreshold = timerConfig.skipThreshold;
+  }
+
+  /**
+   * Provides callback to save restore point
+   * @param cb
+   */
+  setRestoreCallback(cb: RestoreCallback) {
+    this.saveRestorePoint = cb;
   }
 
   /**
@@ -50,9 +81,52 @@ export class TimerService {
       endAction: null,
     };
     this.loadedTimerId = null;
+    this.loadedTimerStart = null;
+    this.loadedTimerEnd = null;
+
     this.pausedTime = 0;
     this.pausedAt = null;
     this.secondaryTarget = null;
+
+    this._lastUpdate = null;
+  }
+
+  /**
+   * Resumes a given playback state, same as load
+   * @param {RestorePoint} restorePoint
+   * @param {OntimeEvent} timer
+   */
+  resume(timer: OntimeEvent, restorePoint: RestorePoint) {
+    this._clear();
+
+    // this is pretty much the same as load, with a few exceptions
+    this.loadedTimerId = timer.id;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
+    this.playback = restorePoint.playback;
+    this.timer.timerType = timer.timerType;
+    this.timer.endAction = timer.endAction;
+    this.timer.startedAt = restorePoint.startedAt;
+    this.timer.addedTime = restorePoint.addedTime;
+    this.pausedTime = 0;
+    this.pausedAt = restorePoint.pausedAt;
+
+    this.timer.current = this.timer.duration;
+    if (this.timer.timerType === TimerType.TimeToEnd) {
+      const now = clock.timeNow();
+      this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
+    }
+
+    this._onResume();
+  }
+
+  _onResume() {
+    eventStore.batchSet({
+      playback: this.playback,
+      timer: this.timer,
+    });
   }
 
   /**
@@ -77,9 +151,11 @@ export class TimerService {
     // TODO: check if any relevant information warrants update
 
     // update relevant information and force update
-    this.timer.duration = timer.duration;
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
 
     // this might not be ideal
     this.timer.finishedAt = null;
@@ -89,25 +165,21 @@ export class TimerService {
       this.timer.duration,
       this.pausedTime,
       this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
     if (this.timer.startedAt === null) {
-      this.timer.current = timer.duration;
+      this.timer.current = this.timer.duration;
     }
-    this.update();
+    this.update(true);
   }
 
   /**
    * Loads given timer to object
-   * @param {object} timer
-   * @param {number} timer.id
-   * @param {number} timer.timeStart
-   * @param {number} timer.timeEnd
-   * @param {number} timer.duration
-   * @param {string} timer.timerBehaviour
-   * @param {string} timer.timerType
-   * @param {boolean} timer.skip
+   * @param {OntimeEvent} timer
+   * @param {initialLoadingData} initialData
    */
-  load(timer) {
+  load(timer: OntimeEvent, initialData?: initialLoadingData) {
     if (timer.skip) {
       throw new Error('Refuse load of skipped event');
     }
@@ -115,13 +187,25 @@ export class TimerService {
     this._clear();
 
     this.loadedTimerId = timer.id;
-    this.timer.duration = timer.duration;
-    this.timer.current = timer.duration;
+    this.loadedTimerStart = timer.timeStart;
+    this.loadedTimerEnd = timer.timeEnd;
+
+    this.timer.duration = calculateDuration(timer.timeStart, timer.timeEnd);
     this.playback = Playback.Armed;
     this.timer.timerType = timer.timerType;
     this.timer.endAction = timer.endAction;
     this.pausedTime = 0;
     this.pausedAt = 0;
+
+    this.timer.current = this.timer.duration;
+    if (this.timer.timerType === TimerType.TimeToEnd) {
+      const now = clock.timeNow();
+      this.timer.current = getCurrent(now, this.timer.duration, 0, 0, now, timer.timeEnd, this.timer.timerType);
+    }
+
+    if (initialData) {
+      this.timer = { ...this.timer, ...initialData };
+    }
 
     this._onLoad();
   }
@@ -136,10 +220,14 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onLoad);
+    this._saveState();
   }
 
   start() {
     if (!this.loadedTimerId) {
+      if (this.playback === Playback.Roll) {
+        logger.error(LogOrigin.Playback, 'Cannot start while waiting for event');
+      }
       return;
     }
 
@@ -148,13 +236,15 @@ export class TimerService {
     }
 
     this.timer.clock = clock.timeNow();
+    this.timer.secondaryTimer = null;
+    this.secondaryTarget = null;
 
-    // add paused time
+    // add paused time if it exists
     if (this.pausedTime) {
       this.timer.addedTime += this.pausedTime;
       this.pausedAt = null;
       this.pausedTime = 0;
-    } else {
+    } else if (this.timer.startedAt === null) {
       this.timer.startedAt = this.timer.clock;
     }
 
@@ -165,6 +255,8 @@ export class TimerService {
       this.timer.duration,
       this.pausedTime,
       this.timer.addedTime,
+      this.loadedTimerEnd,
+      this.timer.timerType,
     );
     this._onStart();
   }
@@ -179,13 +271,10 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStart);
+    this._saveState();
   }
 
   pause() {
-    if (this.playback !== Playback.Play) {
-      return;
-    }
-
     this.playback = Playback.Pause;
     this.timer.clock = clock.timeNow();
     this.pausedAt = this.timer.clock;
@@ -198,6 +287,7 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onPause);
+    this._saveState();
   }
 
   stop() {
@@ -215,13 +305,14 @@ export class TimerService {
       timer: this.timer,
     });
     integrationService.dispatch(TimerLifeCycle.onStop);
+    this._saveState();
   }
 
   /**
-   * Delays running timer by given amount
+   * Adds time to running timer by given amount
    * @param {number} amount
    */
-  delay(amount: number) {
+  addTime(amount: number) {
     if (!this.loadedTimerId) {
       return;
     }
@@ -240,78 +331,116 @@ export class TimerService {
     }
 
     // force an update
-    this.update();
+    this.update(true);
+    this._saveState();
   }
 
-  update() {
-    this.timer.clock = clock.timeNow();
+  private updateRoll() {
+    const tempCurrentTimer = {
+      selectedEventId: this.loadedTimerId,
+      current: this.timer.current,
+      // safeguard on midnight rollover
+      _finishAt:
+        this.timer.expectedFinish >= this.timer.startedAt
+          ? this.timer.expectedFinish
+          : this.timer.expectedFinish + dayInMs,
+      clock: this.timer.clock,
+      secondaryTimer: this.timer.secondaryTimer,
+      secondaryTarget: this.secondaryTarget,
+    };
+    const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
 
-    if (this.playback === Playback.Roll) {
-      const tempCurrentTimer = {
-        selectedEventId: this.loadedTimerId,
-        current: this.timer.current,
-        // safeguard on midnight rollover
-        _finishAt:
-          this.timer.expectedFinish >= this.timer.startedAt
-            ? this.timer.expectedFinish
-            : this.timer.expectedFinish + DAY_TO_MS,
+    this.timer.current = updatedTimer;
+    this.timer.secondaryTimer = updatedSecondaryTimer;
+    this.timer.elapsed = this.timer.duration - this.timer.current;
 
-        clock: this.timer.clock,
-        secondaryTimer: this.timer.secondaryTimer,
-        secondaryTarget: this.secondaryTarget,
-      };
-      const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(tempCurrentTimer);
-
-      this.timer.current = updatedTimer;
-      this.timer.secondaryTimer = updatedSecondaryTimer;
-      this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
-
-      if (isFinished) {
-        this.timer.selectedEventId = null;
-        this.loadedTimerId = null;
-        this._onFinish();
-      }
-
-      // to load the next event we have to escalate to parent service
-      if (doRollLoad) {
-        PlaybackService.roll();
-      }
-    } else {
-      // we only update timer if a timer has been started
-      if (this.timer.startedAt !== null) {
-        if (this.playback === Playback.Pause) {
-          this.pausedTime = this.timer.clock - this.pausedAt;
-        }
-
-        if (this.playback === Playback.Play && this.timer.current <= 0 && this.timer.finishedAt === null) {
-          this.timer.finishedAt = this.timer.clock;
-          this._onFinish();
-        } else {
-          this.timer.expectedFinish = getExpectedFinish(
-            this.timer.startedAt,
-            this.timer.finishedAt,
-            this.timer.duration,
-            this.pausedTime,
-            this.timer.addedTime,
-          );
-        }
-        this.timer.current = getCurrent(
-          this.timer.startedAt,
-          this.timer.duration,
-          this.timer.addedTime,
-          this.pausedTime,
-          this.timer.clock,
-        );
-
-        this.timer.elapsed = getElapsed(this.timer.startedAt, this.timer.clock);
-      }
+    if (isFinished) {
+      this.timer.selectedEventId = null;
+      this.loadedTimerId = null;
+      this._onFinish();
     }
-    this._onUpdate();
+
+    // to load the next event we have to escalate to parent service
+    if (doRollLoad) {
+      PlaybackService.roll();
+    }
   }
 
-  _onUpdate() {
+  private updatePlay() {
+    if (this.playback === Playback.Pause) {
+      this.pausedTime = this.timer.clock - this.pausedAt;
+    }
+
+    const finishedNow = this.timer.current <= 0 && this.timer.finishedAt === null;
+    if (this.playback === Playback.Play && finishedNow) {
+      this.timer.finishedAt = this.timer.clock;
+      this._onFinish();
+    } else {
+      this.timer.expectedFinish = getExpectedFinish(
+        this.timer.startedAt,
+        this.timer.finishedAt,
+        this.timer.duration,
+        this.pausedTime,
+        this.timer.addedTime,
+        this.loadedTimerEnd,
+        this.timer.timerType,
+      );
+    }
+    this.timer.current = getCurrent(
+      this.timer.startedAt,
+      this.timer.duration,
+      this.timer.addedTime,
+      this.pausedTime,
+      this.timer.clock,
+      this.loadedTimerEnd,
+      this.timer.timerType,
+    );
+    this.timer.elapsed = this.timer.duration - this.timer.current;
+  }
+
+  update(force = false) {
+    const previousTime = this.timer.clock;
+    this.timer.clock = clock.timeNow();
+    if (previousTime > this.timer.clock) {
+      force = true;
+    }
+
+    // we call integrations if we update timers
+    let shouldNotify = false;
+    if (this.playback === Playback.Roll) {
+      shouldNotify = true;
+      if (
+        skippedOutOfEvent(
+          previousTime,
+          this.timer.clock,
+          this.timer.startedAt,
+          this.timer.expectedFinish,
+          this._skipThreshold,
+        )
+      ) {
+        PlaybackService.roll();
+      } else {
+        this.updateRoll();
+      }
+    } else if (this.timer.startedAt !== null) {
+      // we only update timer if a timer has been started
+      shouldNotify = true;
+      this.updatePlay();
+    }
+
+    // we only update the store at the updateInterval
+    // side effects such as onFinish will still be triggered in the update functions
+    if (force || this.timer.clock > this._lastUpdate + this._updateInterval) {
+      this._lastUpdate = this.timer.clock;
+      this._onUpdate(shouldNotify);
+    }
+  }
+
+  _onUpdate(shouldNotify: boolean) {
     eventStore.set('timer', this.timer);
-    integrationService.dispatch(TimerLifeCycle.onUpdate);
+    if (shouldNotify) {
+      integrationService.dispatch(TimerLifeCycle.onUpdate);
+    }
   }
 
   _onFinish() {
@@ -329,6 +458,7 @@ export class TimerService {
         PlaybackService.startNext();
       }
     }
+    this._saveState();
   }
 
   /**
@@ -345,25 +475,44 @@ export class TimerService {
       this.timer.secondaryTimer = null;
       this.secondaryTarget = null;
 
+      // account for event that finishes the day after
+      const endTime =
+        currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
+
       // when we load a timer in roll, we do the same things as before
       // but also pre-populate some data as to the running state
-      this.load(currentEvent);
-      this.timer.startedAt = currentEvent.timeStart;
-      this.timer.expectedFinish = currentEvent.timeEnd;
+      this.load(currentEvent, {
+        startedAt: currentEvent.timeStart,
+        expectedFinish: currentEvent.timeEnd,
+        current: endTime - this.timer.clock,
+      });
     } else if (nextEvent) {
       // account for day after
-      const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + DAY_TO_MS : nextEvent.timeStart;
+      const nextStart = nextEvent.timeStart < this.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
       // nothing now, but something coming up
       this.timer.secondaryTimer = nextStart - this.timer.clock;
       this.secondaryTarget = nextStart;
     }
     this.playback = Playback.Roll;
     this._onRoll();
-    this.update();
+    this.update(true);
   }
 
   _onRoll() {
     eventStore.set('playback', this.playback);
+    this._saveState();
+  }
+
+  async _saveState() {
+    if (this.saveRestorePoint) {
+      await this.saveRestorePoint({
+        playback: this.playback,
+        selectedEventId: this.loadedTimerId,
+        startedAt: this.timer.startedAt,
+        addedTime: this.timer.addedTime,
+        pausedAt: this.pausedAt,
+      });
+    }
   }
 
   shutdown() {
@@ -371,4 +520,6 @@ export class TimerService {
   }
 }
 
-export const eventTimer = new TimerService();
+// calculate at 30fps, refresh at 1fps
+// we consider a skip at 3 lost updates
+export const eventTimer = new TimerService({ refresh: 32, updateInterval: 1000, skipThreshold: 32 * 3 });

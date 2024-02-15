@@ -4,9 +4,9 @@ import ModalWrapper from '../ModalWrapper';
 
 import AliasesForm from './AliasesForm';
 import AppSettingsModal from './AppSettings';
-import CuesheetSettings from './CuesheetSettings';
+import CuesheetSettingsForm from './CuesheetSettingsForm';
 import EditorSettings from './EditorSettings';
-import EventDataForm from './EventDataForm';
+import ProjectDataForm from './ProjectDataForm';
 import ViewSettingsForm from './ViewSettingsForm';
 
 interface ModalManagerProps {
@@ -21,8 +21,8 @@ export default function SettingsModal(props: ModalManagerProps) {
       <ModalBody>
         <Tabs variant='ontime' size='sm' isLazy>
           <TabList>
-            <Tab>App Settings</Tab>
-            <Tab>Event Data</Tab>
+            <Tab>App</Tab>
+            <Tab>Project Data</Tab>
             <Tab>Editor</Tab>
             <Tab>Cuesheet</Tab>
             <Tab>Views</Tab>
@@ -33,13 +33,13 @@ export default function SettingsModal(props: ModalManagerProps) {
               <AppSettingsModal />
             </TabPanel>
             <TabPanel>
-              <EventDataForm />
+              <ProjectDataForm />
             </TabPanel>
             <TabPanel>
               <EditorSettings />
             </TabPanel>
             <TabPanel>
-              <CuesheetSettings />
+              <CuesheetSettingsForm />
             </TabPanel>
             <TabPanel>
               <ViewSettingsForm />

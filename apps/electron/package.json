@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "2.0.0-beta6",
+  "version": "2.28.17",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -14,15 +14,17 @@
   "devDependencies": {
     "electron": "^22.3.5",
     "electron-builder": "^23.6.0",
-    "eslint": "^8.31.0",
-    "eslint-config-prettier": "^8.6.0",
-    "prettier": "^2.8.3"
+    "eslint": "^8.53.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.0.3"
   },
   "scripts": {
     "postinstall": "",
-    "dev:electron": "NODE_ENV=development electron .",
+    "lint": "eslint . --quiet",
+    "lint-staged": "eslint",
+    "dev:electron": "cross-env NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never  --x64 --win",
-    "dist-mac": "electron-builder --publish=never  --x64 --mac",
+    "dist-mac": "electron-builder --publish=never  --mac",
     "dist-linux": "electron-builder --publish=never  --x64 --linux",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
@@ -31,11 +33,17 @@
     "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
-      "artifactName": "ontime-macOS.dmg",
+      "artifactName": "ontime-macOS-${arch}.dmg",
       "icon": "icon.icns"
     },
     "mac": {
-      "target": "dmg",
+      "target": {
+        "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      },
       "category": "public.app-category.productivity",
       "icon": "icon.icns"
     },

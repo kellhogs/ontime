@@ -1,11 +1,13 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Select } from '@chakra-ui/react';
 import type { Settings } from 'ontime-types';
 
+import { logAxiosError } from '../../../common/api/apiUtils';
 import { postSettings } from '../../../common/api/ontimeApi';
 import useSettings from '../../../common/hooks-query/useSettings';
-import { useEmitLog } from '../../../common/stores/logger';
 import { isOnlyNumbers } from '../../../common/utils/regex';
+import ModalLoader from '../modal-loader/ModalLoader';
 import ModalSplitInput from '../ModalSplitInput';
 import OntimeModalFooter from '../OntimeModalFooter';
 
@@ -14,8 +16,7 @@ import ModalPinInput from './ModalPinInput';
 import style from './SettingsModal.module.scss';
 
 export default function AppSettingsModal() {
-  const { data, status, refetch } = useSettings();
-  const { emitError } = useEmitLog();
+  const { data, status, isFetching, refetch } = useSettings();
   const {
     handleSubmit,
     register,
@@ -24,13 +25,22 @@ export default function AppSettingsModal() {
   } = useForm<Settings>({
     defaultValues: data,
     values: data,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: Settings) => {
     try {
       await postSettings(formData);
     } catch (error) {
-      emitError(`Error saving settings: ${error}`);
+      logAxiosError('Error saving settings', error);
     } finally {
       await refetch();
     }
@@ -40,14 +50,18 @@ export default function AppSettingsModal() {
     reset(data);
   };
 
-  const disableInputs = status === 'loading';
+  const disableInputs = status === 'pending';
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='app-settings' className={style.sectionContainer}>
       <ModalSplitInput
         field='serverPort'
         title='Ontime is available on port'
-        description='Default 4001'
+        description='Default 4001 (needs app restart to change)'
         error={errors.serverPort?.message}
       >
         <Input
@@ -55,7 +69,6 @@ export default function AppSettingsModal() {
           size='sm'
           textAlign='right'
           maxLength={5}
-          disabled
           variant='ontime-filled-on-light'
           {...register('serverPort', {
             required: { value: true, message: 'Required field' },
@@ -74,7 +87,7 @@ export default function AppSettingsModal() {
         description='Protect the editor with a pin code'
         error={errors.editorKey?.message}
       >
-        <ModalPinInput register={register} formName='editorKey' isDisabled={disableInputs} />
+        <ModalPinInput register={register as any} formName='editorKey' isDisabled={disableInputs} />
       </ModalSplitInput>
       <ModalSplitInput
         field='operatorKey'
@@ -82,7 +95,7 @@ export default function AppSettingsModal() {
         description='Protect the cuesheet with a pin code'
         error={errors.operatorKey?.message}
       >
-        <ModalPinInput register={register} formName='operatorKey' isDisabled={disableInputs} />
+        <ModalPinInput register={register as any} formName='operatorKey' isDisabled={disableInputs} />
       </ModalSplitInput>
       <div style={{ height: '16px' }} />
       <ModalSplitInput
@@ -104,7 +117,9 @@ export default function AppSettingsModal() {
       >
         <Select backgroundColor='white' size='sm' width='auto' isDisabled={disableInputs} {...register('language')}>
           <option value='en'>English</option>
+          <option value='fr'>French</option>
           <option value='de'>German</option>
+          <option value='it'>Italian</option>
           <option value='no'>Norwegian</option>
           <option value='pt'>Portuguese</option>
           <option value='es'>Spanish</option>

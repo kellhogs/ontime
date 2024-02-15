@@ -1,14 +1,16 @@
+import { DatabaseModel } from 'ontime-types';
+
 /**
  * Merges two data objects
  * @param {object} existing
  * @param {object} newData
  */
-export function safeMerge(existing, newData) {
-  const { rundown, eventData, settings, viewSettings, osc, http, aliases, userFields } = newData || {};
+export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseModel>) {
+  const { rundown, project, settings, viewSettings, osc, aliases, userFields } = newData || {};
   return {
     ...existing,
     rundown: rundown ?? existing.rundown,
-    eventData: { ...existing.eventData, ...eventData },
+    project: { ...existing.project, ...project },
     settings: { ...existing.settings, ...settings },
     viewSettings: { ...existing.viewSettings, ...viewSettings },
     aliases: aliases ?? existing.aliases,
@@ -32,6 +34,5 @@ export function safeMerge(existing, newData) {
           : {}),
       },
     },
-    http: { ...existing.http, ...http },
   };
 }

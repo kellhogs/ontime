@@ -1,16 +1,20 @@
 {
   "rundown": [
     {
-      "title": "First test event",
+      "type": "block",
+      "id": "18797"
+    },
+    {
+      "title": "title 1",
       "subtitle": "",
       "presenter": "",
       "note": "",
-      "endAction": "continue",
+      "endAction": "none",
       "timerType": "count-down",
-      "timeStart": 32400000,
-      "timeEnd": 36000000,
-      "duration": 3600000,
-      "isPublic": true,
+      "timeStart": 60000,
+      "timeEnd": 120000,
+      "duration": 60000,
+      "isPublic": false,
       "skip": false,
       "colour": "",
       "user0": "",
@@ -25,25 +29,20 @@
       "user9": "",
       "type": "event",
       "revision": 0,
+      "cue": "1",
       "id": "aa42f"
     },
     {
-      "duration": 600000,
-      "type": "delay",
-      "revision": 0,
-      "id": "b1d5a"
-    },
-    {
-      "title": "Second test event",
+      "title": "title 2",
       "subtitle": "",
       "presenter": "",
       "note": "",
-      "endAction": "continue",
+      "endAction": "none",
       "timerType": "count-down",
-      "timeStart": 36000000,
-      "timeEnd": 39600000,
-      "duration": 3600000,
-      "isPublic": true,
+      "timeStart": 120000,
+      "timeEnd": 180000,
+      "duration": 60000,
+      "isPublic": false,
       "skip": false,
       "colour": "",
       "user0": "",
@@ -58,23 +57,19 @@
       "user9": "",
       "type": "event",
       "revision": 0,
+      "cue": "2",
       "id": "d71bc"
     },
     {
-      "title": "Lunch",
-      "type": "block",
-      "id": "91682"
-    },
-    {
-      "title": "Third test event",
+      "title": "title 3",
       "subtitle": "",
       "presenter": "",
       "note": "",
-      "endAction": "continue",
+      "endAction": "none",
       "timerType": "count-down",
       "timeStart": 39600000,
       "timeEnd": 720000,
-      "duration": 0,
+      "duration": 47520000,
       "isPublic": true,
       "skip": false,
       "colour": "",
@@ -90,11 +85,13 @@
       "user9": "",
       "type": "event",
       "revision": 0,
+      "cue": "3",
       "id": "da5b4"
     }
   ],
-  "eventData": {
+  "project": {
     "title": "All about Carlos demo event",
+    "description": "Demo event for Ontime",
     "publicUrl": "www.getontime.no",
     "publicInfo": "WiFi: demoproject \nPassword: ontimeproject",
     "backstageUrl": "www.getontime.no",
@@ -102,7 +99,7 @@
   },
   "settings": {
     "app": "ontime",
-    "version": 2,
+    "version": "2.24.8",
     "serverPort": 4001,
     "editorKey": null,
     "operatorKey": null,
@@ -143,6 +140,17 @@
     "targetIP": "127.0.0.1",
     "enabledIn": false,
     "enabledOut": false,
+    "subscriptions": {
+      "onLoad": [],
+      "onStart": [],
+      "onPause": [],
+      "onStop": [],
+      "onUpdate": [],
+      "onFinish": []
+    }
+  },
+  "http": {
+    "enabledOut": true,
     "subscriptions": {
       "onLoad": [],
       "onStart": [],

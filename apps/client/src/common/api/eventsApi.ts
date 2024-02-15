@@ -1,9 +1,19 @@
 import axios from 'axios';
-import { OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { GetRundownCached, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
 import { rundownURL } from './apiConstants';
 
 /**
+ * @description HTTP request to fetch all events
+ * @return {Promise}
+ */
+export async function fetchCachedRundown(): Promise<GetRundownCached> {
+  const res = await axios.get(`${rundownURL}/cached`);
+  return res.data;
+}
+
+/**
+ * @deprecated use fetchCachedRundown instead
  * @description HTTP request to fetch all events
  * @return {Promise}
  */
@@ -28,14 +38,6 @@ export async function requestPutEvent(data: Partial<OntimeRundownEntry>) {
   return axios.put(rundownURL, data);
 }
 
-/**
- * @description HTTP request to modify event
- * @return {Promise}
- */
-export async function requestPatchEvent(data: OntimeRundownEntry) {
-  return axios.patch(rundownURL, data);
-}
-
 export type ReorderEntry = {
   eventId: string;
   from: number;
@@ -56,6 +58,19 @@ export async function requestReorderEvent(data: ReorderEntry) {
  */
 export async function requestApplyDelay(eventId: string) {
   return axios.patch(`${rundownURL}/applydelay/${eventId}`);
+}
+
+export type SwapEntry = {
+  from: string;
+  to: string;
+};
+
+/**
+ * @description HTTP request to swap two events
+ * @return {Promise}
+ */
+export async function requestEventSwap(data: SwapEntry) {
+  return axios.patch(`${rundownURL}/swap`, data);
 }
 
 /**

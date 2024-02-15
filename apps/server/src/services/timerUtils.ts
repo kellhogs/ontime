@@ -1,4 +1,5 @@
-type MaybeNumber = number | null;
+import { MaybeNumber, TimerType } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 /**
  * Calculates expected finish time of a running timer
@@ -9,6 +10,8 @@ export function getExpectedFinish(
   duration: number,
   pausedTime: number,
   addedTime: number,
+  timeEnd: number,
+  timerType: TimerType,
 ) {
   if (startedAt === null) {
     return null;
@@ -18,7 +21,18 @@ export function getExpectedFinish(
     return finishedAt;
   }
 
-  return Math.max(startedAt + duration + pausedTime + addedTime, startedAt);
+  if (timerType === TimerType.TimeToEnd) {
+    return timeEnd + addedTime + pausedTime;
+  }
+
+  // handle events that finish the day after
+  const expectedFinish = startedAt + duration + pausedTime + addedTime;
+  if (expectedFinish > dayInMs) {
+    return expectedFinish - dayInMs;
+  }
+
+  // an event cannot finish before it started (user added too much negative time)
+  return Math.max(expectedFinish, startedAt);
 }
 
 /**
@@ -30,19 +44,40 @@ export function getCurrent(
   addedTime: number,
   pausedTime: number,
   clock: number,
+  timeEnd: number,
+  timerType: TimerType,
 ) {
   if (startedAt === null) {
     return null;
   }
+
+  if (timerType === TimerType.TimeToEnd) {
+    if (startedAt > timeEnd) {
+      return timeEnd + addedTime + pausedTime + dayInMs - clock;
+    }
+    return timeEnd + addedTime + pausedTime - clock;
+  }
+
+  if (startedAt > clock) {
+    // we are the day after the event was started
+    return startedAt + duration + addedTime + pausedTime - clock - dayInMs;
+  }
   return startedAt + duration + addedTime + pausedTime - clock;
 }
 
-/**
- * Calculates elapsed time
- */
-export function getElapsed(startedAt: number, clock: number) {
-  if (startedAt > clock) {
-    throw new Error('clock cannot be higher than startedAt');
-  }
-  return clock - startedAt;
+export function skippedOutOfEvent(
+  previousTime: number,
+  clock: number,
+  startedAt: number,
+  expectedFinish: number,
+  skipLimit: number,
+): boolean {
+  const hasPassedMidnight = previousTime > dayInMs - skipLimit && clock < skipLimit;
+  const adjustedClock = hasPassedMidnight ? clock + dayInMs : clock;
+
+  const timeDifference = previousTime - adjustedClock;
+  const hasSkipped = Math.abs(timeDifference) > skipLimit;
+  const adjustedExpectedFinish = expectedFinish >= startedAt ? expectedFinish : expectedFinish + dayInMs;
+
+  return hasSkipped && (adjustedClock > adjustedExpectedFinish || adjustedClock < startedAt);
 }

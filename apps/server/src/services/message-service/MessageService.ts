@@ -1,14 +1,21 @@
 import { Message } from 'ontime-types';
 
-import { eventStore } from '../../stores/EventStore.js';
+import { TimerMessage } from 'ontime-types/src/definitions/runtime/MessageControl.type.js';
+import { throttle } from '../../utils/throttle.js';
+
+import type { PublishFn } from '../../stores/EventStore.js';
 
 let instance;
 
 class MessageService {
-  timerMessage: Message;
+  timerMessage: TimerMessage;
   publicMessage: Message;
   lowerMessage: Message;
+  externalMessage: Message;
   onAir: boolean;
+
+  private throttledSet: PublishFn;
+  private publish: PublishFn | null;
 
   constructor() {
     if (instance) {
@@ -21,6 +28,8 @@ class MessageService {
     this.timerMessage = {
       text: '',
       visible: false,
+      timerBlink: false,
+      timerBlackout: false,
     };
 
     this.publicMessage = {
@@ -33,7 +42,40 @@ class MessageService {
       visible: false,
     };
 
+    this.externalMessage = {
+      text: '',
+      visible: false,
+    };
+
     this.onAir = false;
+    this.throttledSet = () => {
+      throw new Error('Published called before initialisation');
+    };
+  }
+
+  init(publish: PublishFn) {
+    this.publish = publish;
+    this.throttledSet = throttle((key, value) => this.publish(key, value), 100);
+  }
+
+  /**
+   * @description sets message on stage timer screen
+   */
+  setExternalText(payload: string) {
+    if (this.externalMessage.text !== payload) {
+      this.externalMessage.text = payload;
+      this.throttledSet('externalMessage', this.externalMessage);
+    }
+    return this.getAll();
+  }
+
+  /**
+   * @description sets message visibility on stage timer screen
+   */
+  setExternalVisibility(status: boolean) {
+    this.externalMessage.visible = status;
+    this.throttledSet('externalMessage', this.externalMessage);
+    return this.getAll();
   }
 
   /**
@@ -41,7 +83,7 @@ class MessageService {
    */
   setTimerText(payload: string) {
     this.timerMessage.text = payload;
-    eventStore.set('timerMessage', this.timerMessage);
+    this.throttledSet('timerMessage', this.timerMessage);
     return this.getAll();
   }
 
@@ -50,7 +92,7 @@ class MessageService {
    */
   setTimerVisibility(status: boolean) {
     this.timerMessage.visible = status;
-    eventStore.set('timerMessage', this.timerMessage);
+    this.throttledSet('timerMessage', this.timerMessage);
     return this.getAll();
   }
 
@@ -59,7 +101,7 @@ class MessageService {
    */
   setPublicText(payload: string) {
     this.publicMessage.text = payload;
-    eventStore.set('publicMessage', this.publicMessage);
+    this.throttledSet('publicMessage', this.publicMessage);
     return this.getAll();
   }
 
@@ -68,7 +110,7 @@ class MessageService {
    */
   setPublicVisibility(status: boolean) {
     this.publicMessage.visible = status;
-    eventStore.set('publicMessage', this.publicMessage);
+    this.throttledSet('publicMessage', this.publicMessage);
     return this.getAll();
   }
 
@@ -77,7 +119,7 @@ class MessageService {
    */
   setLowerText(payload: string) {
     this.lowerMessage.text = payload;
-    eventStore.set('lowerMessage', this.lowerMessage);
+    this.throttledSet('lowerMessage', this.lowerMessage);
     return this.getAll();
   }
 
@@ -86,7 +128,7 @@ class MessageService {
    */
   setLowerVisibility(status: boolean) {
     this.lowerMessage.visible = status;
-    eventStore.set('lowerMessage', this.lowerMessage);
+    this.throttledSet('lowerMessage', this.lowerMessage);
     return this.getAll();
   }
 
@@ -99,7 +141,35 @@ class MessageService {
     } else {
       this.onAir = status;
     }
-    eventStore.set('onAir', this.onAir);
+    this.throttledSet('onAir', this.onAir);
+    return this.getAll();
+  }
+
+  /**
+   * @description set state of timer blink, toggles if parameters are offered
+   */
+
+  setTimerBlink(status?: boolean) {
+    if (typeof status === 'undefined') {
+      this.timerMessage.timerBlink = !this.timerMessage.timerBlink;
+    } else {
+      this.timerMessage.timerBlink = status;
+    }
+    this.throttledSet('timerMessage', this.timerMessage);
+    return this.getAll();
+  }
+
+  /**
+   * @description set state of timer blackout, toggles if parameters are offered
+   */
+
+  setTimerBlackout(status?: boolean) {
+    if (typeof status === 'undefined') {
+      this.timerMessage.timerBlackout = !this.timerMessage.timerBlackout;
+    } else {
+      this.timerMessage.timerBlackout = status;
+    }
+    this.throttledSet('timerMessage', this.timerMessage);
     return this.getAll();
   }
 

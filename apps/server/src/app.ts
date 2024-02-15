@@ -1,19 +1,26 @@
+import { HttpSettings, LogOrigin, OSCSettings } from 'ontime-types';
+
 import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
-import http from 'http';
+import http, { type Server } from 'http';
 import cors from 'cors';
 
 // import utils
 import { join, resolve } from 'path';
-
-import { currentDirectory, environment, externalsStartDirectory, isProduction, resolvedPath } from './setup.js';
+import {
+  currentDirectory,
+  environment,
+  isProduction,
+  resolveExternalsDirectory,
+  resolveStylesDirectory,
+  resolvedPath,
+} from './setup.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { OSCSettings } from 'ontime-types';
 
 // Import Routes
 import { router as rundownRouter } from './routes/rundownRouter.js';
-import { router as eventDataRouter } from './routes/eventDataRouter.js';
+import { router as projectRouter } from './routes/projectRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as playbackRouter } from './routes/playbackRouter.js';
 
@@ -29,8 +36,13 @@ import { eventLoader } from './classes/event-loader/EventLoader.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
+import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore, getInitialPayload } from './stores/EventStore.js';
+import { PlaybackService } from './services/PlaybackService.js';
+import { RestorePoint, restoreService } from './services/RestoreService.js';
+import { messageService } from './services/message-service/MessageService.js';
+import { populateDemo } from './modules/loadDemo.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -55,12 +67,16 @@ app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
 app.use('/events', rundownRouter);
-app.use('/eventdata', eventDataRouter);
+app.use('/project', projectRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/playback', playbackRouter);
 
 // serve static - css
-app.use('/external', express.static(externalsStartDirectory));
+app.use('/external/styles', express.static(resolveStylesDirectory));
+app.use('/external/', express.static(resolveExternalsDirectory));
+app.use('/external', (req, res) => {
+  res.status(404).send(`${req.originalUrl} not found`);
+});
 
 // serve static - react, in dev/test mode we fetch the React app from module
 const reactAppPath = join(currentDirectory, resolvedPath());
@@ -104,8 +120,8 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitAssets;
-let expressServer = null;
-let oscServer = null;
+let expressServer: Server | null = null;
+let oscServer: OscServer | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
@@ -122,6 +138,7 @@ export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
   await dbLoadingProcess;
   populateStyles();
+  populateDemo();
 };
 
 /**
@@ -131,24 +148,37 @@ export const initAssets = async () => {
 export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
 
-  const serverPort = 4001; // hardcoded for now
+  const { serverPort } = DataProvider.getSettings();
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
   expressServer = http.createServer(app);
 
   socket.init(expressServer);
+  eventLoader.init();
+
+  // load restore point if it exists
+  const maybeRestorePoint = restoreService.load();
+
+  if (maybeRestorePoint) {
+    logger.info(LogOrigin.Server, 'Found resumable state');
+    PlaybackService.resume(maybeRestorePoint);
+  }
+
+  eventTimer.setRestoreCallback(async (newState: RestorePoint) => restoreService.save(newState));
 
   // provide initial payload to event store
-  eventLoader.init();
-  eventStore.init(getInitialPayload());
+  const initialPayload = getInitialPayload();
+  eventStore.init(initialPayload);
+
+  // eventStore set is a dependency of the services that publish to it
+  messageService.init(eventStore.set.bind(eventStore));
 
   expressServer.listen(serverPort, '0.0.0.0');
 
-  return returnMessage;
+  return { message: returnMessage, serverPort };
 };
 
 /**
- * @description starts OSC server
  * @description starts OSC server
  * @param overrideConfig
  * @return {Promise<void>}
@@ -159,7 +189,7 @@ export const startOSCServer = async (overrideConfig = null) => {
   const { osc } = DataProvider.getData();
 
   if (!osc.enabledIn) {
-    logger.info('RX', 'OSC Input Disabled');
+    logger.info(LogOrigin.Rx, 'OSC Input Disabled');
     return;
   }
 
@@ -170,27 +200,37 @@ export const startOSCServer = async (overrideConfig = null) => {
   };
 
   // Start OSC Server
-  logger.info('RX', `Starting OSC Server on port: ${oscSettings.portIn}`);
+  logger.info(LogOrigin.Rx, `Starting OSC Server on port: ${oscSettings.portIn}`);
   oscServer = new OscServer(oscSettings);
 };
 
 /**
  * starts integrations
  */
-export const startIntegrations = async (config?: { osc: OSCSettings }) => {
+export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpSettings }) => {
   checkStart(OntimeStartOrder.InitIO);
 
-  const { osc } = config ?? DataProvider.getData();
+  const { osc, http } = config ?? DataProvider.getData();
 
   if (!osc) {
     return 'OSC Invalid configuration';
+  } else {
+    const { success, message } = oscIntegration.init(osc);
+    logger.info(LogOrigin.Tx, message);
+
+    if (success) {
+      integrationService.register(oscIntegration);
+    }
   }
+  if (!http) {
+    return 'HTTP Invalid configuration';
+  } else {
+    const { success, message } = httpIntegration.init(http);
+    logger.info(LogOrigin.Tx, message);
 
-  const { success, message } = oscIntegration.init(osc);
-  logger.info('RX', message);
-
-  if (success) {
-    integrationService.register(oscIntegration);
+    if (success) {
+      integrationService.register(httpIntegration);
+    }
   }
 };
 
@@ -201,6 +241,14 @@ export const startIntegrations = async (config?: { osc: OSCSettings }) => {
  */
 export const shutdown = async (exitCode = 0) => {
   console.log(`Ontime shutting down with code ${exitCode}`);
+
+  // clear the restore file if it was a normal exit
+  // 0 means it was a SIGNAL
+  // 1 means crash -> keep the file
+  // 99 means it was the UI
+  if (exitCode === 0 || exitCode === 99) {
+    await restoreService.clear();
+  }
 
   expressServer?.close();
   oscServer?.shutdown();
@@ -214,12 +262,12 @@ export const shutdown = async (exitCode = 0) => {
 process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
-  logger.error('SERVER', `Error: unhandled rejection ${error}`);
+  logger.error(LogOrigin.Server, `Error: unhandled rejection ${error}`);
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error) => {
-  logger.error('SERVER', `Error: uncaught exception ${error}`);
+  logger.error(LogOrigin.Server, `Error: uncaught exception ${error}`);
   await shutdown(1);
 });
 

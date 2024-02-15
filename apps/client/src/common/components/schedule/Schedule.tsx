@@ -1,19 +1,19 @@
-import Empty from '../state/Empty';
-
 import { useSchedule } from './ScheduleContext';
 import ScheduleItem from './ScheduleItem';
 
 import './Schedule.scss';
 
 interface ScheduleProps {
+  isProduction?: boolean;
   className?: string;
 }
 
-export default function Schedule({ className }: ScheduleProps) {
+export default function Schedule({ isProduction, className }: ScheduleProps) {
   const { paginatedEvents, selectedEventId, isBackstage, scheduleType } = useSchedule();
 
+  // TODO: design a nice placeholder for empty schedules
   if (paginatedEvents?.length < 1) {
-    return <Empty text='No events to show' />;
+    return null;
   }
 
   let selectedState: 'past' | 'now' | 'future' = 'past';
@@ -30,12 +30,16 @@ export default function Schedule({ className }: ScheduleProps) {
             selectedState = 'future';
           }
         }
+
+        const timeStart = isProduction ? event.timeStart + (event?.delay ?? 0) : event.timeStart;
+        const timeEnd = isProduction ? event.timeEnd + (event?.delay ?? 0) : event.timeEnd;
+
         return (
           <ScheduleItem
             key={event.id}
             selected={selectedState}
-            timeStart={event.timeStart}
-            timeEnd={event.timeEnd}
+            timeStart={timeStart}
+            timeEnd={timeEnd}
             title={event.title}
             colour={isBackstage ? event.colour : ''}
             backstageEvent={!event.isPublic}

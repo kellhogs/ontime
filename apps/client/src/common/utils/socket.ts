@@ -1,20 +1,28 @@
 import { Log, RuntimeStore } from 'ontime-types';
 
-import { RUNTIME, websocketUrl } from '../api/apiConstants';
+import { isProduction, RUNTIME, websocketUrl } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
+import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';
 import { runtime } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 const reconnectInterval = 1000;
-let shouldReconnect = true;
-
-export const connectSocket = () => {
+export let shouldReconnect = true;
+export let hasConnected = false;
+export let reconnectAttempts = 0;
+export const connectSocket = (preferredClientName?: string) => {
   websocket = new WebSocket(websocketUrl);
 
   websocket.onopen = () => {
     clearTimeout(reconnectTimeout as NodeJS.Timeout);
+    hasConnected = true;
+    reconnectAttempts = 0;
+
+    if (preferredClientName) {
+      socketSendJson('set-client-name', preferredClientName);
+    }
   };
 
   websocket.onclose = () => {
@@ -23,6 +31,7 @@ export const connectSocket = () => {
       reconnectTimeout = setTimeout(() => {
         console.warn('WebSocket: attempting reconnect');
         if (websocket && websocket.readyState === WebSocket.CLOSED) {
+          reconnectAttempts += 1;
           connectSocket();
         }
       }, reconnectInterval);
@@ -45,13 +54,17 @@ export const connectSocket = () => {
 
       // TODO: implement partial store updates
       switch (type) {
+        case 'client-name': {
+          socketClientName.getState().setName(payload);
+          break;
+        }
         case 'ontime-log': {
           addLog(payload as Log);
           break;
         }
         case 'ontime': {
           runtime.setState(payload as RuntimeStore);
-          if (import.meta.env.DEV) {
+          if (!isProduction) {
             ontimeQueryClient.setQueryData(RUNTIME, data.payload);
           }
           break;
@@ -71,18 +84,6 @@ export const connectSocket = () => {
         case 'ontime-loaded': {
           const state = runtime.getState();
           state.loaded = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-titles': {
-          const state = runtime.getState();
-          state.titles = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-titlesPublic': {
-          const state = runtime.getState();
-          state.titlesPublic = payload;
           runtime.setState(state);
           break;
         }
@@ -128,7 +129,7 @@ export const socketSend = (message: any) => {
   }
 };
 
-export const socketSendJson = (type: string, payload?: any) => {
+export const socketSendJson = (type: string, payload?: unknown) => {
   socketSend(
     JSON.stringify({
       type,

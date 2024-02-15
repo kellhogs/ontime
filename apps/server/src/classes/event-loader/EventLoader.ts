@@ -1,4 +1,4 @@
-import { Loaded, OntimeEvent, TitleBlock } from 'ontime-types';
+import { Loaded, OntimeEvent, SupportedEvent } from 'ontime-types';
 
 import { DataProvider } from '../data-provider/DataProvider.js';
 import { getRollTimers } from '../../services/rollUtils.js';
@@ -10,10 +10,11 @@ let instance;
  * Manages business logic around loading events
  */
 export class EventLoader {
-  loadedEvent: OntimeEvent | null;
   loaded: Loaded;
-  titles: TitleBlock;
-  titlesPublic: TitleBlock;
+  eventNow: OntimeEvent | null;
+  publicEventNow: OntimeEvent | null;
+  eventNext: OntimeEvent | null;
+  publicEventNext: OntimeEvent | null;
 
   constructor() {
     if (instance) {
@@ -22,6 +23,18 @@ export class EventLoader {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
+    this.eventNow = null;
+    this.publicEventNow = null;
+    this.eventNext = null;
+    this.publicEventNext = null;
+    this.loaded = {
+      selectedEventIndex: null,
+      selectedEventId: null,
+      selectedPublicEventId: null,
+      nextEventId: null,
+      nextPublicEventId: null,
+      numEvents: 0,
+    };
   }
 
   // we need to delay init until the store is ready
@@ -34,8 +47,7 @@ export class EventLoader {
    * @return {array}
    */
   static getTimedEvents(): OntimeEvent[] {
-    // return mockLoaderData.filter((event) => event.type === 'event');
-    return DataProvider.getRundown().filter((event) => event.type === 'event');
+    return DataProvider.getRundown().filter((event) => event.type === SupportedEvent.Event) as OntimeEvent[];
   }
 
   /**
@@ -43,8 +55,9 @@ export class EventLoader {
    * @return {array}
    */
   static getPlayableEvents(): OntimeEvent[] {
-    // return mockLoaderData.filter((event) => event.type === 'event' && !event.skip);
-    return DataProvider.getRundown().filter((event) => event.type === 'event' && !event.skip);
+    return DataProvider.getRundown().filter(
+      (event) => event.type === SupportedEvent.Event && !event.skip,
+    ) as OntimeEvent[];
   }
 
   /**
@@ -56,7 +69,7 @@ export class EventLoader {
   }
 
   /**
-   * returns an event given its index
+   * returns an event given its index after filtering for OntimeEvents
    * @param {number} eventIndex
    * @return {OntimeEvent | undefined}
    */
@@ -66,23 +79,23 @@ export class EventLoader {
   }
 
   /**
-   * returns an event given its index
-   * @param {number} eventIndex
-   * @return {object | undefined}
-   */
-  static getPlayableAtIndex(eventIndex) {
-    const timedEvents = EventLoader.getPlayableEvents();
-    return timedEvents?.[eventIndex];
-  }
-
-  /**
    * returns an event given its id
    * @param {string} eventId
    * @return {object | undefined}
    */
-  static getEventWithId(eventId) {
+  static getEventWithId(eventId): OntimeEvent | undefined {
     const timedEvents = EventLoader.getTimedEvents();
     return timedEvents.find((event) => event.id === eventId);
+  }
+
+  /**
+   * returns first event given its cue
+   * @param {string} cue
+   * @return {object | undefined}
+   */
+  static getEventWithCue(cue) {
+    const timedEvents = EventLoader.getTimedEvents();
+    return timedEvents.find((event) => event.cue === cue);
   }
 
   /**
@@ -157,16 +170,20 @@ export class EventLoader {
       timeNow,
     );
 
-    this.loadedEvent = currentEvent;
+    // load events
+    this.eventNow = currentEvent;
+    this.publicEventNow = currentPublicEvent;
+    this.eventNext = nextEvent;
+    this.publicEventNext = nextPublicEvent;
+
+    // loaded data summary
     this.loaded.selectedEventIndex = nowIndex;
     this.loaded.selectedEventId = currentEvent?.id || null;
     this.loaded.numEvents = timedEvents.length;
+    this.loaded.nextEventId = nextEvent?.id || null;
+    this.loaded.nextPublicEventId = nextPublicEvent?.id || null;
 
-    // titles
-    this._loadThisTitles(currentEvent, 'now-private');
-    this._loadThisTitles(currentPublicEvent, 'now-public');
-    this._loadThisTitles(nextEvent, 'next-private');
-    this._loadThisTitles(nextPublicEvent, 'next-public');
+    this._loadEvent();
 
     return { currentEvent, nextEvent, timeToNext };
   }
@@ -177,10 +194,11 @@ export class EventLoader {
    */
   getLoaded() {
     return {
-      loadedEvent: this.loadedEvent,
       loaded: this.loaded,
-      titles: this.titles,
-      titlesPublic: this.titlesPublic,
+      eventNow: this.eventNow,
+      publicEventNow: this.publicEventNow,
+      eventNext: this.eventNext,
+      publicEventNext: this.publicEventNext,
     };
   }
 
@@ -196,7 +214,10 @@ export class EventLoader {
    * Resets instance state
    */
   reset(emit = true) {
-    this.loadedEvent = null;
+    this.eventNow = null;
+    this.publicEventNow = null;
+    this.eventNext = null;
+    this.publicEventNext = null;
     this.loaded = {
       selectedEventIndex: null,
       selectedEventId: null,
@@ -204,26 +225,6 @@ export class EventLoader {
       nextEventId: null,
       nextPublicEventId: null,
       numEvents: EventLoader.getPlayableEvents().length,
-    };
-    this.titles = {
-      titleNow: null,
-      subtitleNow: null,
-      presenterNow: null,
-      noteNow: null,
-      titleNext: null,
-      subtitleNext: null,
-      presenterNext: null,
-      noteNext: null,
-    };
-    this.titlesPublic = {
-      titleNow: null,
-      subtitleNow: null,
-      presenterNow: null,
-      noteNow: null,
-      titleNext: null,
-      subtitleNext: null,
-      presenterNext: null,
-      noteNext: null,
     };
 
     // workaround for socket not being ready in constructor
@@ -236,7 +237,7 @@ export class EventLoader {
    * loads an event given its id
    * @param {object} event
    */
-  loadEvent(event) {
+  loadEvent(event?: OntimeEvent) {
     if (typeof event === 'undefined') {
       return null;
     }
@@ -245,13 +246,12 @@ export class EventLoader {
     const playableEvents = EventLoader.getPlayableEvents();
 
     // we know some stuff now
-    this.loadedEvent = event;
     this.loaded.selectedEventIndex = eventIndex;
     this.loaded.selectedEventId = event.id;
     this.loaded.numEvents = timedEvents.length;
-    // this.nextEventId = playableEvents[eventIndex + 1].id;
-    this._loadTitlesNow(event, playableEvents);
-    this._loadTitlesNext(playableEvents);
+    this.eventNow = event;
+    this._loadEventNow(event, playableEvents);
+    this._loadEventNext(playableEvents);
 
     this._loadEvent();
 
@@ -264,29 +264,29 @@ export class EventLoader {
   private _loadEvent() {
     eventStore.batchSet({
       loaded: this.loaded,
-      titles: this.titles,
-      titlesPublic: this.titlesPublic,
+      eventNow: this.eventNow,
+      publicEventNow: this.publicEventNow,
+      eventNext: this.eventNext,
+      publicEventNext: this.publicEventNext,
     });
   }
 
   /**
-   * @description loads given title (now)
+   * @description loads currently running events
    * @private
    * @param {object} event
    * @param {array} rundown
    */
-  private _loadTitlesNow(event, rundown) {
-    // private title is always current
+  private _loadEventNow(event, rundown) {
+    this.eventNow = event;
+
     // check if current is also public
     if (event.isPublic) {
-      this._loadThisTitles(event, 'now');
+      this.publicEventNow = event;
+      this.loaded.selectedPublicEventId = event.id;
     } else {
-      this._loadThisTitles(event, 'now-private');
-
       // assume there is no public event
-      this.titlesPublic.titleNow = null;
-      this.titlesPublic.subtitleNow = null;
-      this.titlesPublic.presenterNow = null;
+      this.publicEventNow = null;
       this.loaded.selectedPublicEventId = null;
 
       // if there is nothing before, return
@@ -295,7 +295,8 @@ export class EventLoader {
       // iterate backwards to find it
       for (let i = this.loaded.selectedEventIndex; i >= 0; i--) {
         if (rundown[i].isPublic) {
-          this._loadThisTitles(rundown[i], 'now-public');
+          this.publicEventNow = rundown[i];
+          this.loaded.selectedPublicEventId = rundown[i].id;
           break;
         }
       }
@@ -303,130 +304,42 @@ export class EventLoader {
   }
 
   /**
-   * @description look for next titles to load
+   * @description look for next events
    * @private
    */
-  private _loadTitlesNext(rundown) {
-    // maybe there is nothing to load
-    if (this.loaded.selectedEventIndex === null) return;
-
-    // assume there is no next event
-    this.titles.titleNext = null;
-    this.titles.subtitleNext = null;
-    this.titles.presenterNext = null;
-    this.titles.noteNext = null;
+  private _loadEventNext(rundown) {
+    // assume there are no next events
+    this.eventNext = null;
+    this.publicEventNext = null;
     this.loaded.nextEventId = null;
-
-    this.titlesPublic.titleNext = null;
-    this.titlesPublic.subtitleNext = null;
-    this.titlesPublic.presenterNext = null;
     this.loaded.nextPublicEventId = null;
+
+    if (this.loaded.selectedEventIndex === null) return;
 
     const numEvents = rundown.length;
 
     if (this.loaded.selectedEventIndex < numEvents - 1) {
       let nextPublic = false;
-      let nextPrivate = false;
+      let nextProduction = false;
 
       for (let i = this.loaded.selectedEventIndex + 1; i < numEvents; i++) {
         // if we have not set private
-        if (!nextPrivate) {
-          this._loadThisTitles(rundown[i], 'next-private');
-          nextPrivate = true;
+        if (!nextProduction) {
+          this.eventNext = rundown[i];
+          this.loaded.nextEventId = rundown[i].id;
+          nextProduction = true;
         }
 
         // if event is public
         if (rundown[i].isPublic) {
-          this._loadThisTitles(rundown[i], 'next-public');
+          this.publicEventNext = rundown[i];
+          this.loaded.nextPublicEventId = rundown[i].id;
           nextPublic = true;
         }
 
         // Stop if both are set
-        if (nextPublic && nextPrivate) break;
+        if (nextPublic && nextProduction) break;
       }
-    }
-  }
-
-  /**
-   * @description loads given title
-   * @param event
-   * @param type
-   * @private
-   */
-  private _loadThisTitles(event, type) {
-    if (!event) {
-      return;
-    }
-
-    switch (type) {
-      // now, load to both public and private
-      case 'now':
-        // public
-        this.titlesPublic.titleNow = event.title;
-        this.titlesPublic.subtitleNow = event.subtitle;
-        this.titlesPublic.presenterNow = event.presenter;
-        this.titlesPublic.noteNow = event.note;
-        this.loaded.selectedPublicEventId = event.id;
-
-        // private
-        this.titles.titleNow = event.title;
-        this.titles.subtitleNow = event.subtitle;
-        this.titles.presenterNow = event.presenter;
-        this.titles.noteNow = event.note;
-        this.loaded.selectedEventId = event.id;
-        break;
-
-      case 'now-public':
-        this.titlesPublic.titleNow = event.title;
-        this.titlesPublic.subtitleNow = event.subtitle;
-        this.titlesPublic.presenterNow = event.presenter;
-        this.titlesPublic.noteNow = event.note;
-        this.loaded.selectedPublicEventId = event.id;
-        break;
-
-      case 'now-private':
-        this.titles.titleNow = event.title;
-        this.titles.subtitleNow = event.subtitle;
-        this.titles.presenterNow = event.presenter;
-        this.titles.noteNow = event.note;
-        this.loaded.selectedEventId = event.id;
-        break;
-
-      // next, load to both public and private
-      case 'next':
-        // public
-        this.titlesPublic.titleNext = event.title;
-        this.titlesPublic.subtitleNext = event.subtitle;
-        this.titlesPublic.presenterNext = event.presenter;
-        this.titlesPublic.noteNext = event.note;
-        this.loaded.nextPublicEventId = event.id;
-
-        // private
-        this.titles.titleNext = event.title;
-        this.titles.subtitleNext = event.subtitle;
-        this.titles.presenterNext = event.presenter;
-        this.titles.noteNext = event.note;
-        this.loaded.nextEventId = event.id;
-        break;
-
-      case 'next-public':
-        this.titlesPublic.titleNext = event.title;
-        this.titlesPublic.subtitleNext = event.subtitle;
-        this.titlesPublic.presenterNext = event.presenter;
-        this.titlesPublic.noteNext = event.note;
-        this.loaded.nextPublicEventId = event.id;
-        break;
-
-      case 'next-private':
-        this.titles.titleNext = event.title;
-        this.titles.subtitleNext = event.subtitle;
-        this.titles.presenterNext = event.presenter;
-        this.titles.noteNext = event.note;
-        this.loaded.nextEventId = event.id;
-        break;
-
-      default:
-        throw new Error(`Unhandled title type: ${type}`);
     }
   }
 }

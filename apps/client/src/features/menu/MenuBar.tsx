@@ -1,5 +1,7 @@
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { VStack } from '@chakra-ui/react';
+import { IoCloud } from '@react-icons/all-files/io5/IoCloud';
+import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
@@ -10,11 +12,12 @@ import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
-import { downloadRundown } from '../../common/api/ontimeApi';
+import { downloadCSV, downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
+import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import style from './MenuBar.module.scss';
 
@@ -30,6 +33,8 @@ interface MenuBarProps {
   onAboutOpen: () => void;
   isQuickStartOpen: boolean;
   onQuickStartOpen: () => void;
+  isSheetsOpen: boolean;
+  onSheetsOpen: () => void;
 }
 
 const buttonStyle = {
@@ -57,6 +62,8 @@ const MenuBar = (props: MenuBarProps) => {
     onAboutOpen,
     isQuickStartOpen,
     onQuickStartOpen,
+    isSheetsOpen,
+    onSheetsOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
@@ -100,13 +107,30 @@ const MenuBar = (props: MenuBarProps) => {
     };
   }, [handleKeyPress, isElectron]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const onModalClose = (exportType?: ExportType) => {
+    setIsModalOpen(false);
+
+    if (!exportType) {
+      return;
+    }
+
+    if (exportType === 'json') {
+      downloadRundown();
+    } else if (exportType === 'csv') {
+      downloadCSV();
+    }
+  };
+
   return (
     <VStack>
-      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
+      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
 
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoColorWand />}
         className={isQuickStartOpen ? style.open : ''}
         clickHandler={onQuickStartOpen}
@@ -115,19 +139,25 @@ const MenuBar = (props: MenuBarProps) => {
       />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoPushOutline />}
         className={isUploadOpen ? style.open : ''}
         clickHandler={onUploadOpen}
         tooltip='Import project file'
         aria-label='Import project file'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
         icon={<IoSaveOutline />}
-        clickHandler={downloadRundown}
+        isDisabled={appMode === AppMode.Run}
+        clickHandler={() => setIsModalOpen(true)}
         tooltip='Export project file'
         aria-label='Export project file'
+        size='sm'
       />
+
+      <ExportModal onClose={onModalClose} isOpen={isModalOpen} />
 
       <div className={style.gap} />
       <TooltipActionBtn
@@ -137,6 +167,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setRunMode}
         tooltip='Run mode'
         aria-label='Run mode'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -145,24 +176,39 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setEditMode}
         tooltip='Edit mode'
         aria-label='Edit mode'
+        size='sm'
       />
 
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
+        icon={isSheetsOpen ? <IoCloud /> : <IoCloudOutline />}
+        className={isSheetsOpen ? style.open : ''}
+        clickHandler={onSheetsOpen}
+        tooltip='Sheets'
+        aria-label='Sheets'
+        size='sm'
+      />
+      <TooltipActionBtn
+        {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={isIntegrationOpen ? <IoExtensionPuzzle /> : <IoExtensionPuzzleOutline />}
         className={isIntegrationOpen ? style.open : ''}
         clickHandler={onIntegrationOpen}
         tooltip='Integrations'
         aria-label='Integrations'
+        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
+        isDisabled={appMode === AppMode.Run}
         icon={<IoSettingsOutline />}
         className={isSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
         tooltip='Settings'
         aria-label='Settings'
+        size='sm'
       />
       <div className={style.gap} />
       <TooltipActionBtn
@@ -172,6 +218,7 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onAboutOpen}
         tooltip='About'
         aria-label='About'
+        size='sm'
       />
     </VStack>
   );

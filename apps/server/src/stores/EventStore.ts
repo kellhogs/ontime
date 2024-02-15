@@ -4,6 +4,8 @@ import { eventTimer } from '../services/TimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { eventLoader } from '../classes/event-loader/EventLoader.js';
 
+export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
+
 let store: Partial<RuntimeStore> = {};
 
 /**
@@ -56,8 +58,10 @@ export const eventStore = {
  * - Message Service    lowerMessage
  * - Message Service    onAir
  * - Event Loader       loaded
- * - Event Loader       titles
- * - Event Loader       titlesPublic
+ * - Event Loader       eventNow
+ * - Event Loader       publicEventNow
+ * - Event Loader       eventNext
+ * - Event Loader       publicEventNext
  */
 
 export const getInitialPayload = () => ({
@@ -66,8 +70,11 @@ export const getInitialPayload = () => ({
   timerMessage: messageService.timerMessage,
   publicMessage: messageService.publicMessage,
   lowerMessage: messageService.lowerMessage,
+  externalMessage: messageService.externalMessage,
   onAir: messageService.onAir,
   loaded: eventLoader.loaded,
-  titles: eventLoader.titles,
-  titlesPublic: eventLoader.titlesPublic,
+  eventNow: eventLoader.eventNow,
+  publicEventNow: eventLoader.publicEventNow,
+  eventNext: eventLoader.eventNext,
+  publicEventNext: eventLoader.publicEventNext,
 });

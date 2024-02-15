@@ -1,7 +1,7 @@
 import { TimerType } from 'ontime-types';
+import { formatDisplay } from 'ontime-utils';
 
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatDisplay } from '../../../common/utils/dateConfig';
 import { formatTime } from '../../../common/utils/time';
 
 const formatOptions = {
@@ -17,7 +17,7 @@ export function getTimerByType(timerObject?: TimerTypeParams): string | number |
     return timer;
   }
 
-  if (timerObject.timerType === TimerType.CountDown) {
+  if (timerObject.timerType === TimerType.CountDown || timerObject.timerType === TimerType.TimeToEnd) {
     timer = timerObject.current;
   } else if (timerObject.timerType === TimerType.CountUp) {
     timer = timerObject.elapsed;

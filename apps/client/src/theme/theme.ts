@@ -3,6 +3,7 @@ import { extendTheme } from '@chakra-ui/react';
 import { ontimeAlertOnLight } from './OntimeAlert';
 import {
   ontimeButtonFilled,
+  ontimeButtonGhosted,
   ontimeButtonOutlined,
   ontimeButtonSubtle,
   ontimeButtonSubtleOnLight,
@@ -12,7 +13,8 @@ import {
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
-import { ontimeModal, ontimeSmallModal } from './ontimeModal';
+import { ontimeModal, ontimeSmallModal, ontimeUploadModal } from './ontimeModal';
+import { ontimeProgressGray } from './OntimeProgress';
 import { ontimeBlockRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
 import { lightSwitch, ontimeSwitch } from './ontimeSwitch';
@@ -22,6 +24,7 @@ import {
   ontimeInputFilledOnLight,
   ontimeTextAreaFilled,
   ontimeTextAreaFilledOnLight,
+  ontimeTextAreaTransparent,
 } from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
 
@@ -42,6 +45,7 @@ const theme = extendTheme({
         'ontime-filled': { ...ontimeButtonFilled },
         'ontime-outlined': { ...ontimeButtonOutlined },
         'ontime-subtle': { ...ontimeButtonSubtle },
+        'ontime-ghosted': { ...ontimeButtonGhosted },
         'ontime-subtle-white': { ...ontimeButtonSubtleWhite },
         'ontime-subtle-on-light': { ...ontimeButtonSubtleOnLight },
         'ontime-ghost-on-light': { ...ontimeGhostOnLight },
@@ -76,6 +80,12 @@ const theme = extendTheme({
       variants: {
         ontime: { ...ontimeModal },
         'ontime-small': { ...ontimeSmallModal },
+        'ontime-upload': { ...ontimeUploadModal },
+      },
+    },
+    Progress: {
+      variants: {
+        'ontime-on-light': { ...ontimeProgressGray },
       },
     },
     Radio: {
@@ -94,6 +104,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
+        'ontime-transparent': { ...ontimeTextAreaTransparent },
         'ontime-filled-on-light': { ...ontimeTextAreaFilledOnLight },
       },
     },

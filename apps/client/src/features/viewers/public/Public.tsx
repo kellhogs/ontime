@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EventData, Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -9,12 +9,14 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import { getPublicOptions } from '../../../common/components/view-params-editor/constants';
+import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
-import { TitleManager } from '../ViewWrapper';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Public.scss';
 
@@ -26,16 +28,29 @@ const formatOptions = {
 interface BackstageProps {
   isMirrored: boolean;
   publ: Message;
-  publicTitle: TitleManager;
+  publicEventNow: OntimeEvent | null;
+  publicEventNext: OntimeEvent | null;
   time: TimeManagerType;
   events: OntimeEvent[];
   publicSelectedId: string | null;
-  general: EventData;
+  general: ProjectData;
   viewSettings: ViewSettings;
+  settings: Settings | undefined;
 }
 
 export default function Public(props: BackstageProps) {
-  const { isMirrored, publ, publicTitle, time, events, publicSelectedId, general, viewSettings } = props;
+  const {
+    isMirrored,
+    publ,
+    publicEventNow,
+    publicEventNext,
+    time,
+    events,
+    publicSelectedId,
+    general,
+    viewSettings,
+    settings,
+  } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
 
@@ -52,21 +67,23 @@ export default function Public(props: BackstageProps) {
   const clock = formatTime(time.clock, formatOptions);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
+  const publicOptions = getPublicOptions(settings?.timeFormat ?? '24');
+
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
       <NavigationMenu />
-
-      <div className='event-header'>
+      <ViewParamsEditor paramFields={publicOptions} />
+      <div className='project-header'>
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
-          <div className='time'>{clock}</div>
+          <SuperscriptTime time={clock} className='time' />
         </div>
       </div>
 
       <div className='now-container'>
         <AnimatePresence>
-          {publicTitle.showNow && (
+          {publicEventNow && (
             <motion.div
               className='event now'
               key='now'
@@ -77,16 +94,16 @@ export default function Public(props: BackstageProps) {
             >
               <TitleCard
                 label='now'
-                title={publicTitle.titleNow}
-                subtitle={publicTitle.subtitleNow}
-                presenter={publicTitle.presenterNow}
+                title={publicEventNow.title}
+                subtitle={publicEventNow.subtitle}
+                presenter={publicEventNow.presenter}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {publicTitle.showNext && (
+          {publicEventNext && (
             <motion.div
               className='event next'
               key='next'
@@ -97,9 +114,9 @@ export default function Public(props: BackstageProps) {
             >
               <TitleCard
                 label='next'
-                title={publicTitle.titleNext}
-                subtitle={publicTitle.subtitleNext}
-                presenter={publicTitle.presenterNext}
+                title={publicEventNext.title}
+                subtitle={publicEventNext.subtitle}
+                presenter={publicEventNext.presenter}
               />
             </motion.div>
           )}

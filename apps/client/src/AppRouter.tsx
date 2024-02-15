@@ -1,11 +1,12 @@
-import { lazy, Suspense, useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
-import useAliases from './common/hooks-query/useAliases';
+import withAlias from './features/AliasWrapper';
 import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
-const Table = lazy(() => import('./features/table/ProtectedTable'));
+const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
+const Operator = lazy(() => import('./features/operator/Operator'));
 
 const TimerView = lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
@@ -17,14 +18,14 @@ const Public = lazy(() => import('./features/viewers/public/Public'));
 const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerWrapper'));
 const StudioClock = lazy(() => import('./features/viewers/studio/StudioClock'));
 
-const STimer = withData(TimerView);
-const SMinimalTimer = withData(MinimalTimerView);
-const SClock = withData(ClockView);
-const SCountdown = withData(Countdown);
-const SBackstage = withData(Backstage);
-const SPublic = withData(Public);
-const SLowerThird = withData(Lower);
-const SStudio = withData(StudioClock);
+const STimer = withAlias(withData(TimerView));
+const SMinimalTimer = withAlias(withData(MinimalTimerView));
+const SClock = withAlias(withData(ClockView));
+const SCountdown = withAlias(withData(Countdown));
+const SBackstage = withAlias(withData(Backstage));
+const SPublic = withAlias(withData(Public));
+const SLowerThird = withAlias(withData(Lower));
+const SStudio = withAlias(withData(StudioClock));
 
 const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'));
 const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));
@@ -33,22 +34,6 @@ const MessageControl = lazy(() => import('./features/control/message/MessageCont
 const Info = lazy(() => import('./features/info/InfoExport'));
 
 export default function AppRouter() {
-  const { data } = useAliases();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // navigate if is alias route
-  useEffect(() => {
-    if (!data) return;
-
-    for (const d of data) {
-      if (`/${d.alias}` === location.pathname && d.enabled) {
-        navigate(`/${d.pathAndParams}`);
-        break;
-      }
-    }
-  }, [data, location, navigate]);
-
   return (
     <Suspense fallback={null}>
       <Routes>
@@ -74,11 +59,14 @@ export default function AppRouter() {
         {/*/!* Lower cannot have fallback *!/*/}
         <Route path='/lower' element={<SLowerThird />} />
 
+        <Route path='/op' element={<Operator />} />
+        <Route path='/operator' element={<Operator />} />
+
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<Table />} />
-        <Route path='/cuelist' element={<Table />} />
-        <Route path='/table' element={<Table />} />
+        <Route path='/cuesheet' element={<Cuesheet />} />
+        <Route path='/cuelist' element={<Cuesheet />} />
+        <Route path='/table' element={<Cuesheet />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route

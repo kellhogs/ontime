@@ -13,11 +13,21 @@ export const useRundownEditor = () => {
   return useRuntimeStore(featureSelector, deepCompare);
 };
 
+export const useOperator = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.playback,
+    selectedEventId: state.loaded.selectedEventId,
+  });
+
+  return useRuntimeStore(featureSelector, deepCompare);
+};
+
 export const useMessageControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     timerMessage: state.timerMessage,
     publicMessage: state.publicMessage,
     lowerMessage: state.lowerMessage,
+    externalMessage: state.externalMessage,
     onAir: state.onAir,
   });
 
@@ -31,7 +41,11 @@ export const setMessage = {
   publicVisible: (payload: boolean) => socketSendJson('set-public-message-visible', payload),
   lowerText: (payload: string) => socketSendJson('set-lower-message-text', payload),
   lowerVisible: (payload: boolean) => socketSendJson('set-lower-message-visible', payload),
+  externalText: (payload: string) => socketSendJson('set-external-message-text', payload),
+  externalVisible: (payload: boolean) => socketSendJson('set-external-message-visible', payload),
   onAir: (payload: boolean) => socketSendJson('set-onAir', payload),
+  timerBlink: (payload: boolean) => socketSendJson('set-timer-blink', payload),
+  timerBlackout: (payload: boolean) => socketSendJson('set-timer-blackout', payload),
 };
 
 export const usePlaybackControl = () => {
@@ -61,14 +75,15 @@ export const setPlayback = {
   reload: () => {
     socketSendJson('reload');
   },
-  delay: (amount: number) => {
-    socketSendJson('delay', amount);
+  addTime: (amount: number) => {
+    socketSendJson('addtime', amount);
   },
 };
 
 export const useInfoPanel = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    titles: state.titles,
+    eventNow: state.eventNow,
+    eventNext: state.eventNext,
     playback: state.playback,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
@@ -83,7 +98,7 @@ export const useCuesheet = () => {
     selectedEventId: state.loaded.selectedEventId,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
-    titleNow: state.titles.titleNow,
+    titleNow: state.eventNow?.title || '',
   });
 
   return useRuntimeStore(featureSelector, deepCompare);
@@ -103,3 +118,5 @@ export const useTimer = () => {
 
   return useRuntimeStore(featureSelector, deepCompare);
 };
+
+export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);

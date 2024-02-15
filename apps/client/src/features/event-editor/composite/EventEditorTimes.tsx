@@ -1,13 +1,12 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { calculateDuration, dayInMs, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
-import { calculateDuration, TimeEntryField, validateEntry } from '../../../common/utils/timesManager';
 
 import style from '../EventEditor.module.scss';
 
@@ -29,21 +28,13 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType } = props;
   const { updateEvent } = useEventAction();
 
-  const [warning, setWarnings] = useState({ start: '', end: '', duration: '' });
-
-  const timerValidationHandler = (entry: TimeEntryField, val: number) => {
-    const valid = validateEntry(entry, val, timeStart, timeEnd);
-    setWarnings((prev) => ({ ...prev, ...valid.warnings }));
-    return valid.value;
-  };
-
   const handleSubmit = (field: TimeActions, value: number | string | boolean) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
     switch (field) {
       case 'durationOverride': {
         // duration defines timeEnd
         newEventData.duration = value as number;
-        newEventData.timeEnd = timeStart + (value as number);
+        newEventData.timeEnd = timeStart + ((value as number) % dayInMs);
         break;
       }
       case 'timeStart': {
@@ -80,34 +71,37 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   return (
     <div className={style.timeOptions}>
       <div className={style.timers}>
-        <label className={inputTimeLabels}>{startLabel}</label>
+        <label className={inputTimeLabels} htmlFor='timeStart'>
+          {startLabel}
+        </label>
         <TimeInput
+          id='timeStart'
           name='timeStart'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeStart}
           delay={delay}
           placeholder='Start'
-          warning={warning.start}
         />
-        <label className={inputTimeLabels}>{endLabel}</label>
+        <label className={inputTimeLabels} htmlFor='timeEnd'>
+          {endLabel}
+        </label>
         <TimeInput
+          id='timeEnd'
           name='timeEnd'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={timeEnd}
           delay={delay}
           placeholder='End'
-          warning={warning.end}
         />
-        <label className={style.inputLabel}>Duration</label>
+        <label className={style.inputLabel} htmlFor='durationOverride'>
+          Duration
+        </label>
         <TimeInput
+          id='durationOverride'
           name='durationOverride'
           submitHandler={handleSubmit}
-          validationHandler={timerValidationHandler}
           time={duration}
           placeholder='Duration'
-          warning={warning.duration}
         />
       </div>
       <div className={style.timeSettings}>
@@ -121,6 +115,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         >
           <option value={TimerType.CountDown}>Count down</option>
           <option value={TimerType.CountUp}>Count up</option>
+          <option value={TimerType.TimeToEnd}>Time to end</option>
           <option value={TimerType.Clock}>Clock</option>
         </Select>
         <label className={style.inputLabel}>End Action</label>

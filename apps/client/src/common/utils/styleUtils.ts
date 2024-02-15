@@ -3,27 +3,29 @@ import Color from 'color';
 type ColourCombination = {
   backgroundColor: string;
   color: string;
-}
+};
 
 /**
  * @description Selects text colour to maintain accessible contrast
  * @param bgColour
  * @return {{backgroundColor, color: string}}
  */
-export const getAccessibleColour = (bgColour: string): ColourCombination => {
+export const getAccessibleColour = (bgColour?: string): ColourCombination => {
   if (bgColour) {
     try {
-      const textColor = Color(bgColour).isLight() ? 'black' : '#fffffa';
-      return { backgroundColor: bgColour, color: textColor };
-    } catch (error) {
-      console.log(`Unable to parse colour: ${bgColour}`);
+      const originalColour = Color(bgColour);
+      const backgroundColorMix = originalColour.alpha(1).mix(Color('#1a1a1a'), 1 - originalColour.alpha());
+      const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
+      return { backgroundColor: backgroundColorMix.hexa(), color: textColor };
+    } catch (_error) {
+      /* we do not handle errors here */
     }
   }
-  return { backgroundColor: '#000', color: "#fffffa" };
+  return { backgroundColor: '#1a1a1a', color: '#fffffa' };
 };
 
 /**
  * @description Creates a list of classnames from array of css module conditions
  * @param classNames - css modules objects
  */
-export const cx = (classNames: any[]) => classNames.filter(Boolean).join(" ");
+export const cx = (classNames: any[]) => classNames.filter(Boolean).join(' ');
